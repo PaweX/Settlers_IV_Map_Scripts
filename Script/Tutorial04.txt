@@ -1,0 +1,745 @@
+ --------------------------------------------------------------------------------
+--
+--	TUTORIAL 4 	22.01.01 16:55
+-- 
+--------------------------------------------------------------------------------
+
+ 
+--------------------------------------------------------------------------------
+--
+--	globals
+--
+--------------------------------------------------------------------------------
+gActiveMenu = -1		
+gTutorialStep =1		
+gSpaceOk = 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gCommandOk = 1
+gSettlerCount = 0
+gWantedSettler = -1
+gGoodCountOne = 0
+gGoodCountTwo = 0
+gSetText0 = "TUT_04_001_R" 
+gSetText1 = "TUT_NEXT"  
+LastText0 = 0
+LastText1 = 0
+
+----------------------------------------------------------------------------------
+function DummyVictoryCheck()
+end
+----------------------------------------------------------------------------------
+function OnDragBuilding(type)
+    if gWantedBuilding == -1 then
+        return
+    end
+
+	if (gWantedBuilding == type) then
+        gTutorialStep = gTutorialStep+1
+        gWantedBuilding = -1
+    end
+end
+
+-------------------------------------------------------------------------------
+
+function OnCommand(command)
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+		OnSpace()
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		Map.SetScreenPos(184,194)
+		Tutorial.SetZoom(17)
+		Tutorial.ClearMarker()
+		gCommandOk = 0
+		
+				
+		if gTutorialStep ~= 15  then
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL)
+		end
+			
+		if gTutorialStep == 5  then
+			Tutorial.SetMarker(165,381)
+			Tutorial.PressButton (Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_FIGURES)
+			Tutorial.PressButton (Dialog.DLG_FIGURESSUBMENU, Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION)
+			
+		elseif gTutorialStep == 12  then
+			Tutorial.SetMarker(160,310)
+			Map.SetScreenPos(160,203)
+		elseif gTutorialStep == 13  then
+			Tutorial.SetMarker(99,314)
+			Map.SetScreenPos(150,192)
+		elseif gTutorialStep == 14  then
+			Map.SetScreenPos(169,217)
+			Tutorial.SetMarker(93,363)
+		elseif gTutorialStep == 15  then
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+    			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+			Map.SetScreenPos(168,227)
+			Tutorial.SetMarker(147,477)
+		elseif gTutorialStep == 19  then
+			Map.SetScreenPos(188,236)	
+			Tutorial.SetMarker(96,428)
+		elseif gTutorialStep == 20  then
+			Map.SetScreenPos(185,249)	
+			Tutorial.SetMarker(156,427)
+		elseif gTutorialStep == 22  then	
+			Tutorial.SetMarker(95,476)
+			Map.SetScreenPos(194,227)
+		elseif gTutorialStep == 23  then			
+			Tutorial.SetMarker(155,473)
+			Map.SetScreenPos(190,210)
+		elseif gTutorialStep == 25 or gTutorialStep == 26 then
+			Tutorial.SelectNextBuilding(Buildings.TOOLSMITH )
+			--//Tutorial.SetMarker(192,367)
+			Tutorial.PressButton(Dialog.DLG_RESOURCEUPGRADECONTEXT, Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR )
+		elseif gTutorialStep == 28  or gTutorialStep == 29 then	
+			Tutorial.SelectNextBuilding(Buildings.WEAPONSMITH )
+			--//Tutorial.SetMarker(192,367)
+			Tutorial.PressButton(Dialog.DLG_RESOURCEUPGRADECONTEXT, Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR )
+		end
+	end
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+-------------------------------------------------------------------------------
+function OnSettlerProduction(settlertype)
+
+	if (gWantedSettler == settlertype) then
+		if gSettlerCount <= 10 then
+			gSettlerCount = gSettlerCount +1
+		end
+		if gSettlerCount == 10 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+    			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+    			gTutorialStep = gTutorialStep + 1
+		end	
+	end
+end
+-------------------------------------------------------------------------------
+
+function OnProduction(goodtype)
+	if gTutorialStep == 26 then
+		if goodtype == Goods.PICKAXE then
+			gGoodCountOne = gGoodCountOne + 1
+		end
+		
+		if goodtype == Goods.SAW then 
+			gGoodCountTwo = gGoodCountTwo + 1
+		end
+		
+		if gGoodCountTwo  >= 2 then
+			Tutorial.DisableExcept
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+				Control.DLG_ADDTOOLBAR_CMD_1UP,
+				Control.DLG_ADDTOOLBAR_CMD_PICKAXE
+			)
+			Tutorial.PressButton(Dialog.DLG_ADDTOOLBAR, Control.DLG_ADDTOOLBAR_CMD_PICKAXE)
+			--//gGoodCountTwo = 0
+		end
+		
+		if gGoodCountOne  >= 3 then
+			Tutorial.DisableExcept
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+				Control.DLG_ADDTOOLBAR_CMD_1UP,
+				Control.DLG_ADDTOOLBAR_CMD_SAW
+			)
+			Tutorial.PressButton(Dialog.DLG_ADDTOOLBAR, Control.DLG_ADDTOOLBAR_CMD_SAW)
+			--//gGoodCountOne = 0
+		end
+		if gGoodCountOne  >= 3 and gGoodCountTwo  >= 2 then
+			Tutorial.DisableExcept()
+		end
+	end
+	
+	if gTutorialStep == 29 then
+		if goodtype == Goods.SWORD then
+			gGoodCountOne = gGoodCountOne + 1
+		end
+		
+		if goodtype == Goods.BOW  then
+			gGoodCountTwo = gGoodCountTwo + 1
+		end
+		if gGoodCountTwo  >= 2 then
+			Tutorial.DisableExcept
+			(
+			Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+			Control.DLG_WEAPONSMITHBAR_CMD_1UP,
+			Control.DLG_WEAPONSMITHBAR_CMD_SWORD
+			)
+			Tutorial.PressButton(Dialog.DLG_WEAPONSMITHBAR, Control.DLG_WEAPONSMITHBAR_CMD_SWORD)
+			
+		end
+		
+		if gGoodCountOne  >= 3 then
+			Tutorial.DisableExcept
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+				Control.DLG_WEAPONSMITHBAR_CMD_1UP,
+				Control.DLG_WEAPONSMITHBAR_CMD_BOW
+			)
+			Tutorial.PressButton(Dialog.DLG_WEAPONSMITHBAR, Control.DLG_WEAPONSMITHBAR_CMD_BOW)
+			
+		end
+		
+		if gGoodCountOne  >= 3 and gGoodCountTwo  >= 2 then
+			Tutorial.DisableExcept()
+		end
+	end
+		
+end
+--//-----------------------------------------------------------------------------
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+			
+	end
+end
+-------------------------------------------------------------------------------
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype, x,y)
+	if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.READY) == 0 then
+		if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.UNDERCONSTRUCTION) == 0 then
+			id = Buildings.GetFirstBuilding(1,buildingtype)
+			Buildings.CrushBuilding(id)
+			Tutorial.DeleteWorldCursor()
+			LastText0 = 0
+			LastText1 = 0
+			gPrevTutStep = 0
+			buildingtype = -1
+			gCommandOk = 0
+			x = 0
+			y = 0
+			gTutorialStep = gTutorialStep - 2
+		end	
+	end
+end
+-------------------------------------------------------------------------------
+--
+--	main tutorial function, called every tick
+--
+--------------------------------------------------------------------------------
+function tutorial_main()
+
+	gCommandOk = 1
+	
+		
+	--// Text rein schreiben //-- 
+	if (gSetText0 ~= LastText0 ) or (gSetText1 ~= LastText1 )then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		LastText0 = gSetText0
+		LastText1 = gSetText1
+	end
+	
+	if gActiveMenu == Menu.SETTLERPRODUCTION then
+			Tutorial.PressButton (Dialog.DLG_SETTLERPRODUCTIONMENU, Control.DLG_SETTLERPRODUCTIONMENU_CMD_GEOLOGIST)
+		end
+	
+	if (gPrevTutStep == gTutorialStep) then
+		return
+	end
+	
+
+	if gTutorialStep == 1 then
+		Tutorial.RWM(1)
+		Tutorial.DisableExcept()
+		gSetText0 = "TUT_04_001_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 2 then
+		gSetText0 = "TUT_04_002_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 3 then
+		gSetText0 = "TUT_04_003_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 4 then
+		gSetText0 = "TUT_04_004_R"
+		gSetText1 = "TUT_04_004_N"
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_FIGURES,
+			Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_GEOLOGIST,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_8UP,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_1UP
+		)
+		Tutorial.PressButton (Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_FIGURES)
+		Tutorial.PressButton (Dialog.DLG_FIGURESSUBMENU, Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION)
+		Tutorial.SetMarker(165,381)
+		gCommandOk = 0
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 5 then		
+		gSpaceOk = 0
+		Tutorial.PressButton (Dialog.DLG_SETTLERPRODUCTIONMENU, Control.DLG_SETTLERPRODUCTIONMENU_CMD_GEOLOGIST)
+		gWantedSettler = Settlers.GEOLOGIST
+								
+	elseif gTutorialStep == 6 then
+		if Settlers.Amount( Game.LocalPlayer(), Settlers.GEOLOGIST ) >= 10 then
+			gSetText0 = "TUT_04_005_R"
+			gSetText1 = "TUT_04_005_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 7 then
+	--// Koordniaten überprüfen //--
+		if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.GEOLOGIST,161,204,3) > 0 or
+		Settlers.AmountInArea( Game.LocalPlayer(), Settlers.GEOLOGIST,177,214,3) > 0 or
+		Settlers.AmountInArea( Game.LocalPlayer(), Settlers.GEOLOGIST,183,227,3) > 0 then
+			gSetText0 = "TUT_04_006_R"
+			gSetText1 = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+					
+	elseif gTutorialStep == 8 then
+		gSpaceOk = 1
+						
+	elseif gTutorialStep == 9 then
+		gSetText0 = "TUT_04_007_R"
+		gSetText1 = "TUT_04_007_N"
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+				
+	elseif gTutorialStep == 10 then
+		if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.GEOLOGIST,144,188,4) > 0 then
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			--//gSetText0 = "TUT_04_007_R"
+			--//gSetText1 = "TUT_04_029_R"
+		end
+		return
+						
+	elseif gTutorialStep == 11 then
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_METAL,
+			Control.DLG_BUILDMETAL_CMD_IRONMINE
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+		gCommandOk = 0
+		Tutorial.SetWorldCursor(160,203)
+		Map.SetScreenPos(160,203)
+		Tutorial.SetZoom(17)
+		Tutorial.SetMarker(160,310)
+		gSetText0 = "TUT_04_008_R"
+		gSetText1 = "TUT_04_008_N"
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+				
+	elseif gTutorialStep == 12 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.IRONMINE, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.IRONMINE, Buildings.READY) > 0 then
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_METAL,
+			Control.DLG_BUILDMETAL_CMD_COALMINE
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+			gSetText0 = "TUT_04_009_R"
+			gSetText1 = "TUT_04_009_N"
+			Tutorial.SetMarker(99,314)
+			Tutorial.SetWorldCursor(150,192)	
+			Map.SetScreenPos(150,192)
+			Tutorial.SetZoom(17)
+			gCommandOk = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.IRONMINE, 160,203)
+		end
+		return
+		
+	elseif gTutorialStep == 13 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.COALMINE, Buildings.UNDERCONSTRUCTION) > 0 
+		or  Buildings.Amount( Game.LocalPlayer(), Buildings.COALMINE, Buildings.READY) == 1 then
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+				Control.DLG_MINIMAP_CMD_BUILD,
+				Control.DLG_BUILDSUBMENU_CMD_METAL,
+				Control.DLG_BUILDMETAL_CMD_GOLDMINE
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+			gSetText0 = "TUT_04_010_R"
+			gSetText1 = "TUT_04_010_N"
+			Tutorial.SetMarker(93,363)
+			Tutorial.SetWorldCursor(169,217)
+			Map.SetScreenPos(169,217)
+			Tutorial.SetZoom(17)
+			gCommandOk = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.COALMINE, 150,192)
+		end
+		return
+		
+				
+	elseif gTutorialStep == 14 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.GOLDMINE, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.GOLDMINE, Buildings.READY) == 1 then
+		
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_BASIC,
+			Control.DLG_BUILDBASIC_CMD_STONEMINE
+			)
+			gCommandOk = 0
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC )
+			Tutorial.SetWorldCursor(168,227)
+			Tutorial.SetMarker(147,477)
+			Map.SetScreenPos(168,227)
+			Tutorial.SetZoom(17)
+			gSetText0 = "TUT_04_012_R"
+			gSetText1 = "TUT_04_012_N"
+			gSpaceOk = 0
+			gCommandOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.GOLDMINE, 169,217)
+		end
+		return
+		
+	elseif gTutorialStep == 15 then		
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.READY) > 0  then
+			gSetText0 = "TUT_04_013_R"
+			gSetText1 = "TUT_04_013_N"
+			Tutorial.ClearMarker()
+			Tutorial.DisableExcept()
+			Tutorial.DeleteWorldCursor()
+			Tutorial.SetWorldCursor(146,204)
+			Map.SetScreenPos(146,204)
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.STONEMINE, 168,227)
+		end
+		return
+		
+	elseif gTutorialStep == 16 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.GOLDMINE, Buildings.READY) > 0 
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.IRONMINE, Buildings.READY) > 0
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.COALMINE, Buildings.READY) > 0
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.READY) > 0 then
+			Tutorial.DeleteWorldCursor()
+			gSetText0 = "TUT_04_011_R"
+			gSetText1 = "TUT_NEXT"
+			Tutorial.ClearMarker()
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 17 then
+		gSpaceOk = 1
+		
+		
+	elseif gTutorialStep == 18 then
+		Tutorial.DisableExcept
+		(
+		Control.DLG_MINIMAP_CMD_BUILD,
+		Control.DLG_BUILDSUBMENU_CMD_METAL,
+		Control.DLG_BUILDMETAL_CMD_SMELTIRON
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+		gCommandOk = 0
+		Tutorial.SetMarker(96,428)
+		Tutorial.SetWorldCursor(188,236)
+		gSetText0 = "TUT_04_015_R"
+		gSetText1 = "TUT_04_015_N"
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+
+	elseif gTutorialStep == 19 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTIRON, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTIRON, Buildings.READY) > 0  then
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_METAL,
+			Control.DLG_BUILDMETAL_CMD_SMELTGOLD
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+			Tutorial.SetWorldCursor(185,249)
+			Tutorial.SetMarker(156,427)
+			gSetText0 = "TUT_04_016_R"
+			gSetText1 = "TUT_04_016_N"
+			gSpaceOk = 0
+			gCommandOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.SMELTIRON, 188,236)
+		end
+		return
+		
+	elseif gTutorialStep == 20 then	
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTGOLD, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTGOLD, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.DeleteWorldCursor()
+			Tutorial.ClearMarker()
+			gSetText0 = "TUT_04_017_R"
+			gSetText1 = "TUT_04_017_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.SMELTGOLD, 185,249)
+		end
+		return
+	
+			
+	elseif gTutorialStep == 21 then	
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTIRON, Buildings.READY) > 0 
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.SMELTGOLD, Buildings.READY) > 0 then
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_METAL,
+			Control.DLG_BUILDMETAL_CMD_TOOLSMITH
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+			Tutorial.SetWorldCursor(194,227)
+			Tutorial.SetMarker(95,476)
+			gCommandOk = 0
+			gSetText0 = "TUT_04_018_R"
+			gSetText1 = "TUT_04_018_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+			
+	elseif gTutorialStep == 22 then	
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.TOOLSMITH, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.TOOLSMITH, Buildings.READY) > 0  then
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_METAL,
+			Control.DLG_BUILDMETAL_CMD_WEAPONSMITH
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_METAL )
+			Goods.AddPileEx(208,226,Goods.HAMMER,6)
+			Tutorial.SetWorldCursor(190,210)
+			Tutorial.SetMarker(155,473)
+			gCommandOk = 0
+			gSetText1 = "TUT_04_019_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.TOOLSMITH, 194,227)
+		end
+		return
+
+	elseif gTutorialStep == 23 then	
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.WEAPONSMITH, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.WEAPONSMITH, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.DeleteWorldCursor()
+			Tutorial.ClearMarker()
+			gSetText0 = "TUT_04_020_R"
+			gSetText1 = "TUT_04_020_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.WEAPONSMITH, 190,210)
+		end
+		return
+	
+	elseif gTutorialStep == 24 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.TOOLSMITH, Buildings.READY) > 0
+		and Buildings.IsSelected (Buildings.TOOLSMITH) == 1 then
+			gSetText0 = "TUT_04_021_R"
+			gSetText1 = "TUT_04_021_N"
+			Tutorial.DisableExcept
+			(
+			Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR
+			)
+			Tutorial.SetMarker(192,367)
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 25 then
+		if gActiveMenu == Menu.TOOL_SIDEBAR then
+			gSetText0 = "TUT_04_022_R"
+			gSetText1 = "TUT_04_022_N"
+			Tutorial.DisableExcept
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+				Control.DLG_ADDTOOLBAR_CMD_1UP,
+				Control.DLG_ADDTOOLBAR_CMD_PICKAXE,
+				Control.DLG_ADDTOOLBAR_CMD_SAW
+			)
+			--// Nachschein warum nix klickbar ist --> Mich :das muß rein //--
+			Tutorial.PressButton(Dialog.DLG_ADDTOOLBAR, Control.DLG_ADDTOOLBAR_CMD_PICKAXE)
+			
+			Tutorial.ClearMarker()
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end
+		return
+	
+	elseif gTutorialStep == 26 then
+		
+		if Goods.Amount( Game.LocalPlayer(), Goods.PICKAXE) >= 3
+		and Goods.Amount( Game.LocalPlayer(), Goods.SAW) >= 2 then
+			--//Tutorial.SelectNextBuilding(Buildings.TOOLSMITH)
+			--//Tutorial.PressButton(Dialog.DLG_RESOURCEUPGRADECONTEXT, Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR )
+			gSetText0 = "TUT_04_023_R"
+			gSetText1 = "TUT_04_023_N"
+			Tutorial.DisableExcept()
+			gGoodCountOne = 0
+			gGoodCountTwo = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+	
+	elseif gTutorialStep == 27 then
+		if Buildings.IsSelected (Buildings.WEAPONSMITH) == 1 then
+			gSetText0 = "TUT_04_024_R"
+			gSetText1 = "TUT_NEXT"
+			Tutorial.DisableExcept
+			(
+			Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR
+			)
+			Tutorial.SetMarker(192,367)
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+	
+	elseif gTutorialStep == 28 then
+		if gActiveMenu == Menu.WEAPON_SIDEBAR then
+			gSetText0 = "TUT_04_025_R"
+			gSetText1 = "TUT_04_025_N"
+			Tutorial.ClearMarker()
+			Tutorial.DisableExcept
+			(
+			Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+			Control.DLG_WEAPONSMITHBAR_CMD_1UP,
+			Control.DLG_WEAPONSMITHBAR_CMD_SWORD,
+			Control.DLG_WEAPONSMITHBAR_CMD_BOW
+			)
+			Tutorial.PressButton(Dialog.DLG_WEAPONSMITHBAR, Control.DLG_WEAPONSMITHBAR_CMD_SWORD)
+			gCommandOk = 0
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end
+		return
+		
+	elseif gTutorialStep == 29 then
+		
+		if Goods.Amount( Game.LocalPlayer(), Goods.SWORD) >= 3
+		and Goods.Amount( Game.LocalPlayer(), Goods.BOW) >= 2 then
+			--//Tutorial.SelectNextBuilding(Buildings.WEAPONSMITH)
+			--//Tutorial.PressButton(Dialog.DLG_RESOURCEUPGRADECONTEXT, Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR )
+			gSetText0 = "TUT_04_026_R"
+			gSetText1 = "TUT_END"
+			Tutorial.DisableExcept()
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 30 then
+	--// WELTPOSITIONEN NOCH VERBESSERN //-- 
+		Goods.AddPileEx(171,245,Goods.GOLDBAR,8)
+		Goods.AddPileEx(172,249,Goods.GOLDBAR,8)
+		Goods.AddPileEx(173,247,Goods.GOLDBAR,8)
+		Goods.AddPileEx(174,255,Goods.GOLDBAR,8)
+		Goods.AddPileEx(175,248,Goods.GOLDBAR,8)
+		Goods.AddPileEx(171,247,Goods.GOLDBAR,8)
+		Goods.AddPileEx(172,248,Goods.GOLDBAR,8)
+		Goods.AddPileEx(171,245,Goods.IRONBAR,8)
+		Goods.AddPileEx(172,249,Goods.IRONBAR,8)
+		Goods.AddPileEx(173,247,Goods.IRONBAR,8)
+		Goods.AddPileEx(174,255,Goods.IRONBAR,8)
+		Goods.AddPileEx(175,248,Goods.IRONBAR,8)
+		Goods.AddPileEx(171,247,Goods.IRONBAR,8)
+		Goods.AddPileEx(172,248,Goods.IRONBAR,8)
+		Goods.AddPileEx(171,245,Goods.COAL,8)
+		Goods.AddPileEx(172,249,Goods.COAL,8)
+		Goods.AddPileEx(173,247,Goods.COAL,8)
+		Goods.AddPileEx(174,255,Goods.COAL,8)
+		Goods.AddPileEx(175,248,Goods.COAL,8)
+		Goods.AddPileEx(171,247,Goods.COAL,8)
+		Goods.AddPileEx(172,248,Goods.COAL,8)
+		Tutorial.Won()
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 31 then
+		Tutorial.Exit()
+			
+	end
+		
+	gPrevTutStep = gTutorialStep
+end
+
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING)
+	request_event( OnSettlerProduction, Events.SETTLER_CHANGE_TYPE)
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )
+	request_event( OnProduction, Events.PRODUCTION )
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( tutorial_main )
+	reg_func( OnDragBuilding )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+	reg_func( OnSettlerProduction )
+	reg_func( OnProduction )
+end
+

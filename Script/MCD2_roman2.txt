@@ -1,0 +1,345 @@
+timeLimit=60
+sightRadius=18
+shipSightRadius=20
+
+_tower=1
+_ship=1
+trojanTowers=Buildings.Amount(4,Buildings.GUARDTOWERSMALL,Buildings.ALL)+Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.ALL)
+vikingTowers=Buildings.Amount(5,Buildings.GUARDTOWERSMALL,Buildings.ALL)+Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL)
+vikingWarShips=2
+trojanWarShips=2
+
+ferrys={
+	{x=612,y=278},
+	{x=663,y=319},
+	{x=722,y=323}
+}
+
+ships={
+	{x=713,y=210,owner=4},
+	{x=728,y=224,owner=4},
+	{x=742,y=247,owner=5},
+	{x=715,y=232,owner=5},
+	{x=734,y=255,owner=5};
+	n=5
+}
+
+towers={
+	{x=338,y=474},
+  {x=394,y=478},
+  {x=327,y=433},
+  {x=379,y=433},
+  {x=324,y=400},
+  {x=327,y=374},
+  {x=341,y=361},
+  {x=361,y=358},
+  {x=387,y=416},
+  {x=390,y=358},
+  {x=420,y=416},
+  {x=443,y=408},
+  {x=452,y=388},
+  {x=449,y=355},
+  {x=408,y=340},
+  {x=341,y=261},
+  {x=371,y=283},
+  {x=377,y=331},
+  {x=346,y=309},
+  {x=320,y=276},
+  {x=322,y=258},
+  {x=395,y=286},
+  {x=455,y=334},
+  {x=409,y=271},
+  {x=428,y=263},
+  {x=451,y=264},
+  {x=481,y=291},
+  {x=504,y=328},
+  {x=511,y=357},
+  {x=518,y=391},
+  {x=529,y=446},
+  {x=550,y=455},
+  {x=565,y=449},
+  {x=572,y=431},
+  {x=575,y=408},
+  {x=566,y=372},
+  {x=548,y=322},
+  {x=525,y=294},
+  {x=516,y=458},
+  {x=503,y=470},
+  {x=482,y=474},
+  {x=450,y=450},
+  {x=405,y=417},
+  {x=391,y=540},
+  {x=437,y=531},
+  {x=463,y=556},
+  {x=424,y=572},
+  {x=456,y=600},
+  {x=489,y=620},
+  {x=518,y=648},
+  {x=471,y=535},
+  {x=484,y=519},
+  {x=506,y=516},
+  {x=533,y=522},
+  {x=557,y=530},
+  {x=574,y=523},
+  {x=585,y=510},
+  {x=525,y=622},
+  {x=534,y=603},
+  {x=544,y=591},
+  {x=560,y=592},
+  {x=584,y=600},
+  {x=602,y=599},
+  {x=619,y=591},
+  {x=592,y=492},
+  {x=604,y=481},
+  {x=642,y=590},
+  {x=671,y=591},
+  {x=612,y=458},
+  {x=619,y=438},
+  {x=672,y=435},
+  {x=634,y=387},
+  {x=604,y=355},
+  {x=579,y=308},
+  {x=719,y=503},
+  {x=749,y=502},
+  {x=703,y=435},
+  {x=729,y=435},
+  {x=756,y=444},
+  {x=260,y=377},
+  {x=265,y=337},
+  {x=270,y=296},
+  {x=344,y=571},
+  {x=410,y=649},
+  {x=445,y=488};
+  n=trojanTowers+vikingTowers
+}
+
+function initVar()
+	Vars.Save1=0				--counts how often player has been seen by towers
+	Vars.Save2=0				--counts how often player has been seen by ships
+	Vars.Save3=0				--flag for trojan ferry status
+	Vars.Save4=0				--flag for viking ferry status
+	Vars.Save5=0				--gets number of tower that sees any unit. When no unit is seen by this tower it turns 0 again.
+	Vars.Save6=0				--same as Vars.Save5 but for ships
+	Vars.Save7=0				--used for message when towers at the south of the island are destroyed
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 
+	or Game.Time()>=timeLimit 
+	--//or (Buildings.Amount(4,Buildings.GUARDTOWERSMALL,Buildings.ALL)+Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.ALL))<trojanTowers 
+	--//or (Buildings.Amount(5,Buildings.GUARDTOWERSMALL,Buildings.ALL)+Buildings.Amount(4,Buildings.GUARDTOWERSMALL,Buildings.ALL))<vikingTowers 
+	or Vehicles.Amount(4,Vehicles.FERRY)<1 
+	or Vehicles.Amount(5,Vehicles.FERRY)<1 
+	or Vars.Save1>=2 
+	or Vars.Save2>=2 
+	or Vehicles.Amount(4,Vehicles.WARSHIP)<trojanWarShips 
+	or Vehicles.Amount(5,Vehicles.WARSHIP)<vikingWarShips then
+
+		 	Game.PlayerLost(1)
+		 	Game.DefaultGameEndCheck()
+	else
+		if Vars.Save3==2 and Vars.Save4==2 then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function checkTrojanFerry()
+	if Vars.Save3==2 then
+		unrequest_event(checkTrojanFerry,Events.FIVE_TICKS)
+	else
+		if Vars.Save3==0 then
+			if Vehicles.GetHealth(ferrys[1]["x"],ferrys[1]["y"])<37 then
+				Game.ShowText("MD2_ROMAN_SCRIPT_TWO_04",ferrys[1]["x"],ferrys[1]["y"])
+				Vars.Save3=1
+			end
+		else
+			if Vars.Save3==1 then
+				if Settlers.AmountInArea(1,Settlers.THIEF,ferrys[1]["x"],ferrys[1]["y"],15)>0 then
+					Settlers.KillSelectableSettlers(1,Settlers.THIEF,ferrys[1]["x"],ferrys[1]["y"],15,0)
+					Game.ShowText("MD2_ROMAN_SCRIPT_TWO_05",ferrys[1]["x"],ferrys[1]["y"])
+					Vars.Save3=2
+				end
+			end
+		end
+	end
+end
+
+function checkVikingFerry()
+	if Vars.Save4==2 then
+		unrequest_event(checkVikingFerry,Events.FIVE_TICKS)
+	else
+		if Vars.Save4==0 then
+			if Vehicles.GetHealth(ferrys[2]["x"],ferrys[2]["y"])<37 then
+				Game.ShowText("MD2_ROMAN_SCRIPT_TWO_06",ferrys[2]["x"],ferrys[2]["y"])
+				Vars.Save4=1
+			end
+		else
+			if Vars.Save4==1 then
+				if Settlers.AmountInArea(1,Settlers.THIEF,ferrys[2]["x"],ferrys[2]["y"],15)>0 then
+					Settlers.KillSelectableSettlers(1,Settlers.THIEF,ferrys[2]["x"],ferrys[2]["y"],15,0)
+					Game.ShowText("MD2_ROMAN_SCRIPT_TWO_07",ferrys[2]["x"],ferrys[2]["y"])
+					Vars.Save4=2
+				end
+			end
+		end
+	end
+end
+
+function checkShips()
+	_checked=1
+	while _checked<=1 do
+		if _ship<=ships.n then
+			_type=1
+			_shipSeen=0
+			while _type<=3 do
+				if Vehicles.AmountInArea(1,_type,ships[_ship]["x"],ships[_ship]["y"],shipSightRadius)>=1 then
+					if Vars.Save6~=_ship then
+						Vars.Save6=_ship
+						if Vars.Save2==0 then
+							Game.ShowText("MD2_ROMAN_SCRIPT_TWO_02",ships[_ship]["x"],ships[_ship]["y"])
+						else
+							if Vars.Save2==1 then
+								Game.ShowText("MD2_ROMAN_SCRIPT_TWO_03",ships[_ship]["x"],ships[_ship]["y"])
+							end
+						end
+						Vars.Save2=Vars.Save2+1
+					end
+					_shipSeen=1
+				end
+				_type=_type+1
+			end
+			if _shipSeen==0 and _ship==Vars.Save6 then
+				Vars.Save6=0
+			end
+			_ship=_ship+1
+			_checked=_checked+1
+		else
+			_ship=1
+		end
+	end
+end
+
+function checkTowers()
+	_checked=1
+	while _checked<=8 do
+		if _tower<=towers.n then
+			_type=29
+			_seen=0
+			while _type<=50 do
+			
+			
+				Exists = 0
+				Owner = 1
+				while (Owner <= 6) do
+			
+					if (Buildings.ExistsBuildingInArea(Owner,Buildings.GUARDTOWERSMALL,towers[_tower]["x"],towers[_tower]["y"],5) == 1) then
+						Exists = 1
+					end
+					Owner = Owner +1
+				end
+
+				if Exists == 1 then
+						
+			
+					if Settlers.AmountInArea(1,_type,towers[_tower]["x"],towers[_tower]["y"],sightRadius)>=1 or Vehicles.AmountInArea(1,Vehicles.WARMACHINE,towers[_tower]["x"],towers[_tower]["y"],sightRadius)>=1 then
+						if Vars.Save5~=_tower then
+							Vars.Save5=_tower
+							if Vars.Save1==0 then
+								Game.ShowText("MD2_ROMAN_SCRIPT_TWO_02",towers[_tower]["x"],towers[_tower]["y"])
+							else
+								if Vars.Save1==1 then
+									Game.ShowText("MD2_ROMAN_SCRIPT_TWO_03",towers[_tower]["x"],towers[_tower]["y"])
+								end
+							end
+							Vars.Save1=Vars.Save1+1
+						end
+						_seen=1
+						_type=50
+					end
+					
+				end
+				
+				if _type==37 then
+					_type=44
+				else
+					if _type==47 then
+						_type=49
+					else
+						_type=_type+1
+					end
+				end
+			
+			end
+			if _seen==0 and _tower==Vars.Save5 then
+				Vars.Save5=0
+			end
+			_tower=_tower+1
+			_checked=_checked+1
+		else
+			_tower=1
+		end
+	end
+end
+
+function checkEntrance()
+	if Vars.Save7==1 then
+		unrequest_event(checkEntrance,Events.FIVE_TICKS)
+	else
+		if Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL)==0 and Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.ALL)==0 then
+			Game.ShowText("MD2_ROMAN_SCRIPT_TWO_01")
+			Vars.Save7=1
+		end
+	end
+end
+function counter()
+	Game.ShowClock(60*timeLimit)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(counter,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(checkTrojanFerry,Events.FIVE_TICKS)
+	request_event(checkVikingFerry,Events.FIVE_TICKS)
+	request_event(checkTowers,Events.TICK)
+	request_event(checkShips,Events.FIVE_TICKS)
+	request_event(checkEntrance,Events.FIVE_TICKS)
+
+	_xyz=1
+	while _xyz<=5 do
+		Vehicles.AddVehicle(ships[_xyz]["x"],ships[_xyz]["y"],ships[_xyz]["owner"],Vehicles.WARSHIP,-1,100,0)
+		_xyz=_xyz+1
+	end
+	Magic.IncreaseMana(5,1000)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(counter)
+	reg_func(checkTrojanFerry)
+	reg_func(checkVikingFerry)
+	reg_func(checkTowers)
+	reg_func(checkShips)
+	reg_func(checkEntrance)
+end
+
+--for testing only
+function getSoldiers()
+	Settlers.AddSettlers(617,255,1,Settlers.BOWMAN_03,16)
+	Settlers.AddSettlers(617,255,1,Settlers.SWORDSMAN_03,16)
+	Settlers.AddSettlers(357,650,1,Settlers.BOWMAN_03,50)
+	Settlers.AddSettlers(357,650,1,Settlers.SWORDSMAN_03,50)
+end
+
+function getThiefs()
+	Settlers.AddSettlers(617,225,1,Settlers.THIEF,2)
+end
+
+function getShips()
+	Vehicles.AddVehicle(561,48,1,Vehicles.WARSHIP,-1,100,0)
+	Vehicles.AddVehicle(581,81,1,Vehicles.FERRY,-1,0,0)
+end

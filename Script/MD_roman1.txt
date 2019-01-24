@@ -1,0 +1,65 @@
+--// MD Roman 1
+--//------------
+
+
+INFOTIME =  20 + Game.Random(5)
+
+function InitVar()
+
+	
+	--// flag for Showing the text one time
+	Vars.Save2 = 1 
+
+	--//ATTACKTIME
+	if Game.GetDifficulty() == 0 then
+		--//easy//--
+		Vars.Save1 =  50 + Game.Random(10)
+	else
+		Vars.Save1 = 30 + Game.Random(10)
+	end
+
+end
+
+function PlayerGetInfoAndAttackCheck()
+
+	if Game.Time() == INFOTIME and Vars.Save2 == 1 then
+		Game.ShowText("MD_DARK_SCRIPT_ONE_01",224,540)
+		Vars.Save2 = 0
+	end
+
+	if Game.Time() == Vars.Save1 then
+		if Game.GetDifficulty() == 0 then	
+			--//easy//--
+			AI.AttackNow(4, 1, 1)
+			Vars.Save1 = Vars.Save1 + 25 + Game.Random(5)
+		else
+			--//NORMAL//--
+			AI.AttackNow(4, 1, 1)
+			AI.AttackNow(5, 1, 1)
+			Vars.Save1 = Vars.Save1 + 10 + Game.Random(5)
+		end
+
+	end
+
+end
+
+
+function new_game()
+
+	--//Map.AddDecoObject(391,637,42)
+
+	--//set Donkeys
+	Settlers.AddSettlers(138,740, 1, Settlers.DONKEY, 1 )
+	Settlers.AddSettlers(224,567, 1, Settlers.DONKEY, 1 )
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(PlayerGetInfoAndAttackCheck,Events.FIVE_TICKS)	
+
+end
+
+function register_functions()
+
+  reg_func(PlayerGetInfoAndAttackCheck)
+  reg_func(InitVar)
+
+end

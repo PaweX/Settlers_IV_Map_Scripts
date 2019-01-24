@@ -1,0 +1,119 @@
+--// AO_ROMAN_4
+--//-------------
+--//start with nothing, conquer Troja
+
+function InitVar()
+
+	Vars.Save1 = 0
+	Vars.Save2 = 0
+
+end
+
+
+
+function Helptext()
+
+	if Vars.Save2 == 1 then
+		Game.ShowText("MD_ROMAN_SCRIPT_ONE_01",334,390)
+		Vars.Save2 = 0
+	end
+end
+
+function VictoryConditionCheck()
+	
+	if (Buildings.Amount(1,Buildings.GUARDTOWERBIG,Buildings.READY) >= 1
+	or Buildings.Amount(1,Buildings.GUARDTOWERSMALL,Buildings.READY) >= 1
+	or Buildings.Amount(1,Buildings.CASTLE,Buildings.READY) >= 1 )
+	and Vars.Save1 == 0 then
+		Vars.Save1 = 1
+		Vars.Save2 = 1
+	end
+
+	if Vars.Save1 == 1 then
+		Game.DefaultPlayerLostCheck(1)
+	end
+	
+	Game.DefaultPlayerLostCheck(2)
+	
+	
+	--//if Game.HasPlayerLost(1) == 1 then
+	--//Game.EnemyPlayersLost(2)
+		Game.DefaultGameEndCheck()
+	--//end
+	
+
+end
+
+
+function new_game()
+--//Add Horse
+	Map.AddDecoObject(330,380,118)
+
+--//Give Mana and PRIEST in Modus easy
+
+	if Game.GetDifficulty() == 0 then
+		Settlers.AddSettlers(327,386,1,45,1)
+		Magic.IncreaseMana(1,30)
+		Settlers.AddSettlers(344,454,1,Settlers.THIEF,1)
+
+	--// Create more StartResources for EASY
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	end
+	
+
+	 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	--//2: böse Trojaner
+	AI.SetPlayerVar(2, "AttackMode", 0, 1, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 80, 30, 10) 
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 100,150,150)
+
+	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+end
+
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+	reg_func(InitVar)
+	
+
+end
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

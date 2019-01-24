@@ -1,0 +1,269 @@
+--// AO_SETTLE2
+--//------------------
+
+function InitVar()
+	Vars.Save1 = 0
+
+end
+
+
+function AddLoadedFerry1()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(426,205, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.GEOLOGIST, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.PIONEER, 2);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 5);
+
+end
+
+function AddLoadedFerry2()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(428,215, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+	    Settlers.AddSettlersToFerry(iFerryId, Settlers.GEOLOGIST, 2);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.PIONEER, 1);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 5);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_03, 2);
+end
+
+function AddLoadedFerry3()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(441,208, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.GEOLOGIST, 5);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_03, 5);
+end
+
+function AddLoadedFerry4()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(449,225, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.GEOLOGIST, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.PIONEER, 2);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 3);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_03, 2);
+
+end
+
+function AddLoadedFerry5()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(437,234, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.GEOLOGIST, 2);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.PIONEER, 2);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 4);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_03, 2);
+end
+
+function EffectCircle1(x,y,radius,speed, effect,loop)
+
+--//X,Y,Radius,Geschindigkeit, effecttype, und loop des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//i=0 		--// Initialiazing Counter for function EffectCircle
+--//x_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+--//y_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+
+--//dbg.pi(i)
+		
+		if (Vars.Save1 >= 0) and (Vars.Save1 <= radius) then
+			x_int_Circle = x - radius + Vars.Save1
+			y_int_Circle = y - radius
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		
+		if (Vars.Save1 >= radius) and (Vars.Save1 <= (radius*2)) then
+			x_int_Circle = x - radius + Vars.Save1
+			y_int_Circle = y - (2*radius) + Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		if Vars.Save1 >=(radius*2) and Vars.Save1 <= (radius*3) then
+			x_int_Circle = x + radius
+			y_int_Circle = y + (Vars.Save1-(2*radius))
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		if Vars.Save1 >=(radius*3) and Vars.Save1 <= (radius*4) then
+			x_int_Circle = x +(4*radius) - Vars.Save1
+			y_int_Circle = y + radius
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end		
+		
+		if Vars.Save1 >=(radius*4) and Vars.Save1 <= (radius*5) then
+			x_int_Circle = x + (4*radius) - Vars.Save1
+			y_int_Circle = y + (5*radius) - Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+			
+		end
+		
+		if Vars.Save1 >=(radius*5) and Vars.Save1 <= (radius*6) then
+			x_int_Circle = x - radius
+			y_int_Circle = y + (5*radius) - Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+			
+		end
+				
+		if loop == 1 then
+			if Vars.Save1>=(radius*6) then
+				Vars.Save1=0
+			end
+		end
+
+end
+
+
+function VictoryConditionCheck()
+
+		if Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,787,284,32,Buildings.READY) >= 1 
+		and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,857,782,32,Buildings.READY) >= 1  
+		and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,648,754,32,Buildings.READY) >= 1 
+		and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,159,236,32,Buildings.READY) >= 1 
+		then
+
+			Game.DefaultGameEndCheck()
+	end
+
+end
+
+
+
+function PermanentEffect()
+	EffectCircle1(787,284,23,1, Effects.MAGIC_PILE02,1)
+	EffectCircle1(857,782,23,1, Effects.MAGIC_PILE02,1)
+	EffectCircle1(648,754,23,1, Effects.MAGIC_PILE02,1)
+	EffectCircle1(159,236,23,1, Effects.MAGIC_PILE02,1)
+end
+
+
+function new_game()
+
+--//CreateStartResourcesMany(761,283, 1, 0)
+--//CreateStartResourcesMany(851,805, 1, 0)
+--//CreateStartResourcesMany(642,775, 1, 0)
+--//CreateStartResourcesMany(175,254, 1, 0)
+
+
+--//Flotte setzen
+	AddLoadedFerry1()
+	AddLoadedFerry2()
+	AddLoadedFerry3()
+	AddLoadedFerry4()
+	AddLoadedFerry5()
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(PermanentEffect,Events.TICK)
+
+end
+
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+	reg_func(InitVar)
+	reg_func(PermanentEffect)
+
+end
+
+function CreateStartResourcesMany(_X, _Y, _Player, _AI)
+
+    -- Create building
+    
+    Buildings.AddBuildingEx(_X, _Y, _Player, Buildings.GUARDTOWERSMALL)
+
+    -- Create piles
+    
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   6)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   7)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  4)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  6)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     8)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 5)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     3)
+    Goods.AddPileEx(_X, _Y, Goods.ROD,     2)
+    Goods.AddPileEx(_X, _Y, Goods.SCYTHE,  3)
+    Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+    Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+    Goods.AddPileEx(_X, _Y, Goods.BREAD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BREAD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.MEAT,    5)
+    Goods.AddPileEx(_X, _Y, Goods.MEAT,    3)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    6)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    4)
+    Goods.AddPileEx(_X, _Y, Goods.IRONORE, 8)
+    Goods.AddPileEx(_X, _Y, Goods.IRONORE, 4)
+    Goods.AddPileEx(_X, _Y, Goods.GOLDORE, 2)
+    
+
+    -- Create settlers
+    
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.BUILDER,        2)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.DIGGER,         2)
+
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.SMITH,         3)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.MINEWORKER,    6)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.CARRIER,      50)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 12)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.BOWMAN_01,     6)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.GEOLOGIST,     5)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.DONKEY,        3)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.HUNTER,        1)
+    
+    -- Create AI stuff
+    
+    if _AI >= 1 then
+    
+        Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+        
+    end
+    
+    if _AI >= 2 then
+
+        Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 5)
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+    
+    end
+    
+end

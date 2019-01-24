@@ -1,0 +1,128 @@
+--// =============================================================================
+--// AO_trojan02
+--// =============================================================================
+
+
+function InitVar()
+
+	--// Prist send flag
+	Vars.Save1 = 1
+	Vars.Save2 = 1
+end
+--------
+function PriesterSendCheck()
+
+	
+	if Settlers.AmountInArea(1, Settlers.PRIEST,533,449,20) == 1 and Vars.Save1 == 1 then
+    		--//Die Römer heißen uns willkommen und schicken uns waren schwefel zum bau von kriegsmaschienen
+			Game.ShowText("AO_TROJAN_SCRIPT_TWO_01",23,604)
+    		
+			Vehicles.AddVehicle(16,622,2, Vehicles.FERRY,-1,0,1)
+			AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 141,518)
+    		
+			Vars.Save1 = 2
+    		
+  	end
+
+	if Vehicles.AmountInArea(2,Vehicles.FERRY,141,518, 3) == 1 and Vars.Save1 == 2 then
+			
+		Goods.AddPileEx(143,511, Goods.SULFUR, 8)
+		Goods.AddPileEx(143,511, Goods.SULFUR, 8)
+		Goods.AddPileEx(143,511, Goods.SULFUR, 8)
+		Goods.AddPileEx(143,511, Goods.SULFUR, 8)
+		
+		Goods.AddPileEx(147,515, Goods.SWORD, 8)
+		Goods.AddPileEx(147,515, Goods.SWORD, 8)
+		Goods.AddPileEx(147,515, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(147,515, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(147,515, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(147,515, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(147,515, Goods.BOW, 8)
+		--//Goods.AddPileEx(147,515, Goods.BACKPACKCATAPULT, 8)
+		Vars.Save1 = 0
+	end
+
+	if (Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,377,299,5,Buildings.READY) >= 1
+	or Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,276,307,5,Buildings.READY) >= 1
+	or Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,212,265,5,Buildings.READY) >= 1
+	or Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,162,252,5,Buildings.READY) >= 1
+	or Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,123,208,5,Buildings.READY) >= 1)
+	and Vars.Save2 == 1 then
+		AI.AttackNow(2, 3, 2)
+		dbg.pi(1)
+		Game.ShowText("AO_TROJAN_SCRIPT_TWO_02",533,449)
+		Vars.Save2 = 0
+	end
+  
+end
+
+
+function new_game()
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(158,524)
+	end
+
+--//Testing
+--//Settlers.AddSettlers(123,208,1,Settlers.SWORDSMAN_03,100)
+--//Settlers.AddSettlers(533,449,1,Settlers.PRIEST,1)
+
+
+			--// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 100, 30, 10) 
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,100)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 150,250,100)
+
+	--// Damit römer nicht meine arbeit macht
+	AI.SetPlayerVar(3, "AttackMode", 0, 0, 2) 
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 100,100,100)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 60,70,100)
+
+  request_event(PriesterSendCheck, Events.FIVE_TICKS)
+  request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+end
+
+-----------------------------
+function register_functions()
+  
+  reg_func(PriesterSendCheck)  
+  reg_func(InitVar)
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

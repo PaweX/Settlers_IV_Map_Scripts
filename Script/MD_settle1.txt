@@ -1,0 +1,68 @@
+--//MD_Settle 1
+--//
+
+function InitVar()
+	
+	Vars.Save1 = 1
+end
+
+
+function IsPlayerInArea()
+	if Game.FindAnyUnit(1,300,652,32) == 1 and Vars.Save1 == 1 then
+		Game.ShowText("MD_ECO_SCRIPT_ONE_01",300,652)
+		--//das war wohl nix
+		Vars.Save1 = 0
+	end
+end
+
+function VictoryConditionCheck()
+	
+	
+	if Game.FindAnyUnit(1,88,665,32) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+
+function new_game()
+
+	 --// SetPlayerVaribles //--
+	  
+	
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 20,20,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 20,20,150)
+
+	--//set FunsationCart
+
+	Vehicles.AddVehicle(806,276,1,Vehicles.FOUNDATION_CART,-1)
+	Vehicles.AddVehicle(789,293,1,Vehicles.FOUNDATION_CART,-1)
+	Vehicles.AddVehicle(774,273,1,Vehicles.FOUNDATION_CART,-1)
+	Vehicles.AddVehicle(788,275,1,Vehicles.FOUNDATION_CART,-1)
+	
+	Settlers.AddSettlers(786,297,1,Settlers.THIEF,1)
+	Settlers.AddSettlers(785,291,1,Settlers.THIEF,1)
+	Settlers.AddSettlers(792,300,1,Settlers.THIEF,1)
+	Settlers.AddSettlers(806,296,1,Settlers.THIEF,1)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(IsPlayerInArea, Events.FIVE_TICKS)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+
+end
+
+
+function register_functions()
+	
+  reg_func(VictoryConditionCheck)
+  reg_func(IsPlayerInArea)
+  reg_func(InitVar)
+  
+  
+end
+
+

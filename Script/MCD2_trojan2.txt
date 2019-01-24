@@ -1,0 +1,144 @@
+ferryDelay=28
+vikingFerry={x=264,y=661}
+_y=50
+start=0
+
+function initVar()
+	Vars.Save1=0				--flag for supporting ferry
+	Vars.Save2=0				--flag, turns 1 when player's ferry reaches east
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 then
+		Game.EnemyPlayersLost(2)
+		Game.DefaultGameEndCheck()
+	else
+		if Vehicles.Amount(1,Vehicles.FERRY)>=3 and
+			 Vehicles.Amount(1,Vehicles.WARSHIP)>=3 and
+			 Settlers.Amount(1,Settlers.SWORDSMAN_03)>=10 and
+			 Settlers.Amount(1,Settlers.BOWMAN_03)>=10 and
+			 Settlers.Amount(1,Settlers.BACKPACKCATAPULTIST_03)>=10 and
+			 Vehicles.Amount(1,Vehicles.CART)>=3 then
+
+					Game.EnemyPlayersLost(1)
+					Game.DefaultGameEndCheck("MD2_TROJAN_SCRIPT_TWO_03","MD2_TROJAN_SCRIPT_TWO_04")
+		end
+	end
+end
+
+function ferryCheck()
+	if Vars.Save2==1 then
+		request_event(wait,Events.FIVE_TICKS)
+		unrequest_event(ferryCheck,Events.TICK)
+	else
+		if _y<=767 then
+		 	if Vehicles.AmountInArea(1,Vehicles.FERRY,767,_y,50)>0 then
+		 		Game.ShowText("MD2_TROJAN_SCRIPT_TWO_01",767,_y)
+				Vars.Save2=1
+			end
+			_y=_y+50
+		else
+			_y=50
+		end
+	end
+end
+
+function wait()
+	if start==0 then
+		start=Game.Time()
+	end
+	if Game.Time()>start+2 then
+		request_event(sendFerry,Events.TICK)
+		unrequest_event(wait,Events.FIVE_TICKS)
+	end
+end
+
+function sendFerry()
+	if Vars.Save1==3 then
+		unrequest_event(sendFerry,Events.TICK)
+	else
+		if Vars.Save1==1 then
+			if Vehicles.AmountInArea(3,Vehicles.FERRY,vikingFerry.x,vikingFerry.y,0)==1 then
+				Goods.AddPileEx(254,648,Goods.BOARD,8)
+				Goods.AddPileEx(254,648,Goods.BOARD,8)
+				Goods.AddPileEx(254,648,Goods.STONE,8)
+				Goods.AddPileEx(254,648,Goods.STONE,8)
+				Goods.AddPileEx(254,648,Goods.SHOVEL,5)
+				Goods.AddPileEx(254,648,Goods.HAMMER,5)
+				Vars.Save1=2
+				_wait=0
+			end
+		else
+			if Vars.Save1==2 then
+				_wait=_wait+1
+				if _wait==ferryDelay then
+					Vehicles.KillVehicles(3,Vehicles.FERRY,vikingFerry.x,vikingFerry.y,0,0)
+					Vehicles.AddVehicle(vikingFerry.x,vikingFerry.y,3,Vehicles.FERRY,3,0,1)
+					AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,11,358)
+					Vars.Save1=3
+				end
+			else
+				Vehicles.AddVehicle(756,733,3,Vehicles.FERRY,3,0,1)
+				AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,vikingFerry.x,vikingFerry.y)
+				Game.ShowText("MD2_TROJAN_SCRIPT_TWO_02",756,733)
+				Vars.Save1=1
+			end
+		end
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(ferryCheck,Events.TICK)
+
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 45, 45, 30)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)
+	
+	AI.SetPlayerVar(2, "DTManakopterDelay", 300, 100, 10) 
+	AI.SetPlayerVar(2, "DTAttackCheckDelay", 7, 3, 1) 
+	DarkTribe.AddManakopter(310,235,2)
+
+
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(ferryCheck)
+	reg_func(sendFerry)
+	reg_func(stats)
+	reg_func(wait)
+end
+
+--for testing only
+
+function getUnits()
+	Settlers.AddSettlers(214,604,1,Settlers.BOWMAN_03,10)
+	Settlers.AddSettlers(214,604,1,Settlers.SWORDSMAN_03,10)
+	Settlers.AddSettlers(214,604,1,Settlers.BACKPACKCATAPULTIST_03,10)
+	Vehicles.AddVehicle(215,551,1,Vehicles.FOUNDATION_CART,0,0,0)
+	Vehicles.AddVehicle(207,521,1,Vehicles.FOUNDATION_CART,0,0,0)
+	Vehicles.AddVehicle(241,556,1,Vehicles.FOUNDATION_CART,0,0,0)
+end
+
+function getShips()
+	_xyz=0
+	while _xyz<3 do
+		Vehicles.AddVehicle(25,(574+10*_xyz),1,Vehicles.FERRY,0,0,0)
+		_xyz=_xyz+1
+	end
+	_xyz=0
+	while _xyz<3 do
+		Vehicles.AddVehicle(25,(704+10*_xyz),1,Vehicles.WARSHIP,0,0,0)
+		_xyz=_xyz+1
+	end
+end

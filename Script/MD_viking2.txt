@@ -1,0 +1,123 @@
+--// MD_Viking 02
+--//---------------
+
+
+function InitVar()
+
+	Vars.Save1 = 0
+	Vars.Save2 = -1
+
+end
+
+function AddLoadedFerry1()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(149,241, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 4);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 3);
+
+end
+
+function AddLoadedFerry2()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(150,212, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 4);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 3);
+end
+
+function AddLoadedFerry3()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(158,221, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 4);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 3);
+end
+
+function AddLoadedFerry4()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(164,239, 1, Vehicles.FERRY);
+    Vehicles.AddWheelerToFerry(iFerryId, Vehicles.FOUNDATION_CART);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 4);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 3);
+end
+
+
+
+function TurnOnLandExploreCheck()
+	Game.EnableLandExploredCheck(1)
+end
+
+function VictoryConditionCheck()
+	
+	if (Buildings.Amount(1,Buildings.GUARDTOWERBIG,Buildings.READY) >= 1
+	or Buildings.Amount(1,Buildings.GUARDTOWERSMALL,Buildings.READY) >= 1
+	or Buildings.Amount(1,Buildings.CASTLE,Buildings.READY) >= 1 )
+	and Vars.Save1 == 0 then
+		Vars.Save1 = 1
+		Vars.Save2 = Game.Time() + 10
+	end
+
+	if Vars.Save1 == 1 
+		and Game.Time() >= Vars.Save2 then
+		Game.DefaultPlayerLostCheck(1)
+	end
+	
+	Game.DefaultPlayerLostCheck(2)
+	
+	if Game.IsAlmostAllLandExplored() == 1 
+	and Game.HasPlayerLost(2) == 1 then
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	end
+
+	if Game.HasPlayerLost(1) == 1 then
+		Game.EnemyPlayersLost(2)
+		Game.DefaultGameEndCheck()
+	end
+	
+
+end
+
+
+function new_game()
+	AddLoadedFerry1()
+	AddLoadedFerry2()
+	AddLoadedFerry3()
+	AddLoadedFerry4()
+
+	 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	--//2: böse Ömer
+	
+	--// SOLDIERLIMITRELATIVE//--
+		AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,300)
+		AI.SetPlayerVar(2, "SoldierLimitRelative", 100,150,150)
+
+	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(TurnOnLandExploreCheck, Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+end
+
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+	reg_func(TurnOnLandExploreCheck)
+	reg_func(InitVar)
+	
+
+end

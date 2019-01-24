@@ -1,0 +1,133 @@
+--// AO_Settle3
+--//--------------------
+
+function InitVar()
+Vars.Save1 = 1
+end
+
+
+function MostRiversAreGreen()
+
+
+	if Game.GetNumberOfSquaresWithDarkLand(15) <= 21 
+--//	and Game.IsAreaDarkLand(443,264,30) == 1 
+	and Vars.Save1 == 1 then
+		--//Game.Time() == 10 and Vars.Save1 == 1 then
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 286,296, 0)
+		Settlers.AddSettlers(286,296,2,Settlers.PRIEST,1)
+		Magic.IncreaseMana(2,100)
+		--//four hat kein script
+		Game.ShowText("AO_SETTLE_SCRIPT_THREE_01",286,296)
+			Vars.Save1 = 2
+
+	end
+	
+	if Map.PointIsOnScreen(286,296) == 1 and Vars.Save1 == 2 then
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 276,294)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 269,275)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 275,267)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 286,267)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 302,280)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 314,304)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 296,321)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 283,302)
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 307,290)
+			Vars.Save1 = 3
+	end
+
+	if (Settlers.AmountInArea(1,Settlers.SWORDSMAN_03,286,296,3) >= 1
+	or Settlers.AmountInArea(1,Settlers.SWORDSMAN_02,286,296,3) >= 1
+	or Settlers.AmountInArea(1,Settlers.SWORDSMAN_01,286,296,3) >= 1
+	or Settlers.AmountInArea(1,Settlers.BOWMAN_03,286,296,3) >= 1
+	or Settlers.AmountInArea(1,Settlers.BOWMAN_02,286,296,3) >= 1
+	or Settlers.AmountInArea(1,Settlers.BOWMAN_01,286,296,3) >= 1 )
+	and Vars.Save1 == 3 then
+		--//wenn du mich hauen willst gehe ich halt wieder :)
+		Game.ShowText("AO_SETTLE_SCRIPT_THREE_02",286,296)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 286,296, 0)
+		Settlers.KillSelectableSettlers(2,-1,286,296,5,0)
+		Vars.Save1 = 0
+	end
+
+
+
+end
+
+function VictoryConditionCheck()
+
+		if Game.IsAreaGreen(443,263,24) == 1 then
+			--//Game.GetNumberOfSquaresWithDarkLand(5) <= 20 
+			
+			Game.DefaultGameEndCheck()
+		end
+
+end
+
+function DisableLastNPlayersInStatistic()
+
+--//request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+--//reg_func(DisableLastNPlayersInStatistic)
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(116,141)
+	end
+
+
+	
+	--//for testing
+	--//Settlers.AddSettlers(443,263,1,Settlers.GARDENER,20)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(MostRiversAreGreen, Events.FIVE_TICKS)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+end
+
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+	reg_func(MostRiversAreGreen)
+	reg_func(InitVar)
+	reg_func(DisableLastNPlayersInStatistic)
+
+end
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

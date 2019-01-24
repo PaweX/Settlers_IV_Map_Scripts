@@ -1,0 +1,86 @@
+--//AO_ROMAN2
+--//------------
+
+function new_game()
+
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(173,465)
+	end
+
+
+	 
+	 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 60, 30, 10) 
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 80, 20, 10) 
+
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 95, 40, 10) 
+
+	AI.SetPlayerVar(5, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(5, "AttackDelay", 100, 50, 10) 
+
+	AI.SetPlayerVar(6, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(6, "AttackDelay", 110, 60, 10) 
+
+
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 100,150,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 150,200,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 100,150,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 150,200,150)
+	
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 100,150,300)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 150,200,150)
+
+	AI.SetPlayerVar(5, "SoldierLimitAbsolute", 100,150,300)
+	AI.SetPlayerVar(5, "SoldierLimitRelative", 150,200,150)
+
+	AI.SetPlayerVar(6, "SoldierLimitAbsolute", 100,150,300)
+	AI.SetPlayerVar(6, "SoldierLimitRelative", 150,200,150)
+
+
+
+ 
+end
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

@@ -1,0 +1,79 @@
+--// MD_ROMAN5
+--//-----------
+
+ATTACKTIME = 8 + Game.Random(3)
+
+FRIENDSHIPATTACK  = 160 + Game.Random(10)
+
+function InitVar()
+
+	--//flag for ATTACKTIME and FRIENDSHIPATTACK   
+	Vars.Save1 = 1 
+	Vars.Save2 = 1
+	
+end
+
+function MassiveAttackCheck()
+
+	--//vernichtung der Mayas
+	if Game.Time() == ATTACKTIME and Vars.Save1 == 1  then
+		Settlers.AddSettlers(355,555, 5,Settlers.SWORDSMAN_01, 10) 
+		Settlers.AddSettlers(355,555, 5, Settlers.BOWMAN_01, 5)
+		Settlers.AddSettlers(355,555, 5, Settlers.SHAMAN, 3) 
+
+		Settlers.AddSettlers(400,533, 5,Settlers.SWORDSMAN_01, 15)
+		Settlers.AddSettlers(400,533, 5, Settlers.BOWMAN_01, 10)
+		Settlers.AddSettlers(400,533, 5, Settlers.SHAMAN, 3) 
+
+		Settlers.AddSettlers(406,377, 5,Settlers.SWORDSMAN_01, 15)
+		Settlers.AddSettlers(406,377, 5, Settlers.BOWMAN_01, 10)
+		Settlers.AddSettlers(406,377, 5, Settlers.SHAMAN, 3) 
+		--//AI.AttackNow(5, 3, 3)
+		AI.AttackNow(4, 3, 1)
+		Vars.Save1 = 2 
+	end
+		
+	--//wenn das dv die Mayasiedlung vernichtet hat
+
+	if Game.HasPlayerLost(3) == 1 and Vars.Save1 == 2 then
+		Game.ShowText("MD_DARK_SCRIPT_FIVE_01",408,394)
+		Vars.Save1 = 3
+		--//oh nein MAYA siedlung putt
+	end
+	
+	if Game.Time() == FRIENDSHIPATTACK and Vars.Save2 == 1  then
+		Game.ShowText("MD_DARK_SCRIPT_FIVE_02",573,114)
+		AI.AttackNow(2, 5, 1)
+		AI.AttackNow(2, 4, 1)
+		AI.AttackNow(2, 6, 1)
+		Vars.Save2	= 0
+		
+	end
+
+end
+
+
+function new_game()
+
+	--//Playervariables
+	
+	AI.SetPlayerVar(6, "AttackMode", 1, 1, 2) 
+	AI.SetPlayerVar(6, "AttackDelay", 110, 80, 10) 
+	
+	AI.SetPlayerVar(5, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(5, "AttackDelay", 120, 55, 10) 
+	
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 100, 100, 10) 
+	
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(MassiveAttackCheck,Events.FIVE_TICKS)	
+
+end
+
+function register_functions()
+
+  reg_func(MassiveAttackCheck)
+  reg_func(InitVar)
+
+end

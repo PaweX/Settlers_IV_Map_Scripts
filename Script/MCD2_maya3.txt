@@ -1,0 +1,202 @@
+gBows=16
+gSwords=16
+gBlowguns=16
+gGoldBars=16
+wonder_X={408,256}
+wonder_Y={450,256}
+
+if Game.GetDifficulty()==0 then
+	spawnTime=45						--time for first spawn (in minutes)
+	spawnDelay=8						--time between two consecutive spawns
+	spawnAmount=25					--number of Settlers to be spawned
+else
+	spawnTime=30							--time for first spawn (in minutes)
+	spawnDelay=5						--time between two consecutive spawns
+	spawnAmount=30					--number of Settlers to be spawned
+end
+
+function initVar()
+	Vars.Save1=0
+	Vars.Save2=0
+	Vars.Save3=0
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	Game.DefaultPlayerLostCheck(2)
+	Game.DefaultPlayerLostCheck(3)
+	Game.DefaultPlayerLostCheck(4)
+	if Game.HasPlayerLost(2)==1 and Vars.Save1==0 then
+		Game.PlayerLost(1)
+	else
+		if Game.HasPlayerLost(1)==0 and Vars.Save2==30 and Vars.Save3==30 then
+ 			Game.EnemyPlayersLost(1)
+		end
+	end
+	Game.DefaultGameEndCheck()
+end
+
+function sacrificeCheck()
+	if Vars.Save1==1 then
+		unrequest_event(sacrificeCheck,Events.FIVE_TICKS)
+	else
+		if Goods.Amount(2,Goods.BOW)>=gBows and Goods.Amount(2,Goods.SWORD)>=gSwords and
+			 Goods.Amount(2,Goods.BACKPACKCATAPULT)>=gBlowguns and Goods.Amount(2,Goods.GOLDBAR)>=gGoldBars
+			 and Vars.Save1==0 then
+			Game.ShowText("MD2_MAYAN_SCRIPT_THREE_01",48,170)
+
+		 			Vars.Save1=1
+		 			if Game.GetDifficulty()==0 then
+		 				Magic.IncreaseMana(1,600)
+		 			else
+		 				Magic.IncreaseMana(1,550)
+		 			end
+		 			unrequest_event(sacrificeCheck,Events.FIVE_TICKS)
+		end
+	end
+end
+
+function wonder1_Check()
+	if Vars.Save2==1 then
+		request_event(delColossos,Events.TICK)
+		unrequest_event(wonder1_Check,Events.FIVE_TICKS)
+	else
+		if Settlers.AmountInArea(1,Settlers.PRIEST,255,255,15)>=1 and Magic.CurrentManaAmount(1)>=250 then
+			Magic.DecreaseMana(1,250)
+			Effects.AddEffect(Effects.VMAGIC_INCREASEANIMALS,Sounds.NO_SOUND,242,226,0)
+			Vars.Save2=1
+		end
+	end
+end
+
+function delColossos()
+	if Vars.Save2==30 then
+		unrequest_event(delColossos,Events.TICK)
+	else
+		if Vars.Save2==29 then
+			Map.DeleteDecoObject(255,255,5,225)
+			Game.ShowText("MD2_MAYAN_SCRIPT_THREE_02",255,255)
+			Vars.Save2=30
+		else
+			Vars.Save2=Vars.Save2+1
+			_y=235+Game.Random(26)
+			_x=(_y-235)/2+240+Game.Random(10)
+			Effects.AddEffect(Effects.MUSHROOMFARM_CRASH,Sounds.NO_SOUND,_x,_y,0)
+		end
+	end
+end
+
+function wonder2_Check()
+	if Vars.Save3==1 then
+		request_event(delTower,Events.TICK)
+		unrequest_event(wonder2_Check,Events.FIVE_TICKS)
+	else
+		if Settlers.AmountInArea(1,Settlers.PRIEST,408,450,15)>=1 and Magic.CurrentManaAmount(1)>=250 then
+			Magic.DecreaseMana(1,250)
+			Effects.AddEffect(Effects.VMAGIC_INCREASEANIMALS,Sounds.NO_SOUND,396,425,0)
+			Vars.Save3=1
+		end
+	end
+end
+
+function delTower()
+	if Vars.Save3==30 then
+		unrequest_event(delTower,Events.TICK)
+	else
+		if Vars.Save3==29 then
+			Map.DeleteDecoObject(408,450,5,224)
+			Game.ShowText("MD2_MAYAN_SCRIPT_THREE_03",255,255)
+			Vars.Save3=30
+		else
+			Vars.Save3=Vars.Save3+1
+			_y=436+Game.Random(25)
+			_x=(_y-436)/2+395+Game.Random(10)
+			Effects.AddEffect(Effects.MUSHROOMFARM_CRASH,Sounds.NO_SOUND,_x,_y,0)
+		end
+	end
+end
+
+function spawnSettlers()
+	if Game.Time()>=spawnTime then
+		if Game.FindAnyUnit(1,86,501,32)==0 then
+			Settlers.AddSettlers(86,501,3,Settlers.CARRIER,spawnAmount)
+			Goods.AddPileEx(86,501,Goods.SWORD,8)
+			Goods.AddPileEx(86,501,Goods.BOW,8)
+			Goods.AddPileEx(86,501,Goods.COAL,8)
+			Goods.AddPileEx(86,501,Goods.IRONORE,8)
+			spawnTime=Game.Time()+spawnDelay
+		else
+			if Game.FindAnyUnit(1,38,439,32)==0 then
+				Settlers.AddSettlers(38,439,3,Settlers.CARRIER,spawnAmount)
+			Goods.AddPileEx(38,439,Goods.SWORD,8)
+			Goods.AddPileEx(38,439,Goods.BOW,8)
+			Goods.AddPileEx(38,439,Goods.COAL,8)
+			Goods.AddPileEx(38,439,Goods.IRONORE,8)
+				spawnTime=Game.Time()+spawnDelay
+			end
+		end
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(sacrificeCheck,Events.FIVE_TICKS)
+	request_event(wonder1_Check,Events.FIVE_TICKS)
+	request_event(wonder2_Check,Events.FIVE_TICKS)
+
+	Map.AddDecoObject(255,255,225)
+	Map.AddDecoObject(408,450,224)
+	
+	if Game.GetDifficulty()==0 then
+		Settlers.AddSettlers(260,266,1,Settlers.THIEF,1)
+		Settlers.AddSettlers(411,462,1,Settlers.THIEF,1)
+	end
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 120, 80, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(4, "AttackMode", 0, 1, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 120, 80, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)
+
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(sacrificeCheck)
+	reg_func(wonder1_Check)
+	reg_func(wonder2_Check)
+	reg_func(delColossos)
+	reg_func(delTower)
+end
+
+--for testing only
+function getGoods()
+	_i=0
+	while _i<3 do
+		Goods.AddPileEx(536,314,Goods.SWORD,8)
+		Goods.AddPileEx(536,314,Goods.BOW,8)
+		Goods.AddPileEx(536,314,Goods.BLOWGUN,8)
+		Goods.AddPileEx(536,314,Goods.GOLDBAR,8)
+		_i=_i+1
+	end
+end
+
+function getPriests()
+	Settlers.AddSettlers(wonder_X[1],wonder_Y[1],1,Settlers.PRIEST,1)
+	Settlers.AddSettlers(wonder_X[2],wonder_Y[2],1,Settlers.PRIEST,1)
+end
+
+function getMana()
+	Magic.IncreaseMana(1,500)
+end

@@ -1,0 +1,1119 @@
+_heal=0
+minIntervall=10												--minimum ammount of time (in 5 Ticks) before healing is repeated
+randIntervall=9												--additional random time(in 5 Ticks) to be added before healing
+towers1_X={165,182,177,194}
+towers1_Y={230,230,254,254}
+towers2_X={510,527,539,522}
+towers2_Y={218,218,242,242}
+_kill1=0
+_kill2=0
+killDelay=3
+randKillDelay=3
+if Game.GetDifficulty()==0 then
+	attackDelay=9
+	randAttackDelay=4
+	soldiersAmount=3
+	randSoldiersAmount=3
+else
+	attackDelay=7
+	randAttackDelay=3
+	soldiersAmount=4
+	randSoldiersAmount=4
+end
+
+ai={
+	maya1={
+		id=2,
+		AttackMode={0,0,2},              	     --See above
+		AttackDelay={75,45,30},           	   --The AI will not attack before "AttackDelay" minutes
+		AttackChancePartial={20,20,20},     	 --Chance (100 = 100%) for a partial attack
+		AttackThresholdPartial={175,175,175},  --Do only a partial attack, if "Own fighter value" >= AttackThresholdPartial / 100 * "Enemy fighter value"
+		AttackThresholdTotal={225,225,225},    --Do only a total attack,   if "Own fighter value" >= AttackThresholdTotal / 100   * "Enemy fighter value"
+		SoldierLimitAbsolute={250,500,0},   	 --If "number of own fighters" >= SoldierLimitAbsolute, check if relative limit is reached
+		SoldierLimitRelative={200,250,0},   	 --Relative check (see also above): Limit number of own fighters by "Enemy fighters" * SoldierLimitRelative / 100
+		UsePioneers={1,2,2},                 	 --0 = Don't use pioneers, 1 = Use pioneers, but don't produce pioneers, 2 = Use and produce pioneers (2 doesn't work yet)
+		fightingStrength={-1,100,100},
+		randomSquad={
+			{	chance={100,35};
+				{type=Settlers.SWORDSMAN_01,chance={50,30}},
+				{type=Settlers.BOWMAN_01,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_01,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,45};
+				{type=Settlers.SWORDSMAN_02,chance={50,30}},
+				{type=Settlers.BOWMAN_02,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_02,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,20};
+				{type=Settlers.SWORDSMAN_03,chance={50,30}},
+				{type=Settlers.BOWMAN_03,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_03,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			}
+		}
+	},
+	maya2={
+		id=3,
+		AttackMode={0,0,2},              	     --See above
+		AttackDelay={75,45,30},           	   --The AI will not attack before "AttackDelay" minutes
+		AttackChancePartial={20,20,20},     	 --Chance (100 = 100%) for a partial attack
+		AttackThresholdPartial={175,175,175},  --Do only a partial attack, if "Own fighter value" >= AttackThresholdPartial / 100 * "Enemy fighter value"
+		AttackThresholdTotal={225,225,225},    --Do only a total attack,   if "Own fighter value" >= AttackThresholdTotal / 100   * "Enemy fighter value"
+		SoldierLimitAbsolute={250,500,0},   	 --If "number of own fighters" >= SoldierLimitAbsolute, check if relative limit is reached
+		SoldierLimitRelative={200,250,0},   	 --Relative check (see also above): Limit number of own fighters by "Enemy fighters" * SoldierLimitRelative / 100
+		UsePioneers={1,2,2},                 	 --0 = Don't use pioneers, 1 = Use pioneers, but don't produce pioneers, 2 = Use and produce pioneers (2 doesn't work yet)
+		fightingStrength={-1,100,100},
+		randomSquad={
+			{	chance={100,35};
+				{type=Settlers.SWORDSMAN_01,chance={50,30}},
+				{type=Settlers.BOWMAN_01,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_01,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,45};
+				{type=Settlers.SWORDSMAN_02,chance={50,30}},
+				{type=Settlers.BOWMAN_02,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_02,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,20};
+				{type=Settlers.SWORDSMAN_03,chance={50,30}},
+				{type=Settlers.BOWMAN_03,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_03,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			}
+		}
+	},
+	maya3={
+		id=4,
+		AttackMode={0,0,2},              	     --See above
+		AttackDelay={75,45,30},           	   --The AI will not attack before "AttackDelay" minutes
+		AttackChancePartial={20,20,20},     	 --Chance (100 = 100%) for a partial attack
+		AttackThresholdPartial={175,175,175},  --Do only a partial attack, if "Own fighter value" >= AttackThresholdPartial / 100 * "Enemy fighter value"
+		AttackThresholdTotal={225,225,225},    --Do only a total attack,   if "Own fighter value" >= AttackThresholdTotal / 100   * "Enemy fighter value"
+		SoldierLimitAbsolute={250,500,0},   	 --If "number of own fighters" >= SoldierLimitAbsolute, check if relative limit is reached
+		SoldierLimitRelative={200,250,0},   	 --Relative check (see also above): Limit number of own fighters by "Enemy fighters" * SoldierLimitRelative / 100
+		UsePioneers={1,2,2},                 	 --0 = Don't use pioneers, 1 = Use pioneers, but don't produce pioneers, 2 = Use and produce pioneers (2 doesn't work yet)
+		fightingStrength={-1,100,100},
+		randomSquad={
+			{	chance={100,35};
+				{type=Settlers.SWORDSMAN_01,chance={50,30}},
+				{type=Settlers.BOWMAN_01,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_01,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,45};
+				{type=Settlers.SWORDSMAN_02,chance={50,30}},
+				{type=Settlers.BOWMAN_02,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_02,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			},
+			{	chance={0,20};
+				{type=Settlers.SWORDSMAN_03,chance={50,30}},
+				{type=Settlers.BOWMAN_03,chance={35,30}},
+				{type=Settlers.BLOWGUNWARRIOR_03,chance={15,30}},
+				{type=Settlers.SQUADLEADER,chance={0,10}}
+			}
+		}
+	},
+	roman1={
+		id=5,
+		AttackMode={1,2,2},              	     --See above
+		AttackDelay={60,45,30},           	   --The AI will not attack before "AttackDelay" minutes
+		AttackChancePartial={10,50,20},     	 --Chance (100 = 100%) for a partial attack
+		AttackThresholdPartial={175,100,175},  --Do only a partial attack, if "Own fighter value" >= AttackThresholdPartial / 100 * "Enemy fighter value"
+		AttackThresholdTotal={225,100,225},    --Do only a total attack,   if "Own fighter value" >= AttackThresholdTotal / 100   * "Enemy fighter value"
+		SoldierLimitAbsolute={250,500,0},   	 --If "number of own fighters" >= SoldierLimitAbsolute, check if relative limit is reached
+		SoldierLimitRelative={200,250,0},   	 --Relative check (see also above): Limit number of own fighters by "Enemy fighters" * SoldierLimitRelative / 100
+		UsePioneers={1,2,2},                 	 --0 = Don't use pioneers, 1 = Use pioneers, but don't produce pioneers, 2 = Use and produce pioneers (2 doesn't work yet)
+		fightingStrength={-1,100,100},
+		randomSquad={
+			{	chance={100,45};
+				{type=Settlers.SWORDSMAN_01,chance={50,45}},
+				{type=Settlers.BOWMAN_01,chance={35,45}},
+				{type=Settlers.MEDIC_01,chance={15,10}},
+				{type=Settlers.SQUADLEADER,chance={0,0}}
+			},
+			{	chance={0,45};
+				{type=Settlers.SWORDSMAN_02,chance={50,40}},
+				{type=Settlers.BOWMAN_02,chance={35,30}},
+				{type=Settlers.MEDIC_02,chance={15,25}},
+				{type=Settlers.SQUADLEADER,chance={0,5}}
+			},
+			{	chance={0,10};
+				{type=Settlers.SWORDSMAN_03,chance={50,25}},
+				{type=Settlers.BOWMAN_03,chance={35,30}},
+				{type=Settlers.MEDIC_03,chance={15,40}},
+				{type=Settlers.SQUADLEADER,chance={0,5}}
+			}
+		}
+	}
+}
+
+ships={
+	{	start={x=11,y=78},		--left
+		target={x=68,y=138},
+		unload={x=76,y=153},
+		direction=2
+	},
+	{	start={x=692,y=146},	--right
+		target={x=602,y=176},
+		unload={x=594,y=179},
+		direction=3
+	},
+	{	start={x=552,y=692},	--middle
+		target={x=517,y=604},
+		unload={x=510,y=590},
+		direction=5
+	},
+	{	start={x=239,y=692},	--middle
+		target={x=338,y=585},
+		unload={x=348,y=582},
+		direction=0
+	}
+}
+
+circles={
+	wonder1={
+		center={x=179,y=241},
+		radius=22,
+		effect=Effects.DARKFLAME,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=4,
+		split=3,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	wonder2={
+		center={x=525,y=232},
+		radius=22,
+		effect=Effects.DARKFLAME,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=4,
+		split=3,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	healingWell={
+		center={x=460,y=521},
+		radius=16,
+		effect=Effects.MAGIC_PILE01,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=16,
+		split=4,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	temple={
+		center={x=472,y=500},
+		radius=10,
+		effect=Effects.MAGIC_PILE02,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=10,
+		split=4,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
+}
+
+function initVar()
+		Vars.Save1=0		--flag, turns 1 when player conquers castle
+		Vars.Save2=2		--flag, turns 1 when player has ready temple at healing well
+		Vars.Save3=0		--flag for wonder1
+		Vars.Save4=0		--flag for wonder2
+		Vars.Save5=0		--flag for ferry
+		Vars.Save6=0		--flag, turns 1 when players gets his first military building
+		if Game.GetDifficulty()==0 then
+			Vars.Save7=65 --time for ferryattack
+		else
+			Vars.Save7=50
+		end
+		Vars.Save8=0		--stores position of ferryattack
+		if Game.GetDifficulty()==0 then
+			Vars.Save9=7	--number of Soldiers used for ferryattack
+		else
+			Vars.Save9=10
+		end
+end
+
+function victoryConditionCheck()
+	if Vars.Save6>0 then
+		Game.DefaultPlayerLostCheck(1)
+		Game.DefaultPlayerLostCheck(2)
+		Game.DefaultPlayerLostCheck(3)
+		Game.DefaultPlayerLostCheck(4)
+	end
+	if (Game.HasPlayerLost(1)==1 and Vars.Save6>0) or
+		 (Settlers.Amount(1,Settlers.SWORDSMAN_03)==0 and Settlers.Amount(1,Settlers.BOWMAN_02)==0 and
+		  Vars.Save6==0) or Settlers.Amount(1,Settlers.PRIEST)<2 then
+
+			Game.PlayerLost(1)
+			Game.PlayerLost(6)
+			Game.DefaultGameEndCheck()
+	else
+		if Vars.Save1==1 and Vars.Save2==1 and Vars.Save3==2 and Vars.Save4==2 and
+			 Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,333,286,10,Buildings.READY)>0 then
+
+		 		Game.EnemyPlayersLost(1)
+			 	Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function enablePlayerLostCheck()
+	if Vars.Save6==1 then
+		if Game.GetDifficulty()==0 then
+			Vars.Save6=10
+		else
+			Vars.Save6=15
+		end
+		unrequest_event(enablePlayerLostCheck,Events.FIVE_TICKS)
+	else
+		_type3=46
+		while _type3<49 do
+			if Buildings.Amount(1,_type3,Buildings.READY)>=1 then
+				Vars.Save6=1
+				_type3=49
+			else
+				_type3=_type3+1
+			end
+		end
+	end
+end
+
+function castleCheck()
+	if Vars.Save1==1 then
+		request_event(ferryCheck,Events.TICK)
+		request_event(templeCheck,Events.FIVE_TICKS)
+		request_event(drawCircle4,Events.TICK)
+		unrequest_event(castleCheck,Events.FIVE_TICKS)
+	else
+		if Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,333,286,10,Buildings.READY)>0 then
+			Vars.Save1=1
+			Game.ShowText("MD2_MAYAN_SCRIPT_FIVE_01",333,286)
+		end
+	end
+end
+
+function ferryCheck()
+	if Vars.Save5==2 then
+		unrequest_event(ferryCheck,Events.TICK)
+	else
+		if Vars.Save5==1 then
+			if Vehicles.AmountInArea(6,Vehicles.FERRY,334,574,0)==1 then
+				Vehicles.KillVehicles(6,Vehicles.FERRY,334,574,0,0)
+				Vehicles.AddVehicle(334,574,1,Vehicles.FERRY,0,0,0)
+				Settlers.AddSettlers(350,569,1,Settlers.THIEF,20)
+				Vars.Save5=2
+			end
+		else
+			Vehicles.AddVehicle(280,692,6,Vehicles.FERRY,5,0,1)
+			AI.NewSquad(6,AI.CMD_MOVE_AND_STAY,334,574)
+			Vars.Save5=1
+		end
+	end
+end
+
+function templeCheck()
+	if Buildings.ExistsBuildingInArea(1,Buildings.SMALLTEMPLE,473,498,10,Buildings.READY)==1 then
+		if Vars.Save2~=1 then
+			Vars.Save2=1
+			request_event(drawCircle3,Events.TICK)
+		else
+			if _heal>=minIntervall+Game.Random(randIntervall) then
+				_unit=29
+				while _unit<=50 do
+					Settlers.SetHealthInArea(1,_unit,circles.healingWell.center.x,circles.healingWell.center.y,(circles.healingWell.radius+8),300)
+					if _unit==34 then
+						_unit=41
+					else
+						_unit=_unit+1
+					end
+				end
+				_heal=0
+			else
+				_heal=_heal+1
+			end
+		end
+	else
+		if Vars.Save2==1 then
+			Vars.Save2=0
+		end
+	end
+end
+
+function wonder1_Check()
+	if Vars.Save3==2 then
+		request_event(drawCircle1,Events.TICK)
+		request_event(kill1,Events.FIVE_TICKS)
+		unrequest_event(wonder1_Check,Events.FIVE_TICKS)
+	else
+		--//if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers1_X[1],towers1_Y[1],5,Buildings.READY)>=1
+		--//	 and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers1_X[2],towers1_Y[2],5,Buildings.READY)>=1
+			--// and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers1_X[3],towers1_Y[3],5,Buildings.READY)>=1
+			 --//and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers1_X[4],towers1_Y[4],5,Buildings.READY)>=1
+			 --//then
+
+					if Settlers.AmountInArea(1,Settlers.PRIEST,177,239,20)>0 then
+						if Vars.Save3==1 then
+							if Magic.CurrentManaAmount(1)>=150 then
+								Vars.Save3=2
+								Magic.DecreaseMana(1,150)
+								Game.ShowText("MD2_MAYAN_SCRIPT_FIVE_02",177,239)
+							end
+						else
+							if Game.GetAmountOfTreesInArea(177,239,5)==0 then
+								fBuildings=0
+								_type=1
+								while _type<76 do
+									if Buildings.ExistsBuildingInArea(1,_type,177,239,8,Buildings.ALL)==1 then
+										fBuildings=1
+										_type=76
+									else
+										if _type==13 then
+											_type=19
+										else
+											if _type==29 then
+												_type=33
+											else
+												if _type==34 then
+													_type=36
+												else
+													if _type==37 then
+														_type=40
+													else
+													 	if _type==48 then
+													 		_type=64
+													 	else
+													 		_type=_type+1
+													 	end
+													end
+												end
+											end
+										end
+									end
+								end
+								if fBuildings==0 then
+									if Settlers.AmountInArea(1,Settlers.PRIEST,177,239,8)>0 then
+										Settlers.AddSettlers(186,256,1,Settlers.PRIEST,(Settlers.AmountInArea(1,Settlers.PRIEST,177,239,8)))
+									end
+									Settlers.KillSelectableSettlers(-1,-1,177,239,8,0)
+									_type=1
+									while _type<=42 do
+										Goods.Delete(177,239,8,_type)
+										_type=_type+1
+									end
+									obj=56
+									while	obj<76 do
+										Map.DeleteDecoObject(177,239,10,obj)
+										obj=obj+1
+									end
+									Map.AddDecoObject(177,239,225)
+									Vars.Save3=1
+								end
+							end
+						end
+					--//end
+		else
+--			if Vars.Save3==1 and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,177,239,15,Buildings.ALL)==0 then
+--				Game.PlayerLost(1)
+--			end
+		end
+	end
+end
+
+function kill1()
+	if _kill1>=killDelay+Game.Random(randKillDelay) then
+		Settlers.KillSelectableSettlers(5,-1,circles.wonder1.center.x,circles.wonder1.center.y,circles.wonder1.radius,1)
+		_kill1=0
+	else
+		_kill1=_kill1+1
+	end
+end
+
+function wonder2_Check()
+	if Vars.Save4==2 then
+		request_event(drawCircle2,Events.TICK)
+		request_event(kill2,Events.FIVE_TICKS)
+		unrequest_event(wonder2_Check,Events.FIVE_TICKS)
+	else
+		--//if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers2_X[1],towers2_Y[1],5,Buildings.READY)>=1
+		--//	 and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers2_X[2],towers2_Y[2],5,Buildings.READY)>=1
+			--// and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers2_X[3],towers2_Y[3],5,Buildings.READY)>=1
+			 --//and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,towers2_X[4],towers2_Y[4],5,Buildings.READY)>=1
+			 --//then
+
+					if Settlers.AmountInArea(1,Settlers.PRIEST,523,227,20)>0 then
+						if Vars.Save4==1 then
+							if Magic.CurrentManaAmount(1)>=150 then
+								Vars.Save4=2
+								Magic.DecreaseMana(1,150)
+								Game.ShowText("MD2_MAYAN_SCRIPT_FIVE_02",523,227)
+							end
+						else
+							if Game.GetAmountOfTreesInArea(523,227,5)==0 then
+								fBuildings2=0
+								_type2=1
+								while _type2<76 do
+									if Buildings.ExistsBuildingInArea(1,_type2,523,227,8,Buildings.ALL)==1 then
+										fBuildings2=1
+										_type=76
+									else
+										if _type2==13 then
+											_type2=19
+										else
+											if _type2==29 then
+												_type2=33
+											else
+												if _type2==34 then
+													_type2=36
+												else
+													if _type2==37 then
+														_type2=40
+													else
+													 	if _type2==48 then
+													 		_type2=64
+													 	else
+													 		_type2=_type2+1
+													 	end
+													end
+												end
+											end
+										end
+									end
+								end
+								if fBuildings2==0 then
+									if Settlers.AmountInArea(1,Settlers.PRIEST,523,227,8)>0 then
+										Settlers.AddSettlers(532,246,1,Settlers.PRIEST,(Settlers.AmountInArea(1,Settlers.PRIEST,523,227,8)))
+									end
+									Settlers.KillSelectableSettlers(-1,-1,523,227,8,0)
+									_type2=1
+									while _type2<=42 do
+										Goods.Delete(523,227,8,_type2)
+										_type2=_type2+1
+									end
+									obj=56
+									while	obj<76 do
+										Map.DeleteDecoObject(523,227,10,obj)
+										obj=obj+1
+									end
+									Map.AddDecoObject(523,227,224)
+									Vars.Save4=1
+								end
+							end
+						end
+					--//end
+		else
+--			if Vars.Save4==1 and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,527,231,15,Buildings.ALL)==0 then
+--				Game.PlayerLost(1)
+--			end
+		end
+	end
+end
+
+function kill2()
+	if _kill2>=killDelay+Game.Random(randKillDelay) then
+		Settlers.KillSelectableSettlers(5,-1,circles.wonder2.center.x,circles.wonder2.center.y,circles.wonder2.radius,1)
+		_kill2=0
+	else
+		_kill2=_kill2+1
+	end
+end
+
+function romanAttack()
+	if Game.Time()>=Vars.Save7 and Vars.Save8==0 then
+		if Vehicles.Amount(1,Vehicles.WARSHIP)>0 then
+			Vehicles.AddVehicle(252,692,5,Vehicles.WARSHIP,0,100,1)
+			AI.NewSquad(5,AI.CMD_MOVE_AND_STAY,313,568)
+			Vehicles.AddVehicle(266,692,5,Vehicles.WARSHIP,0,100,1)
+			AI.NewSquad(5,AI.CMD_MOVE_AND_STAY,315,583)
+			Vehicles.AddVehicle(281,692,5,Vehicles.WARSHIP,0,100,1)
+			AI.NewSquad(5,AI.CMD_MOVE_AND_STAY,307,589)
+			Vehicles.AddVehicle(294,692,5,Vehicles.WARSHIP,0,100,1)
+			AI.NewSquad(5,AI.CMD_MOVE_AND_STAY,337,593)
+		end
+		random=Game.Random(100)
+		if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,175,236,25,Buildings.READY)==1 and
+			 Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,520,223,25,Buildings.READY)==1 then
+
+			 		if random<40 then
+			 			Vars.Save8=1
+			 		else
+			 			if random<80 then
+			 				Vars.Save8=2
+			 			else
+			 				if random<90 then
+			 			 		Vars.Save8=3
+			 			 	else
+			 			 		Vars.Save8=4
+			 			 	end
+			 			end
+			 		end
+		else
+			if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,175,236,25,Buildings.READY)==1 then
+				if random<70 then
+					Vars.Save8=1
+				else
+					if random<85 then
+						Vars.Save8=3
+					else
+						Vars.Save8=4
+					end
+				end
+			else
+				if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,520,223,25,Buildings.READY)==1 then
+					if random<70 then
+						Vars.Save8=2
+					else
+						if random<85 then
+							Vars.Save8=3
+						else
+							Vars.Save8=4
+						end
+					end
+				else
+					if random<50 then
+						Vars.Save8=3
+					else
+						Vars.Save8=4
+					end
+				end
+			end
+		end
+ 		Vehicles.AddVehicle(ships[Vars.Save8]["start"]["x"],ships[Vars.Save8]["start"]["y"],5,Vehicles.FERRY,0,0,1)
+ 		AI.NewSquad(5,AI.CMD_MOVE_AND_STAY,ships[Vars.Save8]["target"]["x"],ships[Vars.Save8]["target"]["y"])
+		Vars.Save7=Vars.Save7+attackDelay+Game.Random(randAttackDelay+1)
+	else
+		if Vars.Save8~=0 then
+			if Vehicles.AmountInArea(5,Vehicles.FERRY,ships[Vars.Save8]["target"]["x"],ships[Vars.Save8]["target"]["y"],1)>0 then
+				ai.randomSquadAttack(ai.roman1,ships[Vars.Save8]["unload"]["x"],ships[Vars.Save8]["unload"]["y"],Vars.Save9,0)
+				Vehicles.KillVehicles(5,Vehicles.FERRY,ships[Vars.Save8]["target"]["x"],ships[Vars.Save8]["target"]["y"],1,0)
+				Vehicles.AddVehicle(ships[Vars.Save8]["target"]["x"],ships[Vars.Save8]["target"]["y"],5,Vehicles.FERRY,ships[Vars.Save8]["direction"],0,1)
+				AI.NewSquad(5,AI.CMD_MOVE_AND_VANISH,ships[Vars.Save8]["start"]["x"],ships[Vars.Save8]["start"]["y"])
+				Vars.Save8=0
+				Vars.Save9=Vars.Save9+soldiersAmount+Game.Random(randSoldiersAmount+1)
+			end
+			if Vehicles.Amount(5,Vehicles.FERRY)==0 then
+				Vars.Save8=0
+			end
+		end
+	end
+end
+
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
+end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.wonder1)
+	circles.calculate(circles.wonder2)
+	circles.calculate(circles.healingWell)
+	circles.calculate(circles.temple)
+end
+
+function drawCircle1()
+	if Vars.Save3~=2 then
+		unrequest_event(drawCircle1,Events.TICK)
+	else
+		circles.draw(circles.wonder1)
+	end
+end
+
+function drawCircle2()
+	if Vars.Save4~=2 then
+		unrequest_event(drawCircle2,Events.TICK)
+	else
+		circles.draw(circles.wonder2)
+	end
+end
+
+function drawCircle3()
+	if Vars.Save2~=1 then
+		unrequest_event(drawCircle3,Events.TICK)
+	else
+		circles.draw(circles.healingWell)
+	end
+end
+
+function drawCircle4()
+	if Vars.Save2~=2 then
+		unrequest_event(drawCircle4,Events.TICK)
+	else
+		circles.draw(circles.temple)
+	end
+end
+
+function ai.randomSquadAttack(_ai,_x,_y,_amount,_level)
+	_n=1
+	_difficulty=Game.GetDifficulty()+1
+	while _n<=_amount do
+		if _level==0 or _level==nil then
+			chanceL1=_ai.randomSquad[1]["chance"][_difficulty]
+			chanceL2=chanceL1+_ai.randomSquad[2]["chance"][_difficulty]
+			chanceL3=chanceL2+_ai.randomSquad[3]["chance"][_difficulty]
+			rand=Game.Random(100)+1
+			if rand<=chanceL1 then
+				level=1
+			else
+				if rand<=chanceL2	then
+					level=2
+				else
+					level=3
+				end
+			end
+		else
+			level=_level
+		end
+		chanceSwordsman=_ai.randomSquad[level][1]["chance"][_difficulty]
+		chanceBowman=chanceSwordsman+_ai.randomSquad[level][2]["chance"][_difficulty]
+		chanceSpecialist=chanceBowman+_ai.randomSquad[level][3]["chance"][_difficulty]
+		chanceSquadleader=chanceSpecialist+_ai.randomSquad[level][4]["chance"][_difficulty]
+		rand=Game.Random(100)+1
+		if rand<=chanceSwordsman then
+			type=_ai.randomSquad[level][1]["type"]
+		else
+			if rand<=chanceBowman then
+				type=_ai.randomSquad[level][2]["type"]
+			else
+				if rand<=chanceSpecialist then
+					type=_ai.randomSquad[level][3]["type"]
+				else
+					type=_ai.randomSquad[level][4]["type"]
+				end
+			end
+		end
+		Settlers.AddSettlers(_x,_y,_ai.id,type,1)
+		_n=_n+1
+	end
+	AI.NewSquad(_ai.id,AI.CMD_SUICIDE_MISSION)
+end
+
+function ai.randomSquadMoveHome(_ai,_x,_y,_amount,_level)
+	_n=1
+	_difficulty=Game.GetDifficulty()+1
+	while _n<=_amount do
+		if _level==0 then
+			chanceL1=_ai.randomSquad[1]["chance"][_difficulty]
+			chanceL2=chanceL1+_ai.randomSquad[2]["chance"][_difficulty]
+			chanceL3=chanceL2+_ai.randomSquad[3]["chance"][_difficulty]
+			rand=Game.Random(100)+1
+			if rand<=chanceL1 then
+				level=1
+			else
+				if rand<=chanceL2	then
+					level=2
+				else
+					level=3
+				end
+			end
+		else
+			level=_level
+		end
+		chanceSwordsman=_ai.randomSquad[level][1]["chance"][_difficulty]
+		chanceBowman=chanceSwordsman+_ai.randomSquad[level][2]["chance"][_difficulty]
+		chanceSpecialist=chanceBowman+_ai.randomSquad[level][3]["chance"][_difficulty]
+		chanceSquadleader=chanceSpecialist+_ai.randomSquad[level][4]["chance"][_difficulty]
+		rand=Game.Random(100)+1
+		if rand<=chanceSwordsman then
+			type=_ai.randomSquad[level][1]["type"]
+		else
+			if rand<=chanceBowman then
+				type=_ai.randomSquad[level][2]["type"]
+			else
+				if rand<=chanceSpecialist then
+					type=_ai.randomSquad[level][3]["type"]
+				else
+					type=_ai.randomSquad[level][4]["type"]
+				end
+			end
+		end
+		Settlers.AddSettlers(_x,_y,_ai.id,type,1)
+		_n=_n+1
+	end
+	AI.NewSquad(_ai.id,AI.CMD_MOVE_HOME)
+end
+
+function ai.setVariables(_ai)
+	AI.SetPlayerVar(_ai.id,"AttackMode",_ai.AttackMode[1],_ai.AttackMode[2],_ai.AttackMode[3])
+	AI.SetPlayerVar(_ai.id,"AttackDelay",_ai.AttackDelay[1],_ai.AttackDelay[2],_ai.AttackDelay[3])
+	AI.SetPlayerVar(_ai.id,"AttackChancePartial",_ai.AttackChancePartial[1],_ai.AttackChancePartial[2],_ai.AttackChancePartial[3])
+	AI.SetPlayerVar(_ai.id,"AttackThresholdPartial",_ai.AttackThresholdPartial[1],_ai.AttackThresholdPartial[2],_ai.AttackThresholdPartial[3])
+	AI.SetPlayerVar(_ai.id,"AttackThresholdTotal",_ai.AttackThresholdTotal[1],_ai.AttackThresholdTotal[2],_ai.AttackThresholdTotal[3])
+	AI.SetPlayerVar(_ai.id,"SoldierLimitAbsolute",_ai.SoldierLimitAbsolute[1],_ai.SoldierLimitAbsolute[2],_ai.SoldierLimitAbsolute[3])
+	AI.SetPlayerVar(_ai.id,"SoldierLimitRelative",_ai.SoldierLimitRelative[1],_ai.SoldierLimitRelative[2],_ai.SoldierLimitRelative[3])
+	AI.SetPlayerVar(_ai.id,"UsePioneers",_ai.UsePioneers[1],_ai.UsePioneers[2],_ai.UsePioneers[3])
+	if Game.GetDifficulty()==0 then
+		_z=1
+	else
+		_z=2
+	end
+	Game.SetFightingStrength(_ai.id,_ai.fightingStrength[_z])
+end
+
+function ai.setFightingStrength(_ai,_strength)
+	Game.SetFightingStrength(_ai.id,_strength)
+end
+
+function ai.resetFightingStrength(_ai)
+	Game.SetFightingStrength(_ai.id,-1)
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(castleCheck,Events.FIVE_TICKS)
+	request_event(enablePlayerLostCheck,Events.FIVE_TICKS)
+	request_event(wonder1_Check,Events.FIVE_TICKS)
+	request_event(wonder2_Check,Events.FIVE_TICKS)
+	request_event(romanAttack,Events.FIVE_TICKS)
+
+	ferryId=Vehicles.AddVehicle(324,570,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_03,10)
+	ferryId=Vehicles.AddVehicle(331,581,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.BOWMAN_02,5)
+	if Game.GetDifficulty()==0 then
+	  Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_02,5)
+	end
+	ferryId=Vehicles.AddVehicle(337,593,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.THIEF,5)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.GEOLOGIST,5)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_01,5)
+  Vehicles.AddVehicle(313,568,1,Vehicles.WARSHIP,0,100,0)
+  Vehicles.AddVehicle(315,583,1,Vehicles.WARSHIP,0,100,0)
+  Vehicles.AddVehicle(307,589,1,Vehicles.WARSHIP,0,100,0)
+  if Game.GetDifficulty()==0 then
+  	Magic.IncreaseMana(1,50)
+  	Settlers.AddSettlers(525,230,1,Settlers.THIEF,3)
+  	Settlers.AddSettlers(180,245,1,Settlers.THIEF,3)
+  	Settlers.AddSettlers(326,292,1,Settlers.THIEF,3)
+  	Settlers.AddSettlers(470,499,1,Settlers.THIEF,3)
+  else
+  	Magic.IncreaseMana(1,20)
+	end
+
+	ai.setVariables(ai.maya1)
+	ai.setVariables(ai.maya2)
+	ai.setVariables(ai.maya3)
+	ai.setVariables(ai.roman1)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(calculateCircles)
+	reg_func(victoryConditionCheck)
+	reg_func(castleCheck)
+	reg_func(enablePlayerLostCheck)
+	reg_func(ferryCheck)
+	reg_func(templeCheck)
+	reg_func(wonder1_Check)
+	reg_func(wonder2_Check)
+	reg_func(drawCircle1)
+	reg_func(drawCircle2)
+	reg_func(drawCircle3)
+	reg_func(drawCircle4)
+	reg_func(romanAttack)
+	reg_func(kill1)
+	reg_func(kill2)
+end
+
+--for testing only
+function getSoldiers()
+	Settlers.AddSettlers(363,497,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(363,497,1,Settlers.BOWMAN_03,200)
+end
+
+function getMana()
+	Magic.IncreaseMana(1,300)
+end
+
+function testGoods()
+	Goods.AddPileEx(177,239,Goods.BOARD,8)
+	Goods.AddPileEx(177,239,Goods.STONE,8)
+	Goods.AddPileEx(177,239,Goods.AGAVE,8)
+	Goods.AddPileEx(177,239,Goods.SCYTHE,8)
+end
+
+function freeWonder1()
+	while Buildings.Amount(3,Buildings.GUARDTOWERBIG,Buildings.ALL)>0 do
+		Buildings.Delete(Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERBIG),2)
+	end
+end
+
+function freeWonder2()
+	while Buildings.Amount(4,Buildings.GUARDTOWERBIG,Buildings.ALL)>0 do
+		Buildings.Delete(Buildings.GetFirstBuilding(4,Buildings.GUARDTOWERBIG),2)
+	end
+end
+
+function getTowers1()
+	tower=1
+	while tower<=4 do
+		Buildings.AddBuildingEx(towers1_X[tower],towers1_Y[tower],1,Buildings.GUARDTOWERBIG)
+		tower=tower+1
+	end
+end
+
+function getTowers2()
+	tower=1
+	while tower<=4 do
+		Buildings.AddBuildingEx(towers2_X[tower],towers2_Y[tower],1,Buildings.GUARDTOWERBIG)
+		tower=tower+1
+	end
+end

@@ -1,0 +1,217 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL 11 22.01.01 16:56
+--
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1
+gWantedMenu = -1		
+gTutorialStep =1		
+gTemp = 0			
+gSpaceOk= 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gCommandOk = 1
+gSetText0 = "TUT_12_001_R"
+gSetText1 = "TUT_NEXT"   
+LastText0 = 0
+LastText1 = 0
+
+----------------------------------------------------------------------------------
+
+function VictoryCheck()
+
+
+end
+	
+----------------------------------------------------------------------------------
+
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+		OnSpace()
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		Map.SetScreenPos(195,195)
+		Tutorial.SetZoom(17)
+		gCommandOk = 0
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+    		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+    		Tutorial.ClearMarker()
+	end
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+-------------------------------------------------------------------------------
+
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+--------------------------------------------------------------------------------
+
+
+
+
+
+--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--
+--	main tutorial function
+--
+--------------------------------------------------------------------------------
+function tutorial_main()
+
+	gCommandOk = 1
+	
+	
+	--// Text rein schreiben //-- 
+	if (gSetText0 ~= LastText0 ) or (gSetText1 ~= LastText1 )then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		LastText0 = gSetText0
+		LastText1 = gSetText1
+	end
+
+	
+	if (gPrevTutStep == gTutorialStep) then
+		return
+	end
+
+	if gTutorialStep == 1 then
+		Tutorial.EnableAllControls()
+		gSetText0 = "TUT_12_001_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 2 then
+		gSetText0 = "TUT_12_002_R"
+		gSetText1 = "TUT_12_002_N"
+		gSpaceOk = 0
+		gTutorialStep  = gTutorialStep  + 1
+		return
+		
+	elseif gTutorialStep == 3 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.WOODCUTTERHUT, Buildings.READY) > 0 
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.STONECUTTERHUT, Buildings.READY) > 0 
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.SAWMILL, Buildings.READY) > 0 
+		and Buildings.Amount( Game.LocalPlayer(), Buildings.FORESTERHUT, Buildings.READY) > 0  then
+			gSetText0 = "TUT_12_003_R"
+			gSetText1 = "TUT_12_003_N"
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end     
+		return
+			
+	
+	elseif gTutorialStep == 4 then
+		if Buildings.Amount( 1, Buildings.GRAINFARM, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.WATERWORKHUT, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.MILL, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.BAKERY, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.FISHERHUT, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.ANIMALRANCH, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.SLAUGHTERHOUSE, Buildings.READY) > 0 then
+			gSetText0 = "TUT_12_004_R"
+			gSetText1 = "TUT_12_004_N"
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end
+		return
+		
+	elseif gTutorialStep == 5 then
+		if Buildings.Amount( 1, Buildings.IRONMINE, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.COALMINE, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.SMELTIRON, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.SMELTGOLD, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.GOLDMINE, Buildings.READY) > 0 then
+			gSetText0 = "TUT_12_005_R"
+			gSetText1 = "TUT_12_005_N"
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end
+		return
+		
+	elseif gTutorialStep == 6 then
+		if Buildings.Amount( 1, Buildings.WEAPONSMITH, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.TOOLSMITH, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.BARRACKS, Buildings.READY) > 0 
+		and Buildings.Amount( 1, Buildings.SMALLTEMPLE, Buildings.READY) > 0   
+		and Buildings.Amount( 1, Buildings.VINYARD, Buildings.READY) > 0   then
+			gSetText0 = "TUT_12_006_R"
+			gSetText1 = "TUT_12_006_N"
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end
+		return
+		
+	elseif gTutorialStep == 7 then
+		if Settlers.Amount( 1, Settlers.SWORDSMAN_01) >= 20 
+		and Settlers.Amount( 1, Settlers.BOWMAN_01) >= 20 then
+			gSetText0 = "TUT_12_007_R"
+			gSetText1 = "TUT_12_007_N"
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end
+		return
+	
+	elseif gTutorialStep == 8 then
+		if Buildings.Amount( 2, Buildings.GUARDTOWERSMALL, Buildings.ALL) == 0 then
+			gSetText0 = "TUT_12_008_R"
+			gSetText1 = "TUT_END"
+			Tutorial.Won()
+			gSpaceOk = 0
+			gTutorialStep  = gTutorialStep  + 1
+		end
+		return
+	
+	elseif gTutorialStep == 9 then
+		gSpaceOk = 1
+						
+	elseif gTutorialStep == 10 then
+		Tutorial.Exit()
+	end
+	
+	gPrevTutStep = gTutorialStep
+end
+
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 20,20,20)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 50,50,50)
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING )
+	request_event( VictoryCheck, Events.VICTORY_CONDITION_CHECK )
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( VictoryCheck )
+	reg_func( tutorial_main )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+
+end
+

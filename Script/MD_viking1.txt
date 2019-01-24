@@ -1,0 +1,66 @@
+--// MD_VIKING
+--//--------------
+
+	NumberOfFundationCarts = 4
+	NumberOfFerrys  = 4
+	NumberOfSwordsman = 12
+	NumberOfBowman = 16
+	NumberOfThief = 9
+
+
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+ 	
+ 	if Vehicles.Amount(1,Vehicles.CART, Vehicles.READY) >= NumberOfFundationCarts 
+		and  Vehicles.Amount(1,Vehicles.FERRY, Vehicles.READY) >= NumberOfFerrys
+		and Settlers.Amount(1,Settlers.SWORDSMAN_03) >= NumberOfSwordsman
+		and Settlers.Amount(1,Settlers.BOWMAN_03) >= NumberOfBowman 
+		and Settlers.Amount(1,Settlers.THIEF) >= NumberOfThief
+		and Game.HasPlayerLost(1) == 0 then
+     		Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck("MD_CONQUER_SCRIPT_ONE_01","MD_CONQUER_SCRIPT_ONE_02")		
+  	end
+	
+	if Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck("MD_BONUS_SCRIPT_ONE_09","MD_BONUS_SCRIPT_ONE_10")
+	end
+
+  	
+  
+end
+
+
+
+function new_game()
+
+
+--//Vehicles.AddVehicle(609,492,1,Vehicles.FERRY,1)
+--//Vehicles.AddVehicle(526,577,1,Vehicles.CART,1)
+--//Settlers.AddSettlers(500,500,1,Settlers.SWORDSMAN_03,30)
+--//Settlers.AddSettlers(500,500,1,Settlers.BOWMAN_03,30)
+
+
+--//Playervariables
+	
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 120, 80, 10) 
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 160, 60, 10) 
+
+	AI.SetPlayerVar(4, "AttackMode", 0, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 120, 50, 10) 
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+
+end
+
+
+
+function register_functions()
+
+    reg_func(VictoryConditionCheck)
+
+end

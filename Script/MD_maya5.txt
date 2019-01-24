@@ -1,0 +1,8 @@
+--//Maya5
+
+
+function new_game()
+
+Map.AddDecoObject(397,717,42)
+
+end

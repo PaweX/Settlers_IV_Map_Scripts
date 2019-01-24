@@ -1,0 +1,288 @@
+if Game.GetDifficulty()==0 then
+	timeLimit=60
+	Magic.IncreaseMana(1,150)
+	Game.SetFightingStrength(1,100)
+	Settlers.AddSettlers(91,62,1,Settlers.BOWMAN_02,8)
+	Settlers.AddSettlers(91,62,1,Settlers.SWORDSMAN_02,8)
+	Settlers.AddSettlers(91,62,1,Settlers.THIEF,8)
+else
+	timeLimit=50
+	Magic.IncreaseMana(1,100)
+	--Game.SetFightingStrength(1,150)
+end
+
+harbor={
+	{x=638,y=647,radius=25},
+	{x=634,y=621,radius=25},
+	{x=645,y=606,radius=25}
+}
+ferrys={
+	{x=638,y=647},
+	{x=634,y=621},
+	{x=645,y=606}
+}
+function initVar()
+	Vars.Save1=0				--counts amount of rescued thiefs
+	Vars.Save2=0				--counts amount of rescued foundation carts
+	Vars.Save3=0				--counts amount of rescued soldiers (despite of their type)
+	Vars.Save4=0				--used to control escape sequence
+	Vars.Save5 = 12 +  Game.Random(3)
+	Vars.Save6 = 20 +  Game.Random(3)
+	Vars.Save7 = 25 +  Game.Random(3)
+	Vars.Save8 = 35 +  Game.Random(3)
+	Vars.Save9 = 45 +  Game.Random(3)
+	Map.SetScreenPos(639,614)
+end
+
+function victoryConditionCheck()
+	soldiers=Settlers.Amount(1,Settlers.SWORDSMAN_01)+Settlers.Amount(1,Settlers.SWORDSMAN_02)+Settlers.Amount(1,Settlers.SWORDSMAN_03)
+	soldiers=soldiers+Settlers.Amount(1,Settlers.BOWMAN_01)+Settlers.Amount(1,Settlers.BOWMAN_02)+Settlers.Amount(1,Settlers.BOWMAN_03)+Settlers.Amount(1,Settlers.SQUADLEADER)
+	if (Vehicles.Amount(1,Vehicles.CART)<(1-Vars.Save2)) or
+		 (Settlers.Amount(1,Settlers.THIEF)<(5-Vars.Save1))or
+		 (soldiers<(10-Vars.Save3)) or
+		 (Game.Time()>=timeLimit and Vars.Save4==0) then
+
+		 		if Game.Time()<timeLimit then
+		 			Game.ShowText("MD2_TROJAN_SCRIPT_ONE_03")
+		 		else
+		 			Game.ShowText("MD2_TROJAN_SCRIPT_ONE_04")
+		 		end
+		 		Game.PlayerLost(1)
+		 		Game.DefaultGameEndCheck()
+	else
+		if Vars.Save4==4 then
+			Game.DefaultPlayerLostCheck(2)
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function harborCheck()
+	if Vars.Save4>=1 or (Game.Time()>=timeLimit and Vars.Save4==0) then
+		sendFerrys()
+		request_event(checkFerrys,Events.FIVE_TICKS)
+		unrequest_event(harborCheck,Events.FIVE_TICKS)
+	else
+		if Vars.Save4==0 then
+			_check=1
+			while _check<=3 do
+				Vars.Save1=Vars.Save1+Settlers.AmountInArea(1,Settlers.THIEF,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save2=Vars.Save2+Vehicles.AmountInArea(1,Vehicles.CART,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.SWORDSMAN_01,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.SWORDSMAN_02,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.SWORDSMAN_03,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.BOWMAN_01,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.BOWMAN_02,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.BOWMAN_03,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Vars.Save3=Vars.Save3+Settlers.AmountInArea(1,Settlers.SQUADLEADER,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])
+				Settlers.KillSelectableSettlers(1,-1,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"],0)
+				if Vehicles.AmountInArea(1,Vehicles.CART,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"])>=1 then
+					Vars.Save2=1
+					Vehicles.KillVehicles(1,Vehicles.CART,harbor[_check]["x"],harbor[_check]["y"],harbor[_check]["radius"],0)
+				end
+				_check=_check+1
+			end
+			if Vars.Save1>=5 and Vars.Save2>=1 and Vars.Save3>=10 then
+				Vars.Save4=1
+				Game.ShowText("MD2_TROJAN_SCRIPT_ONE_01",harbor[2]["x"],harbor[2]["y"])
+				Tutorial.RWM(1)
+			end
+		end
+	end
+end
+
+function sendFerrys()
+	_send=1
+	while _send<=3 do
+		Vehicles.KillVehicles(2,Vehicles.FERRY,ferrys[_send]["x"],ferrys[_send]["y"],5,0)
+		Vehicles.AddVehicle(ferrys[_send]["x"],ferrys[_send]["y"],2,Vehicles.FERRY,0,0,1)
+		AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,756,756)
+		Settlers.KillSelectableSettlers(1,-1,harbor[_send]["x"],harbor[_send]["y"],harbor[_send]["radius"],0)		
+		Goods.Delete(harbor[_send]["x"],harbor[_send]["y"],harbor[_send]["radius"],Goods.BOARD)
+		Goods.Delete(harbor[_send]["x"],harbor[_send]["y"],harbor[_send]["radius"],Goods.STONE)
+		Goods.Delete(harbor[_send]["x"],harbor[_send]["y"],harbor[_send]["radius"],Goods.SHOVEL)
+		Goods.Delete(harbor[_send]["x"],harbor[_send]["y"],harbor[_send]["radius"],Goods.HAMMER)
+		_send=_send+1
+	end
+end
+
+function checkFerrys()
+	if Vars.Save4==4 then
+		unrequest_event(checkFerrys,Events.FIVE_TICKS)
+	else
+		if Vehicles.AmountInArea(2,Vehicles.FERRY,756,756,1)==1 then
+			Vehicles.KillVehicles(2,Vehicles.FERRY,756,756,2)
+			if Vars.Save4~=0 then
+				Vars.Save4=Vars.Save4+1
+			end
+		end
+	end
+end
+
+function counter()
+	Game.ShowClock(60*timeLimit)
+end
+
+function Trigger1()
+	if Game.FindAnyUnit(1,229,262,10) == 1  then
+	  Settlers.AddSettlers(295,313,3,Settlers.SWORDSMAN_03,10)
+	  Settlers.AddSettlers(302,319,3,Settlers.BOWMAN_03,10)
+ 	  Settlers.AddSettlers(284,301,3,Settlers.SQUADLEADER,5)
+ 	  Settlers.AddSettlers(307,301,3,Settlers.BOWMAN_03,5)
+    Settlers.AddSettlers(515,488,3,Settlers.MEDIC_03, 7)
+ 	  AI.NewSquad(3, AI.MOVE_HOME)
+    unrequest_event(Trigger1, Events.FIVE_TICKS)
+  end
+end
+
+function Trigger2()
+  if Game.FindAnyUnit(1,292,330,10) == 1  then
+ 		Settlers.AddSettlers(281,359,3,Settlers.BOWMAN_02,10)  Settlers.AddSettlers(305,376,3,Settlers.BOWMAN_02,10)
+    Settlers.AddSettlers(239,334,3,Settlers.BOWMAN_03,10)
+		AI.NewSquad(3, AI.MOVE_HOME)
+ 		unrequest_event(Trigger2, Events.FIVE_TICKS)
+ 	end
+end
+
+function Trigger3()
+	if Vehicles.AmountInArea(1,Vehicles.CART,623,423,30)>0  or Game.Time()>timeLimit-5 then
+		Game.SetFightingStrength(3,150)
+		Game.SetFightingStrength(4,150)
+		Game.SetFightingStrength(5,150)
+ 		Settlers.AddSettlers(238,605,3,Settlers.SWORDSMAN_03,25)
+ 		Settlers.AddSettlers(242,624,3,Settlers.SWORDSMAN_03,25)
+  	Settlers.AddSettlers(255,624,3,Settlers.BOWMAN_03,22)
+  	Settlers.AddSettlers(142,543,3,Settlers.SQUADLEADER,10)
+ 		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
+ 		AI.AttackNow(3, 2, 10)
+ 		AI.AttackNow(4, 2, 10)
+ 		AI.AttackNow(5, 2, 10)
+ 		unrequest_event(Trigger3, Events.FIVE_TICKS)
+ 	end
+end
+
+function Attack()
+	if Game.Time() == Vars.Save5 and Game.GetDifficulty() == 1 then
+		Settlers.AddSettlers(192,214,3,Settlers.SWORDSMAN_03,14)
+		Settlers.AddSettlers(180,214,3,Settlers.SWORDSMAN_03,15)
+		Settlers.AddSettlers(203,222,3,Settlers.BOWMAN_03,10)
+		Settlers.AddSettlers(203,218,3,Settlers.MEDIC_02, 6)
+		Settlers.AddSettlers(155,383,3,Settlers.SWORDSMAN_03,15)
+		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
+		Vars.Save5 = Vars.Save5 + 11 +  Game.Random(5)
+	end
+
+	if Game.Time() == Vars.Save6 and Game.GetDifficulty() == 1 then
+		Settlers.AddSettlers(238,605,3,Settlers.SWORDSMAN_02,12)
+		Settlers.AddSettlers(242,624,3,Settlers.SWORDSMAN_03,10)
+		Settlers.AddSettlers(255,624,3,Settlers.BOWMAN_03,12)
+		Settlers.AddSettlers(142,543,3,Settlers.SQUADLEADER,5)
+		AI.AttackNow(3, 2, 1)
+		Vars.Save6 = Vars.Save6 + 8 +  Game.Random(5)
+	end
+
+	if Game.Time() == Vars.Save7 and Game.GetDifficulty() == 1 then
+		Settlers.AddSettlers(243,437,3,Settlers.SWORDSMAN_03,12)
+		Settlers.AddSettlers(244,431,3,Settlers.BOWMAN_03,12)
+		AI.AttackNow(3, 2, 1)
+		Vars.Save7 = Vars.Save7 + 9 +  Game.Random(3)
+	end
+
+	if Game.Time() == Vars.Save8 and Game.GetDifficulty() == 1 then
+		Settlers.AddSettlers(339,538,3,Settlers.SWORDSMAN_03,12)
+		Settlers.AddSettlers(384,493,3,Settlers.BOWMAN_03,12)
+		Settlers.AddSettlers(392,487,3,Settlers.SWORDSMAN_03,12)
+		AI.AttackNow(3, 2, 2)
+		Vars.Save8 = Vars.Save8 + 10 +  Game.Random(3)
+	end
+
+	if Game.Time() == Vars.Save5 and Game.GetDifficulty() == 0 then
+		Settlers.AddSettlers(192,214,3,Settlers.SWORDSMAN_03,10)
+		Settlers.AddSettlers(180,214,3,Settlers.SWORDSMAN_03,10)
+		Settlers.AddSettlers(203,222,3,Settlers.BOWMAN_03,5)
+		Settlers.AddSettlers(203,218,3,Settlers.MEDIC_02, 6)
+		Settlers.AddSettlers(155,383,3,Settlers.SWORDSMAN_03,10)
+		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
+		Vars.Save5 = Vars.Save5 + 11 +  Game.Random(5)
+	end
+
+	if Game.Time() == Vars.Save6 and Game.GetDifficulty() == 0 then
+		Settlers.AddSettlers(238,605,3,Settlers.SWORDSMAN_02,8)
+		Settlers.AddSettlers(242,624,3,Settlers.SWORDSMAN_03,8)
+		Settlers.AddSettlers(255,624,3,Settlers.BOWMAN_03,8)
+		Settlers.AddSettlers(142,543,3,Settlers.SQUADLEADER,5)
+		AI.AttackNow(3, 2, 1)
+		Vars.Save6 = Vars.Save6 + 12 +  Game.Random(5)
+	end
+
+	if Game.Time() == Vars.Save7 and Game.GetDifficulty() == 0 then
+		Settlers.AddSettlers(243,437,3,Settlers.SWORDSMAN_03,12)
+		Settlers.AddSettlers(244,431,3,Settlers.BOWMAN_03,12)
+		AI.AttackNow(3, 2, 1)
+		Vars.Save7 = Vars.Save7 + 9 +  Game.Random(3)
+	end
+
+	if Game.Time() == Vars.Save8 and Game.GetDifficulty() == 0 then
+		Settlers.AddSettlers(339,538,3,Settlers.SWORDSMAN_03,9)
+		Settlers.AddSettlers(384,493,3,Settlers.BOWMAN_03,9)
+		Settlers.AddSettlers(392,487,3,Settlers.SWORDSMAN_03,9)
+		AI.AttackNow(3, 2, 2)
+		Vars.Save8 = Vars.Save8 + 10 +  Game.Random(3)
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(counter,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(harborCheck,Events.FIVE_TICKS)
+	request_event(Trigger1,Events.FIVE_TICKS)
+	request_event(Trigger2,Events.FIVE_TICKS)
+	request_event(Trigger3,Events.FIVE_TICKS)
+  request_event(Attack,Events.FIVE_TICKS)
+
+	_setFerry=1
+	while _setFerry<=3 do
+		Vehicles.AddVehicle(ferrys[_setFerry]["x"],ferrys[_setFerry]["y"],2,Vehicles.FERRY,0,0,0)
+		_setFerry=_setFerry+1
+	end
+	Vehicles.AddVehicle(105,90,1,Vehicles.FOUNDATION_CART,-1)
+	Vehicles.AddVehicle(113,86,1,Vehicles.FOUNDATION_CART,-1)
+	Vehicles.AddVehicle(115,98,1,Vehicles.FOUNDATION_CART,-1)
+  Game.SetAlliesDontRevealFog(1)
+  Game.ResetFogging()
+  Map.AddDecoObject(503,375,118)
+
+
+	AI.SetPlayerVar(3, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 30, 15, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(4, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 30, 15, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(5, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(5, "AttackDelay", 30, 15, 30)
+	AI.SetPlayerVar(5, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(5, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(counter)
+	reg_func(harborCheck)
+	reg_func(checkFerrys)
+	reg_func(Trigger1)
+	reg_func(Trigger2)
+	reg_func(Trigger3)
+	reg_func(Attack)
+end
+
+function getUnits()
+	Settlers.AddSettlers(562,595,1,Settlers.SWORDSMAN_03,10)
+	Settlers.AddSettlers(562,595,1,Settlers.THIEF,5)
+	Vehicles.AddVehicle(595,697,1,Vehicles.FOUNDATION_CART,0)
+end

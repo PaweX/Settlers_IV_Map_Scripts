@@ -1,0 +1,196 @@
+-- ===============
+-- AO_trojan06
+-- ===============
+
+function InitVar()
+	
+	Vars.Save1 = 4  + Game.Random(2)  --//first attacktime
+	
+	Vars.Save2 = 1 --//flag for Attacktime
+	Vars.Save3 = 1 --//flag for Ship
+	Vars.Save4 = 1
+	Vars.Save5 = 1
+	Vars.Save6 = 1
+	Vars.Save7 = 1
+	Vars.Save8 = 0
+	
+end
+
+
+
+function ManacopterAttackCheck()
+
+	if Game.Time() == Vars.Save1  and Vars.Save2 == 1  then
+				
+		--//Settlers.AddSettlers(255,50,5,Settlers.BOWMAN_01,10)
+		Settlers.AddSettlers(255,50,5,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(255,50,5,Settlers.SHAMAN,4)
+		AI.NewSquad(5, AI.CMD_MOVE_HOME )
+
+		--//Settlers.AddSettlers(387,44,5,Settlers.BOWMAN_01,10)
+		Settlers.AddSettlers(387,44,5,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(387,44,5,Settlers.SHAMAN,4)
+		AI.NewSquad(5, AI.CMD_MOVE_HOME )
+
+		--//Settlers.AddSettlers(494,43,6,Settlers.BOWMAN_01,10)
+		Settlers.AddSettlers(494,43,6,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(494,43,6,Settlers.SHAMAN,4)
+		AI.NewSquad(6, AI.CMD_MOVE_HOME )
+		
+		--//Settlers.AddSettlers(451,52,6,Settlers.BOWMAN_01,10)
+		Settlers.AddSettlers(451,52,6,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(451,52,6,Settlers.SHAMAN,4)
+		AI.NewSquad(6, AI.CMD_MOVE_HOME )
+
+		--//Settlers.AddSettlers(339,50,6,Settlers.BOWMAN_01,10)
+		Settlers.AddSettlers(339,50,6,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(339,50,6,Settlers.SHAMAN,4)
+		AI.NewSquad(6, AI.CMD_MOVE_HOME )
+
+		Settlers.AddSettlers(204,53,5,Settlers.SWORDSMAN_01,40)
+		Settlers.AddSettlers(204,53,5,Settlers.SHAMAN,4)
+		AI.NewSquad(5, AI.CMD_MOVE_HOME )
+
+		Settlers.AddSettlers(524,134,5,Settlers.SWORDSMAN_01,30)
+		Settlers.AddSettlers(524,134,5,Settlers.SHAMAN,4)
+		AI.NewSquad(5, AI.CMD_MOVE_HOME )
+
+		--//AI.AttackNow(6, 4, 3)
+		--//AI.AttackNow(5, 2, 3)
+		--//kein erneuter angriff im moment
+		Vars.Save2 = 3
+		dbg.pi(1)
+	end
+
+	if (Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,276,380,10,Buildings.READY) == 0 
+	and Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,297,383,10,Buildings.READY) == 0)
+	or (Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERSMALL,137,355,10,Buildings.READY) == 0 
+	and Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERSMALL,155,354,10,Buildings.READY) == 0)
+	and Vars.Save4 == 1  then
+		AI.AttackNow(6, 3, 3)
+		AI.AttackNow(5, 4, 3)
+		AI.SetPlayerVar(5, "AttackMode", 1, 2, 2) 
+		AI.SetPlayerVar(6, "AttackMode", 1, 2, 2)
+		Vars.Save8 = Game.Time() + 15
+		dbg.pi(2)
+		Vars.Save4 = 0
+	end
+
+	if Game.Time() == Vars.Save8 and Vars.Save9 == 1 then
+		AI.AttackNow(6, 3, 5)
+		AI.AttackNow(5, 1, 3)
+		Vars.Save9 = 0
+		dbg.pi(3)
+	end
+
+	if Buildings.ExistsBuildingInArea(2,Buildings.GUARDTOWERSMALL,378,126,10,Buildings.READY) == 0 
+		and Vars.Save5 == 1  then
+		Vars.Save5 = 0
+		--//text bei angriff des dunklen Volkes
+		Game.ShowText("AO_TROJAN_SCRIPT_SIX_01")
+	end
+
+	--//vielleicht erneut eingreifen
+--//	if Game.Time() == (Vars.Save1 + 1)  and Vars.Save2 == 0  then
+	--//	dbg.pi(0)
+		--//if Game.GetDifficulty() == 0 then
+		--//easy//--
+--//			Vars.Save1 = 25 + Game.Random(5)  --//next attacktime
+	--//	else
+		--//normal
+		--//	Vars.Save1 = 25 + Game.Random(5)
+		--//end
+		--//Vars.Save2 = 1
+	--//end
+
+	if Buildings.ExistsBuildingInArea(4,Buildings.CASTLE,294,479,10,Buildings.READY) == 0 
+	and Vars.Save6 == 1  then
+		Vars.Save6 = 0
+		Game.SetFightingStrength(5,100)
+		Game.SetFightingStrength(6,100)
+	end
+
+	--//if Game.IsAreaDarkLand( 391,152, 5) ~= 1 then
+	--//	Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 387,148, 1)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 390,147, 2)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 189,147, 1)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 389,153, 2)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 390,151, 1)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 392,152, 2)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 393,156, 1)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 395,152, 1)
+	--//end
+	
+end
+
+
+
+
+
+function VictoryConditionCheck()
+
+	if Game.HasPlayerLost(3) == 1
+	and Game.HasPlayerLost(4) == 1 then
+		--//Buildings.ExistsBuildingInArea(3,Buildings.CASTLE,233,534,10,Buildings.READY) >= 0
+		--//and Buildings.ExistsBuildingInArea(4,Buildings.CASTLE,294,479,10,Buildings.READY) == 0 then
+
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	else
+		Game.DefaultPlayersLostCheck()
+	end
+
+	if 	Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function DisableLastNPlayersInStatistic()
+
+--//request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+--//reg_func(DisableLastNPlayersInStatistic)
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+
+function new_game()
+
+
+	AI.SetPlayerVar(5, "AttackMode", 0, 0, 2) 
+	AI.SetPlayerVar(5, "AttackDelay", 50, 30, 10) 
+	AI.SetPlayerVar(5, "DTAttackCheckDelay", 10, 5, 10) 
+	AI.SetPlayerVar(5, "DTManakopterDelay", 600, 300, 10) 
+
+	AI.SetPlayerVar(6, "AttackMode", 0, 0, 2) 
+	AI.SetPlayerVar(6, "AttackDelay", 50, 30, 10) 
+	AI.SetPlayerVar(6, "DTAttackCheckDelay", 10, 5, 10) 
+	AI.SetPlayerVar(6, "DTManakopterDelay", 600, 300, 10) 
+
+	Game.SetFightingStrength(5,150)
+	Game.SetFightingStrength(6,150)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(ManacopterAttackCheck, Events.FIVE_TICKS)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function register_functions()
+
+  reg_func(VictoryConditionCheck)
+  reg_func(ManacopterAttackCheck)
+  reg_func(InitVar)
+  reg_func(DisableLastNPlayersInStatistic)
+  
+
+end
+
+
+

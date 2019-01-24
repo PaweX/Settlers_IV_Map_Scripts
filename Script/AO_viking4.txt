@@ -1,0 +1,185 @@
+--// AO_VIKING4
+--//-----------------------
+
+x_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+y_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+
+
+function InitVar()
+	
+	Vars.Save1=0 		--// Initialiazing Counter for function EffectCircle
+	Vars.Save2=1		--// flag for Text 
+
+end
+
+
+
+function EffectCircle(x,y,radius,speed, effect,loop)
+
+--//X,Y,Radius,Geschindigkeit, effecttype, und loop des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//i=0 		--// Initialiazing Counter for function EffectCircle
+--//x_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+--//y_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+
+--//dbg.pi(i)
+		
+		if (Vars.Save1 >= 0) and (Vars.Save1 <= radius) then
+			x_int_Circle = x - radius + Vars.Save1
+			y_int_Circle = y - radius
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		
+		if (Vars.Save1 >= radius) and (Vars.Save1 <= (radius*2)) then
+			x_int_Circle = x - radius + Vars.Save1
+			y_int_Circle = y - (2*radius) + Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		if Vars.Save1 >=(radius*2) and Vars.Save1 <= (radius*3) then
+			x_int_Circle = x + radius
+			y_int_Circle = y + (Vars.Save1-(2*radius))
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end
+		
+		if Vars.Save1 >=(radius*3) and Vars.Save1 <= (radius*4) then
+			x_int_Circle = x +(4*radius) - Vars.Save1
+			y_int_Circle = y + radius
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+		end		
+		
+		if Vars.Save1 >=(radius*4) and Vars.Save1 <= (radius*5) then
+			x_int_Circle = x + (4*radius) - Vars.Save1
+			y_int_Circle = y + (5*radius) - Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+			
+		end
+		
+		if Vars.Save1 >=(radius*5) and Vars.Save1 <= (radius*6) then
+			x_int_Circle = x - radius
+			y_int_Circle = y + (5*radius) - Vars.Save1
+			Vars.Save1 = Vars.Save1 + speed
+			Effects.AddEffect(effect, Sounds.NO_SOUND, x_int_Circle,y_int_Circle, 0)
+			
+		end
+				
+		if loop == 1 then
+			if Vars.Save1>=(radius*6) then
+				Vars.Save1=0
+			end
+		end
+
+end
+
+function DarkTribeLostCheck()
+	if Game.HasPlayerLost(2) == 1 then
+		EffectCircle(83,183, 25,6, Effects.MAGIC_PILE02,1)
+		if Vars.Save2 == 1 then
+			Vars.Save2=0
+			--//Bringen sie die Soldaten in den Makierten Bereich
+			Game.ShowText("AO_VIKING_SCRIPT_FOUR_01")
+		end
+	end
+
+--//if Game.GetNumberOfSquaresWithDarkLand(10) <= 40 then
+--//dbg.pi(100)
+--//end
+end
+
+
+function VictoryConditionCheck()
+
+	if Game.HasPlayerLost(2) == 1 
+	and Game.GetNumberOfSquaresWithDarkLand(10) <= 40 
+	--//and Game.IsAreaGreen( 78,181, 25) == 1 
+	--//and Game.IsAreaGreen( 128,163, 25) == 1 
+	--//and Game.IsAreaGreen( 154,115, 25) == 1 
+	--//and Game.IsAreaGreen( 81,250, 25) == 1 
+	and Settlers.AmountInArea(1, Settlers.SWORDSMAN_03,83,183, 30) >= 30
+	and Settlers.AmountInArea(1, Settlers.BOWMAN_03,83,183, 30) >= 30
+	and Vehicles.AmountInArea(1,Vehicles.WARMACHINE,83,183, 30) >= 10 then
+
+		Game.EnemyPlayersLost(1) 
+		Game.DefaultGameEndCheck()
+	
+	else
+		Game.DefaultPlayersLostCheck()
+	end
+
+	if Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+
+function new_game()
+
+--//for testing
+--//dbg.db(89,180,1)
+--//Settlers.AddSettlers(83,183,1,Settlers.SWORDSMAN_03,50)
+--//Settlers.AddSettlers(83,183,1,Settlers.BOWMAN_03,50)
+--//Settlers.AddSettlers(83,183,1,Settlers.GARDENER,50)
+
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(617,477)
+	end
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)		
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(DarkTribeLostCheck, Events.TICK)
+	
+end
+
+-- -----------------------------------------------------------------------------
+
+function register_functions()
+
+
+reg_func(VictoryConditionCheck)
+reg_func(DarkTribeLostCheck)
+reg_func(InitVar)
+
+end
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

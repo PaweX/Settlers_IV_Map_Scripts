@@ -1,0 +1,214 @@
+--// AO_VIKING3
+--//-------------------
+
+--// time to win
+	gTimeOut = 120
+
+
+function InitVar()
+
+	
+	--// flag for activates the clock dialog one time
+
+	Vars.Save9 = 1
+	Vars.Save3 = 1
+	Vars.Save7 = 0
+	
+	
+	if Game.GetDifficulty() == 0 then	
+		--//--------------EASY------------------------
+		
+		--// first time of "enemy attack"  
+		Vars.Save1 =  35 +  Game.Random(10)
+		
+		--// set time period in minutes here
+		Vars.Save6 = 25 +  Game.Random(5)
+	
+
+	else
+		--//-------------NORMAL--------------------
+
+		--// first time of "enemy attack"  
+		Vars.Save1 = 20 +  Game.Random(5)
+
+
+		--// set time period in minutes here
+		Vars.Save6 = 15 +  Game.Random(5)
+	
+	end
+
+end
+
+
+--// -----------------------------------------------------------------------------
+--// Activate the clock
+--// -----------------------------------------------------------------------------
+
+function TurnOnTheClock()
+	Game.ShowClock(120*60)
+	
+end
+
+
+function GenerateEnemies()
+  	
+--// -----------------------------------------------------------------------------
+--// Countdown
+--// -----------------------------------------------------------------------------	
+--// Zeitansage 10 min vor schluß //--
+	
+	if Game.Time() >= (gTimeOut - 10) and  Vars.Save7 == 2 then
+		--//falscher text
+		Game.ShowText("AO_VIKING_SCRIPT_THREE_01",78,255)
+		Vars.Save7 = 3
+	end
+
+--// Zeitansage 20 min vor schluß //--
+	if (Game.Time() >= (gTimeOut - 20)) and  (Vars.Save7 == 1) then
+		--//falscher text
+		Game.ShowText("AO_VIKING_SCRIPT_THREE_02",78,255)
+		Vars.Save7 = 2
+	end
+--// Zeitansage 30 min vor schluß //--
+	if Game.Time() >= (gTimeOut-30) and  Vars.Save7 == 0 then
+		--//falscher text
+		Game.ShowText("AO_VIKING_SCRIPT_THREE_03",78,255)
+		Vars.Save7 = 1 
+	end
+	
+	if Game.Time() == Vars.Save1 then
+		
+		Vars.Save1 = Vars.Save1 + Vars.Save6
+		dbg.pi(1)
+
+		--//wird noch nicht unterschieden
+		if Game.GetDifficulty() == 0 then	
+    		--// Nicht eine AI !!!!
+    		--//set AttackNow EASY
+			AI.AttackNow(4, 2 ,2)
+			AI.AttackNow(5, 3, 2)
+			
+		else
+    		--//set AttackNow NORMAL
+			AI.AttackNow(4, 2, 4)
+			AI.AttackNow(5, 3, 4)
+
+    	end
+	end
+
+	--//Großattacke kurz vor ende
+	if Game.Time() == (gTimeOut - 20) 
+		and Vars.Save3  == 1 then
+		AI.AttackNow(4, 2, 3)
+		AI.AttackNow(5, 3, 3)
+		Vars.Save3 = 0
+		Game.SetFightingStrength(4,150)
+		Game.SetFightingStrength(5,150)
+	end
+	
+end
+--// -----------------------------------------------------------------------------
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+
+--// -----------------------------------------------------------------------------
+--// Game lost until time out 
+--// -----------------------------------------------------------------------------
+	
+	Game.DefaultPlayerLostCheck(1)
+
+	--// beenden des Spiels bei überschreitung der zeit //--
+		
+	if Game.Time() >=  gTimeOut and Game.HasPlayerLost(1) == 0 then  
+		Game.EnemyPlayersLost(1)
+	end
+
+	--//beenden des Spiels wenn Verbündete platt sind
+ 	if Settlers.Amount(2,Settlers.CARRIER) <= 8
+	or Settlers.Amount(3,Settlers.CARRIER) <= 8 
+	or Game.HasPlayerLost(2) == 1
+	or Game.HasPlayerLost(3) == 1 then
+	--//or Settlers.Amount(2,Settlers.CARRIER) <= 10 then
+     		Game.EnemyPlayersLost(5)
+  	end
+	
+	
+   	Game.DefaultGameEndCheck()
+	
+	
+end
+
+--//--------------------------------------------------------------------------
+
+function new_game()
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(78,255)
+	else
+		Game.SetFightingStrength(4,150)
+		Game.SetFightingStrength(5,150)
+	end
+
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 40, 20, 10) 
+	AI.SetPlayerVar(4, "DTAttackCheckDelay", 5, 5, 1) 
+
+	AI.SetPlayerVar(5, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(5, "AttackDelay", 45, 25, 10) 
+	AI.SetPlayerVar(5, "DTAttackCheckDelay", 10, 5, 1) 
+
+
+
+	request_event(TurnOnTheClock,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(GenerateEnemies, Events.FIVE_TICKS)
+  	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+  	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+  	
+end
+
+
+function register_functions()
+
+  reg_func(GenerateEnemies)
+  reg_func(VictoryConditionCheck)
+  reg_func(TurnOnTheClock)
+  reg_func(InitVar)
+   
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

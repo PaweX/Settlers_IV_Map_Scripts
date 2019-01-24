@@ -1,0 +1,21 @@
+--// MD_CONFLICT_1
+--//-------------------
+
+
+function new_game()
+
+	Map.AddDecoObject(531,472,42)
+	 --// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 130, 60, 10) 
+
+	--// SOLDIERLIMITRELATIVE
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 80,150,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 100,200,150)
+	
+ 
+end
+
+
+

@@ -1,0 +1,131 @@
+--// ===================================
+--// AO_trojan05
+--// ===================================
+
+function InitVar()
+
+	Vars.Save1 = 1
+
+end
+
+
+function AddLoadedFerry1()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(12,276, 1, Vehicles.FERRY);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 8);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 2);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 5);
+
+end
+
+function AddLoadedFerry2()
+
+    local iFerryId;
+
+    iFerryId = Vehicles.AddVehicle(10,300, 1, Vehicles.FERRY);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 3);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 2);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 10);
+end
+
+function AddLoadedFerry3()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(9,259, 1, Vehicles.FERRY);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 2);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 3);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 10);
+end
+
+function AddLoadedFerry4()
+
+    local iFerryId;
+
+	iFerryId = Vehicles.AddVehicle(10,241, 1, Vehicles.FERRY);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.SWORDSMAN_02, 2);
+    Settlers.AddSettlersToFerry(iFerryId, Settlers.BOWMAN_02, 8);
+	Settlers.AddSettlersToFerry(iFerryId, Settlers.THIEF, 5);
+end
+
+
+function LandingFerrys()
+	
+		
+		if Settlers.Amount(1,Settlers.CARRIER)<=3  and Vars.Save1== 1  then
+			AddLoadedFerry1()
+			AddLoadedFerry2()
+			AddLoadedFerry3()
+			AddLoadedFerry4()
+			DarkTribe.FlyTo(203,230,2)
+			--//Map.SetScreenPos(9,270)
+			--//Tutorial.SetZoom(60)
+			--//und text hilfe ist angekommen
+			Game.ShowText("AO_TROJAN_SCRIPT_FIVE_01",9,259)
+			Vars.Save1= 0
+		end
+
+end
+
+
+
+
+--//-----------------------------------------------------------------------------------
+
+function new_game()
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(517,183)
+	end
+
+	
+	DarkTribe.AddManakopter(511,146,2)
+
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 50, 30, 10) 
+	AI.SetPlayerVar(2, "DTAttackCheckDelay", 10, 5, 1) 
+	AI.SetPlayerVar(2, "DTManakopterDelay", 300, 300, 10) 
+	AI.SetPlayerVar(2, "DTAttackCheckDelay", 10, 5, 1) 
+
+	--//request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(LandingFerrys, Events.FIVE_TICKS)
+end
+
+--//-----------------------------------------------------------------------------------
+
+function register_functions()
+
+  --//reg_func(VictoryConditionCheck)
+  reg_func(LandingFerrys)
+  reg_func(InitVar)
+
+end
+
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+               
+end

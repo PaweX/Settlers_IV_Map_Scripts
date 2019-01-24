@@ -1,0 +1,435 @@
+ferryDelay=10					--minimum delay (in minutes) between destruction of trojan ferry and new send
+ferryRandomDelay=5    --maximum amount (also minutes) to be added to delay by Game.Random()
+tick=0
+_tick=0
+
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+--The following table contains the x- and y-coordinates of each building of the--
+--transferred settlement. It's structure is as follows:                        --
+--                                                                             --
+--buildings[buildingType][buildingNumber][coordinates]                         --
+--                                                                             --
+--where buildingType     is the corresponding number of the buildingtype,      --
+--                       so that buildings[1] means Woodcutterhut              --
+--                       see comments after each line                          --
+--                                                                             --
+--      buildingnumber   means number of actual building,                      --
+--                     	 so that buildings[2][3] means third woodcutter        --
+--                                                                             --
+--      coordinates      gives cordinates of the actual building, so that      --
+--                       buildings[3][1][1] means x-coordinate of first sawmill--
+--                       first entry is x-coordinate, second is y-coordinate   --
+--                                                                             --
+--                                                                             --
+--all tables start with index 1!                                               --
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+
+buildings={
+						{},																							 --WOODCUTTERHUT
+						{},                                              --FORESTERHUT
+						{},                                              --SAWMILL
+						{},                                              --STONECUTTERHUT
+						{{147,335}},                                     --WATERWORKHUT
+						{{131,316}},                                     --FISHERHUT
+						{{61,253}},                                      --HUNTERHUT
+						{{167,324}},                                     --SLAUGHTERHOUSE
+						{{146,348},{159,363},{142,321}},                 --MILL
+						{{167,335}},                                     --BAKERY
+						{{158,341},{76,264}},                            --GRAINFARM
+						{{177,348}},                                     --ANIMALRANCH
+						{{172,360}},                                     --DONKEYRANCH
+						{},                                              --STONEMINE
+						{{94,267}},                                      --IRONMINE
+						{},                                              --GOLDMINE
+						{{119,278}},                                     --COALMINE
+						{},                                              --SULFURMINE
+						{},                                              --SMELTGOLD
+						{{103,274}},                                     --SMELTIRON
+						{{114,285}},                                     --TOOLSMITH
+						{},                                              --WEAPONSMITH
+						{},                                              --VEHICLEHALL
+						{},                                              --BARRACKS
+						{},                                              --CHARCOALMAKER
+						{},                                              --TRAININGCENTER
+						{{98,342}},                                      --HEALERHUT
+						{},                                              --AMMOMAKERHUT
+						{},                                              --GUNPOWDERMAKERHUT
+						{},                                              --LANDSCAPEMAKERHUT
+						{},                                              --SHIPYARD
+						{},                                     				 --PORT
+						{{78,302}},                                      --MARKETPLACE
+						{},                                              --STORAGEAREA
+						{},                                              --VINYARD,
+						{},                                              --AGAVEFARMERHUT
+						{},                                              --TEQUILAMAKERHUT
+						{},                                              --BEEKEEPERHUT
+						{},                                              --MEADMAKERHUT
+						{{70,288},{78,296},{86,304},{95,313}},           --RESIDENCESMALL
+						{{94,323},{89,331}},                             --RESIDENCEMEDIUM
+						{},                                              --RESIDENCEBIG
+						{{84,286},{107,371}},                            --SMALLTEMPLE
+						{},                                              --BIGTEMPLE
+						{{74,252},{161,426}},                            --LOOKOUTTOWER
+						{{66,272},{100,293},{134,307},{177,321},				 --GUARDTOWERSMALL
+						 {103,330},{118,369},{170,370},{185,385}},       --      "
+						{{150,418}},                                     --GUARDTOWERBIG
+						{},                                              --CASTLE
+						{},                                              --MUSHROOMFARM
+						{},                                              --DARKTEMPLE
+						{},                                              --FORTRESS
+						{},                                              --PORTA
+						{},                                              --PORTB
+						{},                                              --PORTC
+						{},                                              --PORTD
+						{},                                              --PORTE
+						{},                                              --PORTF
+						{},                                              --SHIPYARDA
+						{},                                              --SHIPYARDB
+						{},                                              --SHIPYARDC
+						{},                                              --SHIPYARDD
+						{},                                              --SHIPYARDE
+						{},                                              --SHIPYARDF
+						{{106,320}},                                     --EYECATCHER01
+						{{129,422},{125,414},{112,368},{93,344}},        --EYECATCHER02
+						{{99,333}},                                      --EYECATCHER03
+						{{65,293}},                                      --EYECATCHER04
+						{{72,297}},                                      --EYECATCHER05
+						{{107,327}},                                     --EYECATCHER06
+						{{82,334}},                                      --EYECATCHER07
+						{{72,308}},                                      --EYECATCHER08
+						{{128,412}},                                     --EYECATCHER09
+						{{167,374}},                                     --EYECATCHER10
+						{{108,356}},                                     --EYECATCHER11
+						{{145,314}},                                     --EYECATCHER12
+						{},                                              --SHIPYARDG
+						{},                                              --SHIPYARDH
+						{},                                              --PORTG
+						{{137,430}},                                     --PORTH
+						{},                                              --MANACOPTERHALL
+						{{114,334},{114,324},{114,314},{155,328}},       --SUNFLOWEROILMAKERHUT
+						{{110,344},{139,386},{124,356},{145,364}}        --SUNFLOWERFARMERHUT
+					}
+
+------------------------------------------------------------------------------------
+--                                   End of table                                 --
+------------------------------------------------------------------------------------
+
+function initVar()
+	Vars.Save1=0									--for viking towers
+	Vars.Save2=0									--flag, turns 1 when dark land is made green
+	Vars.Save3=0									--flag - indicates wether a ferry is on the way or not (1=on the way)
+	Vars.Save4=3+Game.Random(3) 	--stores time for next trojan ferry to appear
+	Vars.Save5=0									--flag, turns 1 when Player reaches Priest
+	Vars.Save6=0
+	Vars.Save7=0
+	Vars.Save8=0
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Vars.Save1==2 and Vars.Save2==1 and Game.HasPlayerLost(1)==0  then
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck("MD2_MAYA_SCRIPT_TWO_07","MD2_MAYA_SCRIPT_TWO_08")
+	end
+	if Game.HasPlayerLost(1)==1 then
+		Game.PlayerLost(2)
+		Game.PlayerLost(4)
+		Game.DefaultGameEndCheck("MD2_MAYA_SCRIPT_TWO_07","MD2_MAYA_SCRIPT_TWO_08")
+	end
+end
+
+function sendFerry()
+	if Vars.Save1==1 and Vars.Save3>=1 then
+		unrequest_event(sendFerry,Events.FIVE_TICKS)
+	else
+		if Vars.Save3==0 and Game.Time()>=Vars.Save4 then
+			_start=Game.Random(4)
+			_end=Game.Random(3)
+			if _start==0 then
+				_startX=628
+				_startY=496
+				_direction=2
+				Vars.Save8=4
+			else
+				if _start==1 then
+					_startX=628
+					_startY=628
+					_direction=3
+					Vars.Save8=4
+				else
+					if _start==2 then
+						_startX=11
+						_startY=366
+						_direction=1
+						Vars.Save8=0
+					else
+						_startX=56
+						_startY=628
+						_direction=0
+						Vars.Save8=0
+					end
+				end
+			end
+			if _end==0 then
+				Vars.Save6=417
+				Vars.Save7=567
+			else
+				if _end==1 then
+					Vars.Save6=439
+					Vars.Save7=551
+				else
+					Vars.Save6=406
+					Vars.Save7=525
+				end
+			end
+			Vehicles.AddVehicle(_startX,_startY,2,Vehicles.FERRY,_direction,0,1)
+			AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,Vars.Save6,Vars.Save7)
+			Game.ShowText("MD2_MAYAN_SCRIPT_TWO_01",_startX,_startY)
+			Vars.Save3=1
+		end
+	end
+end
+
+function destroyFerry()
+	if Vars.Save1==1 then
+		request_event(dropItems,Events.TICK)
+		unrequest_event(destroyFerry,Events.TICK)
+	else
+		if Vars.Save3==1 then
+			if Vehicles.AmountInArea(2,Vehicles.FERRY,Vars.Save6,Vars.Save7,0)==1 then
+				if _tick==0 then
+					Game.ShowText("MD2_MAYAN_SCRIPT_TWO_02",Vars.Save6,Vars.Save7)
+					Effects.AddEffect(Effects.RMAGIC_JUPITERSLIGHTNING,Sounds.NO_SOUND,Vars.Save6,Vars.Save7,0)
+				end
+				if _tick==14 then
+					Effects.AddEffect(Effects.IMPACT_SHIP,Sounds.NO_SOUND,Vars.Save6,Vars.Save7,0)
+				end
+				_tick=_tick+1
+				if _tick==21 then
+					Vehicles.KillVehicles(2,Vehicles.FERRY,Vars.Save6,Vars.Save7,0,1)
+					Effects.AddEffect(Effects.IMPACT_WATER,Sounds.NO_SOUND,Vars.Save6,Vars.Save7,0)
+					Vars.Save4=Game.Time()+ferryDelay+Game.Random(ferryRandomDelay)
+					Vars.Save3=0
+					_tick=0
+				end
+			end
+		end
+	end
+end
+
+function dropItems()
+	if Vars.Save3==3 then
+		unrequest_event(dropItems,Events.TICK)
+	else
+		if Vars.Save3==1 then
+			if Vehicles.AmountInArea(2,Vehicles.FERRY,Vars.Save6,Vars.Save7,1)==1 then
+				Vehicles.KillVehicles(2,Vehicles.FERRY,Vars.Save6,Vars.Save7,1,0)
+				Vehicles.AddVehicle(Vars.Save6,Vars.Save7,2,Vehicles.FERRY,Vars.Save8,0,1)
+				AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,392,484)
+				Game.ShowText("MD2_MAYAN_SCRIPT_TWO_06",Vars.Save6,Vars.Save7)
+				Vars.Save3=2
+			end
+		else
+			if Vars.Save3==2 and Vehicles.AmountInArea(2,Vehicles.FERRY,392,484,0)==1 then
+				Goods.AddPileEx(391,470,Goods.SHOVEL,8)
+				Goods.AddPileEx(391,470,Goods.SHOVEL,8)
+				Goods.AddPileEx(391,470,Goods.GOLDBAR,8)
+				Goods.AddPileEx(391,470,Goods.BOARD,8)
+				Goods.AddPileEx(391,470,Goods.STONE,8)
+				Goods.AddPileEx(391,470,Goods.SWORD,8)
+				Goods.AddPileEx(391,470,Goods.BOW,8)
+				Goods.AddPileEx(379,471,Goods.GOLDBAR,8)
+				Goods.AddPileEx(379,471,Goods.IRONBAR,8)
+				Goods.AddPileEx(379,471,Goods.GOLDBAR,8)
+				--Goods.AddPileEx(379,471,Goods.BOARD,8)
+				--Goods.AddPileEx(379,471,Goods.STONE,8)
+				Goods.AddPileEx(379,471,Goods.SWORD,8)
+				Vars.Save3=3
+			end
+		end
+	end
+end
+
+function darkLandCheck()
+	if Vars.Save2==1 then
+		unrequest_event(darkLandCheck,Events.FIVE_TICKS)
+	else
+		if Game.GetNumberOfSquaresWithDarkLand(5)==3 and Vars.Save5==1 then
+			moveSettlement()
+			Vars.Save2=1
+		end
+	end
+end
+
+function vikingTowerCheck()
+	if Vars.Save1==2 then
+		unrequest_event(vikingTowerCheck,Events.FIVE_TICKS)
+	else
+		if Vars.Save1==1 then
+			if Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.READY)==0 then
+					Vars.Save1=2
+					Buildings.AddBuildingEx(233,131,4,Buildings.BIGTEMPLE)
+					Settlers.AddSettlers(241,136,4,Settlers.PRIEST,1)
+					request_event(showPriest,Events.FIVE_TICKS)
+					request_event(priestCheck,Events.FIVE_TICKS)
+					request_event(killPriests,Events.TICK)
+			end
+		else
+			if Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.READY)<=5 then
+				Vars.Save1=1
+			end
+		end
+	end
+end
+
+function showPriest()
+	tick=tick+1
+	if tick>=9 then
+		Game.ShowText("MD2_MAYAN_SCRIPT_TWO_03",233,131)
+		unrequest_event(showPriest,Events.FIVE_TICKS)
+	end
+end
+
+function priestCheck()
+	if Vars.Save5==1 then
+		unrequest_event(priestCheck,Events.FIVE_TICKS)
+	else
+		if Game.FindAnyUnit(1,241,136,7)==1 then
+			Vars.Save5=1
+			request_event(darkLandCheck,Events.FIVE_TICKS)
+			Game.ShowText("MD2_MAYAN_SCRIPT_TWO_04",241,136)
+		end
+	end
+end
+
+function killPriests()
+	Settlers.KillSelectableSettlers(4,Settlers.PRIEST,231,135,7,0)
+end
+
+function moveSettlement()
+	--delete any non-foundation buildings
+	_type=1
+	while buildings[_type]~=nil do
+		_number=1
+		while buildings[_type][_number]~=nil do
+			Buildings.Delete(Buildings.GetFirstBuilding(2,_type),2)
+			_number=_number+1
+		end
+		if _type==45 then
+			_type=49
+		else
+			_type=_type+1
+		end
+		Buildings.Delete(Buildings.GetFirstBuilding(2,32),2)
+	end
+
+	--delete foundation buildings
+	_type=46
+	while _type<49 do
+		_number=1
+		while buildings[_type][_number]~=nil do
+			Buildings.Delete(Buildings.GetFirstBuilding(2,_type),2)
+			_number=_number+1
+		end
+		_type=_type+1
+	end
+	Map.SetScreenPos(306,402)
+	tick=0
+	request_event(showEffects,Events.TICK)
+
+	--placement of new foundation buildings
+	_type=46
+	while _type<49 do
+		_number=1
+		while buildings[_type][_number]~=nil do
+			Buildings.AddBuildingEx((buildings[_type][_number][1]),(buildings[_type][_number][2]),2,_type)
+			_number=_number+1
+		end
+		_type=_type+1
+	end
+
+	--placement of new non-foundation buildings
+	_type=1
+	while _type<83 do
+		_number=1
+		while buildings[_type][_number]~=nil do
+			Buildings.AddBuildingEx((buildings[_type][_number][1]),(buildings[_type][_number][2]),2,_type)
+			_number=_number+1
+		end
+		if _type==45 then
+			_type=49
+		else
+			_type=_type+1
+		end
+	end
+end
+
+function showEffects()
+	tick=tick+1
+	fx=0
+	while fx<10 do
+		_y=319+Game.Random(140)
+		_x=(_y-319)/2+213+Game.Random(35)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,_x,_y,0)
+		_y=347+Game.Random(130)
+		_x=(_y-347)/2+263+Game.Random(65)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,_x,_y,0)
+		fx=fx+1
+	end
+	if tick>=(14*3) then
+		Game.ShowText("MD2_MAYAN_SCRIPT_TWO_05",119,315)
+		unrequest_event(showEffects,Events.TICK)
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(vikingTowerCheck,Events.FIVE_TICKS)
+	request_event(sendFerry,Events.FIVE_TICKS)
+	request_event(destroyFerry,Events.TICK)
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 1, 2)
+	AI.SetPlayerVar(2, "AttackMode", 0, 0, 0)
+	AI.SetPlayerVar(3, "AttackDelay", 75, 50, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(vikingTowerCheck)
+	reg_func(darkLandCheck)
+	reg_func(sendFerry)
+	reg_func(destroyFerry)
+	reg_func(dropItems)
+	reg_func(priestCheck)
+	reg_func(killPriests)
+	reg_func(showPriest)
+	reg_func(showEffects)
+end
+
+--following functions are for testing purpose only
+function getSoldiers()
+	Settlers.AddSettlers(473,386,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(473,386,1,Settlers.BOWMAN_03,200)
+end
+
+function getGardeners()
+	Settlers.AddSettlers(472,386,1,Settlers.GARDENER,50)
+end
+
+function crushTowers()
+	while Buildings.Amount(3,Buildings.GUARDTOWERSMALL,Buildings.ALL)>0 do
+		Buildings.Delete(Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL),2)
+	end
+end

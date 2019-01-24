@@ -1,0 +1,143 @@
+--// MD_SETTLE2
+--//------------------
+
+i=0 		--// Initialiazing Counter for function EffectCircle
+	x_int=0		--// Initialiazing internal X for function EffectCircle
+	y_int=0		--// Initialiazing internal X for function EffectCircle
+
+
+
+function InitVar()
+
+	Vars.Save1 = 1
+
+	Vars.Save2  = 1
+	Vars.Save3 = 0
+	
+end
+
+
+function EffectCircle(x,y,radius,speed)
+
+--//X,Y,Radius,Geschindigkeit des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//i=0 		--// Initialiazing Counter for function EffectCircle
+--//x_int=0		--// Initialiazing internal X for function EffectCircle
+--//y_int=0		--// Initialiazing internal X for function EffectCircle
+
+--//dbg.pi(i)
+		
+
+
+		if (i >= 0) and (i <= radius) then
+			x_int = x - radius + i
+			y_int = y - radius
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		
+		if (i >= radius) and (i <= (radius*2)) then
+			x_int = x - radius + i
+			y_int = y - (2*radius) + i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		if i >=(radius*2) and i <= (radius*3) then
+			x_int = x + radius
+			y_int = y + (i-(2*radius))
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		if i >=(radius*3) and i <= (radius*4) then
+			x_int = x +(4*radius) - i
+			y_int = y + radius
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end		
+		
+		if i >=(radius*4) and i <= (radius*5) then
+			x_int = x + (4*radius) - i
+			y_int = y + (5*radius) - i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+			
+		end
+		
+		if i >=(radius*5) and i <= (radius*6) then
+			x_int = x - radius
+			y_int = y + (5*radius) - i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+			
+		end
+				
+		if i>=(radius*6) then
+			i=0
+		end
+
+		
+end
+
+
+function PriestFoundCheck()
+
+	if Game.FindAnyUnit(1,287,668,20) == 1 and Vars.Save3 <= 10 then
+		
+		EffectCircle(272,664,5,3)
+		Vars.Save3 = Vars.Save3  + 1	
+		if Vars.Save1 == 1 then
+			--// du hast mich gefunden ..der erste besucher. hier haste mana
+			Game.ShowText("MD_ECO_SCRIPT_TWO_01",287,668)
+			Magic.IncreaseMana(1,30)	
+			Vars.Save1 = 0
+		end
+	end
+
+end
+
+function VictoryConditionCheck()
+
+	--//Game.DefaultPlayersLostCheck()
+	--//Game.DefaultPlayerLostCheck(1)
+ 	
+ 	if Game.ArePlayerAreasConnected(1,846,636 ,2,253,231) == 1 then
+     		--//Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+  	end
+
+  	
+  
+end
+
+
+function new_game()
+
+	 --// SetPlayerVaribles //--
+	  
+	
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 20,20,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 20,20,150)
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(PriestFoundCheck, Events.FIVE_TICKS)
+	
+  
+end
+
+
+function register_functions()
+
+  reg_func(VictoryConditionCheck)
+  reg_func(PriestFoundCheck)
+  reg_func(InitVar)
+  
+end

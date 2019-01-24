@@ -1,0 +1,205 @@
+goods={
+	easy={
+		{type=Goods.STONE,amount=24},
+		{type=Goods.BOARD,amount=24},
+		{type=Goods.AXE,amount=6},
+		{type=Goods.SAW,amount=3},
+		{type=Goods.PICKAXE,amount=8},
+		{type=Goods.HAMMER,amount=8},
+		{type=Goods.ROD,amount=3},
+		{type=Goods.SHOVEL,amount=4},
+		{type=Goods.SCYTHE,amount=2}
+	},
+	normal={
+		{type=Goods.STONE,amount=16},
+		{type=Goods.BOARD,amount=16},
+		{type=Goods.AXE,amount=4},
+		{type=Goods.SAW,amount=2},
+		{type=Goods.PICKAXE,amount=5},
+		{type=Goods.HAMMER,amount=5},
+		{type=Goods.ROD,amount=1},
+		{type=Goods.SHOVEL,amount=2},
+		{type=Goods.SCYTHE,amount=1}
+	}
+}
+
+soldiers={
+	{x=283,y=254,radius=25},
+	{x=246,y=147,radius=25},
+	{x=201,y=157,radius=25},
+	{x=206,y=231,radius=25},
+	{x=246,y=291,radius=25},
+	{x=300,y=172,radius=25},
+	{x=321,y=221,radius=25}
+}
+
+function initVar()
+	Vars.Save1=0			--flag, toggles PlayerLostcheck
+	Vars.Save2=0			--for cartCheck
+	Vars.Save3=0			--for ferry
+	Vars.Save4=0			--used to check if spell "smelt snow" is used
+end
+
+function victoryConditionCheck()
+		Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 then
+		Game.PlayerLost(3)
+		Game.DefaultGameEndCheck()
+	else
+		if Settlers.AmountInArea(1,Settlers.PRIEST,253,209,7)>0 then
+			request_event(teleport,Events.FIVE_TICKS)
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function sendFerry()
+	if Vars.Save3==2 then
+		unrequest_event(sendFerry,Events.TICK)
+	else
+		if Vars.Save3==1 then
+			if Vehicles.AmountInArea(3,Vehicles.FERRY,522,652,0)==1 then
+				Vehicles.KillVehicles(3,Vehicles.FERRY,522,652,1,0)
+				Vehicles.AddVehicle(522,652,1,Vehicles.FERRY,0,0,0)
+				if Game.GetDifficulty()==0 then
+					goods.dropGoods(goods.easy)
+				else
+					goods.dropGoods(goods.normal)
+				end
+				Vars.Save3=2
+			end
+		else
+			if Game.Time()>=3 then
+				Vehicles.AddVehicle(403,692,3,Vehicles.FERRY,5,0,1)
+				AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,522,652)
+				Game.ShowText("MD2_TROJAN_SCRIPT_FOUR_02",403,692)
+				Vars.Save3=1
+			end
+		end
+	end
+end
+
+function goods.dropGoods(_goods)
+	Settlers.AddSettlers(515,625,1,Settlers.BUILDER,3)
+	Settlers.AddSettlers(520,630,1,Settlers.DIGGER,4)
+	index=next(_goods,nil)
+	while index do
+		_dropped=0
+		while _dropped<_goods[index]["amount"] do
+			X=515+Game.Random(11)
+			Y=625+Game.Random(11)
+			if (_goods[index]["amount"]-_dropped)<8 then
+				Goods.AddPileEx(X,Y,_goods[index]["type"],(_goods[index]["amount"]-_dropped))
+			else
+				Goods.AddPileEx(X,Y,_goods[index]["type"],8)
+			end
+			_dropped=_dropped+8
+		end
+		index=next(_goods,index)
+	end
+end
+
+function spellCheck()
+	if Vars.Save4==1 then
+		if Game.GetDifficulty()==1 then
+			Game.SetFightingStrength(2,150)
+		end
+		attackNow()
+		unrequest_event(spellCheck,Events.FIVE_TICKS)
+	else
+		if Statistic.SpellsCast(1,Magic.SPELL_TERRAIN)>0 then
+			Vars.Save4=1
+		end
+	end
+end
+
+function attackNow()
+	_count=1
+	if Game.GetDifficulty()==0 then
+		_squads=3
+	else
+		_squads=7
+	end
+	while _count<=_squads do
+		_bowman=Settlers.AmountInArea(2,Settlers.BOWMAN_03,soldiers[_count]["x"],soldiers[_count]["y"],soldiers[_count]["radius"])
+		_swordsman=Settlers.AmountInArea(2,Settlers.SWORDSMAN_03,soldiers[_count]["x"],soldiers[_count]["y"],soldiers[_count]["radius"])
+		Settlers.KillSelectableSettlers(2,Settlers.BOWMAN_03,soldiers[_count]["x"],soldiers[_count]["y"],soldiers[_count]["radius"],0)
+		Settlers.KillSelectableSettlers(2,Settlers.SWORDSMAN_03,soldiers[_count]["x"],soldiers[_count]["y"],soldiers[_count]["radius"],0)
+		Settlers.AddSettlers(soldiers[_count]["x"],soldiers[_count]["y"],2,Settlers.SWORDSMAN_03,_swordsman)
+		Settlers.AddSettlers(soldiers[_count]["x"],soldiers[_count]["y"],2,Settlers.BOWMAN_03,_bowman)
+		AI.NewSquad(2,AI.CMD_SUICIDE_MISSION)
+		_count=_count+1
+	end
+end
+
+function teleport()
+	Settlers.KillSelectableSettlers(1,-1,253,209,5)
+end
+
+function addLoadedFerry(_x,_y)
+	amount=5+Game.Random(11)
+	ferryId=Vehicles.AddVehicle(_x,_y,1,Vehicles.FERRY,-1,0,0)
+	_amount=0
+	while _amount<amount do
+		rand=Game.Random(100)
+		if rand<40 then
+			Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_01,1)
+		else
+			if rand>=90 then
+				Settlers.AddSettlersToFerry(ferryId,Settlers.BACKPACKCATAPULTIST_01,1)
+			else
+				Settlers.AddSettlersToFerry(ferryId,Settlers.BOWMAN_01,1)
+			end
+		end
+		_amount=_amount+1
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(spellCheck,Events.FIVE_TICKS)
+	request_event(sendFerry,Events.FIVE_TICKS)
+
+	Map.AddDecoObject(253,209,119)
+	Vehicles.AddVehicle(315,500,1,Vehicles.FOUNDATION_CART,0,0,0)
+	Settlers.AddSettlers(321,499,1,Settlers.SWORDSMAN_02,3)
+	addLoadedFerry(137,554)
+	addLoadedFerry(191,650)
+	addLoadedFerry(331,527)
+
+	AI.SetPlayerVar(2, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 60, 45, 30)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(4, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 60, 45, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(sendFerry)
+	reg_func(spellCheck)
+	reg_func(teleport)
+end
+
+--for testing only
+function getSoldiers()
+	Settlers.AddSettlers(515,615,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(515,615,1,Settlers.BOWMAN_03,200)
+end
+
+function getPriests()
+	Settlers.AddSettlers(515,615,1,Settlers.PRIEST,8)
+	Magic.IncreaseMana(1,1000)
+end

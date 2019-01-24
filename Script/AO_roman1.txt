@@ -1,0 +1,185 @@
+--// AO Roman 1
+--//------------
+
+function InitVar()
+
+	
+	if Game.GetDifficulty() == 0 then
+		Vars.Save2 = 50000		
+		Vars.Save1 = 0
+	else
+		--//Shipattack in Modus normal
+		Vars.Save1 = 1
+		--//Attacktime for three ships
+		Vars.Save2 = 30 +  Game.Random(5)
+		Vars.Save3 = Vars.Save2 + 30 +  Game.Random(5)
+		Vars.Save4 = Vars.Save3 + 30 +  Game.Random(5)
+
+	end
+
+	Vars.Save5 = 1 --//flag ferry
+	Vars.Save6 = 1 --//flag soldiers
+	
+end
+
+
+function AttackCheck()
+
+	--//first Attack
+	if Vars.Save1 ~= 0 and  Game.Time() == Vars.Save2 and Vars.Save5 == 1 then
+		--//Vehicles.AddVehicle(271,199,2, Vehicles.FERRY,-1,0,1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 215,505)
+		dbg.pi(1)
+		Vars.Save5 = 2
+	end
+
+	--//second Attack
+	if Vars.Save1 ~= 0 and  Game.Time() == Vars.Save3 and Vars.Save5 == 2 then
+		Vehicles.AddVehicle(271,199,2, Vehicles.FERRY,-1,0,1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 264,502)
+		Vars.Save5 = 3 
+	end
+	
+	--//third Attack
+	if Vars.Save1 ~= 0 and  Game.Time() == Vars.Save4 and Vars.Save5 == 3 then
+		Vehicles.AddVehicle(271,199,2, Vehicles.FERRY,-1,0,1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 210,463)
+		Vars.Save5 = 4
+	end
+
+	--//Fähre in der Gegend  1 --> Soldaten setzen
+	if Vehicles.AmountInArea(2,Vehicles.FERRY,215,505, 2) == 1 and Vars.Save6 == 1 then
+			
+		Settlers.AddSettlers(203,494, 2, Settlers.SWORDSMAN_02, 5)
+    	Settlers.AddSettlers(201,497, 2, Settlers.BOWMAN_02, 5)
+    	Settlers.AddSettlers(194,488, 2, Settlers.BACKPACKCATAPULTIST_02, 3)
+		AI.NewSquad(2, AI.CMD_SUICIDE_MISSION )
+		Vars.Save6 = 2
+	end
+
+	--//Fähre in der Gegend  2 --> Soldaten setzen
+	if Vehicles.AmountInArea(2,Vehicles.FERRY,264,502, 2) == 1 and Vars.Save6 == 2 then
+			
+		Settlers.AddSettlers(266,518, 2, Settlers.SWORDSMAN_02, 5)
+    	Settlers.AddSettlers(271,528, 2, Settlers.BOWMAN_02, 5)
+    	Settlers.AddSettlers(254,511, 2, Settlers.BACKPACKCATAPULTIST_02, 3)
+		AI.NewSquad(2, AI.CMD_SUICIDE_MISSION )
+		Vars.Save6 = 3
+	end
+
+	--//Fähre in der Gegend  3 --> Soldaten setzen
+	if Vehicles.AmountInArea(2,Vehicles.FERRY,210,463, 2) == 1 and Vars.Save6 == 3 then
+			
+		Settlers.AddSettlers(203,476, 2, Settlers.SWORDSMAN_02, 5)
+    	Settlers.AddSettlers(208,480, 2, Settlers.BOWMAN_02, 5)
+    	Settlers.AddSettlers(219,486, 2, Settlers.BACKPACKCATAPULTIST_02, 3)
+		AI.NewSquad(2, AI.CMD_SUICIDE_MISSION )
+		Vars.Save6 = 4
+	end
+
+
+
+end
+
+function VictoryConditionCheck()
+
+	if Buildings.ExistsBuildingInArea(2,Buildings.CASTLE,280,154,10,Buildings.READY) == 0 
+	and Buildings.ExistsBuildingInArea(2,Buildings.CASTLE,215,159,10,Buildings.READY) == 0 
+	and Vehicles.Amount(2,1) == 0 then
+
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	else
+		Game.DefaultPlayersLostCheck()
+	end
+	
+	if 	Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+
+function new_game()
+
+
+--//set ships
+	Vehicles.AddVehicle(308,200,2, Vehicles.WARSHIP, 5,90, 0)
+	Vehicles.AddVehicle(290,217,2, Vehicles.WARSHIP, 1,90, 0)
+	Vehicles.AddVehicle(271,199,2, Vehicles.FERRY,-1,0,1)
+	Vehicles.AddVehicle(308,252,2, Vehicles.WARSHIP, 5,90, 0)
+	
+	Vehicles.AddVehicle(270,280,2, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(229,269,2, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(169,220,2, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(349,342,2, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(372,320,2, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(404,322,2, Vehicles.WARSHIP, -1,90, 1)
+		 
+--//Settlers.AddSettlers(271,199,1,Settlers.SWORDSMAN_03,200)
+--//Settlers.AddSettlers(271,199,1,Settlers.BOWMAN_03,200)
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(201,545)
+	end
+
+	 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	--//AI.SetPlayerVar(2, "AttackMode", 0, 2, 2) 
+	--//AI.SetPlayerVar(2, "AttackDelay", 500, 50, 10) 
+
+	--// SOLDIERLIMITRELATIVE//--
+	--//AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,100,300)
+	--//AI.SetPlayerVar(2, "SoldierLimitRelative", 50,50,150)
+
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(AttackCheck,Events.FIVE_TICKS)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+
+
+  reg_func(AttackCheck)
+  reg_func(InitVar)
+  reg_func(VictoryConditionCheck)
+
+end
+
+	
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

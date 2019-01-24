@@ -1,0 +1,218 @@
+-- =============================================================================
+--// AO_trojan10
+--//============================================================================
+--// 4 ist vorne
+
+
+ATTACKTIME = 30
+
+function InitVar()
+	
+	Vars.Save1 = 1
+	Vars.Save2 = 1
+	Vars.Save3 = 1
+	Vars.Save4 = 1
+
+	Vars.Save5 = 0
+	Vars.Save6 = 0
+	Vars.Save6 = 0
+	
+end
+
+function AttackCheck()
+
+	if Buildings.Amount(1,Buildings.SMELTGOLD,Buildings.UNDERCONSTRUCTION) >= 1 
+	and Vars.Save1 == 1 then
+	dbg.pi(1)
+		AI.AttackNow(3,1,2)
+		AI.AttackNow(4,1,2)
+		Vars.Save1 = 0 
+	end
+
+	
+	if Buildings.Amount(1,Buildings.BIGTEMPLE,Buildings.UNDERCONSTRUCTION) >= 1 
+	and Vars.Save2 == 1 then
+	dbg.pi(2)
+		AI.AttackNow(3, 1, 2)
+		AI.AttackNow(4, 1, 2)
+		Vars.Save2 = 0
+	end
+
+	
+	if Settlers.AmountInArea(1, Settlers.PRIEST,362,457,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,388,513,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,329,408,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,296,357,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,259,305,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,203,261,32) >= 1
+	or Settlers.AmountInArea(1, Settlers.PRIEST,172,252,32) >= 1
+	and Vars.Save3 == 1 then
+	dbg.pi(3)
+		AI.AttackNow(3, 1, 2)
+		Vars.Save3 = 0
+	end
+
+	if Game.Time() == ATTACKTIME and Vars.Save4 == 1  then
+		AI.AttackNow(3, 2, 4)
+		AI.AttackNow(4, 2, 1)
+		Vars.Save4 = 0
+		dbg.pi(4)
+	end
+
+	if Game.IsAreaDarkLand( 316,212, 5) ~= 1 then
+		--//Effects.AddEffect(Effects.MAGIC_PILE01, Sounds.NO_SOUND, 316,212, 1)
+		Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 315,212, 5)
+		--//Effects.AddEffect(Effects.MAGIC_PILE01, Sounds.NO_SOUND, 314,212, 3)
+		--//Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, 316,214, 1)
+		--//Effects.AddEffect(Effects.MAGIC_PILE03, Sounds.NO_SOUND, 218,215, 2)
+		--//Effects.AddEffect(Effects.MAGIC_PILE03, Sounds.NO_SOUND, 218,213, 5)
+	end
+
+	if Settlers.AmountInArea(1, Settlers.PRIEST,316,212, 15) >= 1 
+	and Magic.CurrentManaAmount(1) >= 200 
+	and Vars.Save5 == 0 then
+		Vars.Save5 = 1
+		--// noch effect zur begründung
+		Settlers.KillSelectableSettlers(1,Settlers.SWORDSMAN_01,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,Settlers.SWORDSMAN_02,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,Settlers.SWORDSMAN_03,316,212,40,1)
+
+		Settlers.KillSelectableSettlers(1,Settlers.BOWMAN_01,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,Settlers.BOWMAN_02,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,Settlers.BOWMAN_03,316,212,40,1)
+			
+		Settlers.KillSelectableSettlers(1,Settlers.SQUADLEADER,316,212,40,1)
+
+		Settlers.KillSelectableSettlers(1,61,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,62,316,212,40,1)
+		Settlers.KillSelectableSettlers(1,63,316,212,40,1)
+		
+		DarkTribe.AddManakopter(341,190,3)
+		DarkTribe.FlyTo(311,201)
+		Game.SetFightingStrength(4,150)
+	end
+
+	if Vars.Save6 == 125 then
+		Settlers.AddSettlers(311,201,4,Settlers.SWORDSMAN_01,15)
+		Vars.Save7 = 1
+	end
+
+end
+
+function Tick()
+	if Vars.Save5 == 1 then
+		Vars.Save6 = Vars.Save6 + 1
+		Map.SetScreenPos(309,205)
+		Tutorial.SetZoom(20)
+	end
+end
+
+function VictoryConditionCheck()
+
+	if Vars.Save7 == 1 then
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	else
+		Game.DefaultPlayersLostCheck()
+	end
+
+	if 	Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function new_game()
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(119,405)
+		
+	else
+		Game.SetFightingStrength(3,150)
+		Game.SetFightingStrength(4,150)
+	end
+--//for testing
+	--//Settlers.AddSettlers(316,212,1,Settlers.PRIEST,1)
+	--//Settlers.AddSettlers(316,212,1,Settlers.SWORDSMAN_03,20)
+	--//Magic.IncreaseMana(1,200)
+
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 80,80,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 50,50,150)
+
+
+	--// SetPlayerVaribles DARK TRIBE//--
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 55, 30, 10) 
+	AI.SetPlayerVar(3, "DTAttackCheckDelay", 15, 8, 0) 
+	
+	
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 65, 45, 10) 
+	AI.SetPlayerVar(4, "DTAttackCheckDelay", 10, 8, 0) 
+	AI.SetPlayerVar(4, "DTManakopterDelay", 1, 1, 10) 
+	
+
+	
+	AI.DarkTribeUseDarkGardeners(4,0)
+	AI.DarkTribeUseDarkGardeners(3,0)
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(AttackCheck,Events.FIVE_TICKS)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(Tick,Events.TICK)
+	
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function register_functions()
+
+  reg_func(AttackCheck)
+  reg_func(InitVar)
+  reg_func(VictoryConditionCheck)
+  reg_func(Tick)
+  
+
+end
+
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_02,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_02,     4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

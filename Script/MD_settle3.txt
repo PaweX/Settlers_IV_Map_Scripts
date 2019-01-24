@@ -1,0 +1,136 @@
+--// MD_Settle3
+--//--------------------
+
+	
+	--// time to win
+	gTimeOut = 150
+
+	--// Amount of goods, the Player must produce
+	gAmountBattleAxe = 100
+	gAmountBread = 150
+	gAmountMeat = 160
+	gAmountFish = 255
+	gAmountMead = 220
+	gAmountGold = 55
+	gAmountMana = 600
+
+
+
+function InitVar()
+	
+	--// toggling flag for one-time call
+	Vars.Save1 = 1 
+
+		--// flag for showing the text one time
+	Vars.Save7 = 0
+
+	
+	--// flag for activates the clock dialog one time
+	Vars.Save9 = 1
+	
+end
+
+
+--// -----------------------------------------------------------------------------
+--// Activate the clock
+--// -----------------------------------------------------------------------------
+
+function TurnOnTheClock()
+	Game.ShowClock(9000)
+end
+
+function ShowTime()
+  	
+--// -----------------------------------------------------------------------------
+--// Countdown
+--// -----------------------------------------------------------------------------	
+--// Zeitansage 10 min vor schluß //--
+	
+	if Game.Time() >= (gTimeOut - 10) and  Vars.Save7 == 2 then
+		Game.ShowText("MD_ECO_SCRIPT_THREE_01")
+		Vars.Save7 = 3
+	end
+
+--// Zeitansage 20 min vor schluß //--
+	if Game.Time() >= (gTimeOut - 20) and  (Vars.Save7 == 1) then
+		Game.ShowText("MD_ECO_SCRIPT_THREE_02")
+		Vars.Save7 = 2
+	end
+--// Zeitansage 30 min vor schluß //--
+	if Game.Time() >= (gTimeOut-30) and  Vars.Save7 == 0 then
+		Game.ShowText("MD_ECO_SCRIPT_THREE_03")
+		Vars.Save7 = 1 
+	end
+	
+end
+-- -----------------------------------------------------------------------------
+
+function VictoryConditionCheck()
+
+	if Goods.Amount(1,Goods.BATTLEAXE) >= gAmountBattleAxe
+	and	Goods.Amount(1,Goods.BREAD) >= gAmountBread 
+	and Goods.Amount(1,Goods.MEAT) >= gAmountMeat
+	and Goods.Amount(1,Goods.FISH) >= gAmountFish
+	and Goods.Amount(1,Goods.MEAD) >= gAmountMead
+	and Goods.Amount(1,Goods.GOLDBAR) >= gAmountGold
+	and Magic.CurrentManaAmount(1) >= gAmountMana
+	then
+		Game.DefaultGameEndCheck("MD_ECO_SCRIPT_THREE_04","MD_ECO_SCRIPT_THREE_05")
+ 				
+--// -----------------------------------------------------------------------------
+--// Game lost until time out 
+--// -----------------------------------------------------------------------------
+	
+	--// beenden des Spiels bei überschreitung der zeit //--
+		
+	elseif Game.Time() >=  gTimeOut then  
+		Game.PlayerLost(1)
+		Game.PlayerLost(2)
+		Game.PlayerLost(3)
+		Game.DefaultGameEndCheck("MD_ECO_SCRIPT_THREE_04","MD_ECO_SCRIPT_THREE_05")
+	end
+
+	  
+  	
+	
+	
+end
+
+--//--------------------------------------------------------------------------
+
+function new_game()
+
+--//	Goods.AddPileEx(266,233, Goods.BATTLEAXE, 8)
+	--//	Goods.AddPileEx(266,233, Goods.BREAD, 8)
+	--//	Goods.AddPileEx(266,233, Goods.MEAT, 8)
+	--//	Goods.AddPileEx(266,233, Goods.FISH, 8)
+	--//	Goods.AddPileEx(266,233, Goods.MEAD, 8)
+	--//	Goods.AddPileEx(266,233, Goods.GOLDBAR, 8)
+
+	 --// SetPlayerVaribles //--
+	  
+	
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 20,20,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,50,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 20,20,150)
+
+  	request_event(TurnOnTheClock,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+  	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(ShowTime, Events.FIVE_TICKS)
+  	
+end
+
+--// -----------------------------------------------------------------------------
+
+function register_functions()
+
+	reg_func(ShowTime)
+	reg_func(VictoryConditionCheck)
+	reg_func(TurnOnTheClock)
+	reg_func(InitVar)
+   
+end

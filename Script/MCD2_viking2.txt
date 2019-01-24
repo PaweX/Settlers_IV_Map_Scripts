@@ -1,0 +1,275 @@
+if Game.GetDifficulty()==0 then
+	firstAttack=45
+	pirateFerryMinDelay=8
+	pirateFerryMaxDelay=15
+	minSquadSize=7
+	maxSquadSize=10
+else
+	firstAttack=20
+	pirateFerryMinDelay=4
+	pirateFerryMaxDelay=10
+	minSquadSize=12
+	maxSquadSize=16
+end
+
+randomDelay=pirateFerryMaxDelay-pirateFerryMinDelay+1
+randomSquadSize=maxSquadSize-minSquadSize+1
+
+ferryPositions={
+	{	ferry1={
+			x=210,
+			y=167,
+			wait=0,
+			deliver={
+				x=211,
+				y=159
+			}
+		},
+	  ferry2={
+	 		x=216,
+	 		y=213,
+	 		wait=0,
+			deliver={
+				x=224,
+				y=213
+			}
+	 	}
+	},
+	{	ferry1={
+			x=274,
+			y=276,
+			wait=0,
+			deliver={
+				x=274,
+				y=266
+			}
+		},
+		ferry2={
+			x=346,
+			y=290,
+			wait=0,
+			deliver={
+				x=335,
+				y=278
+			}
+		}
+	},
+	{	ferry1={
+			x=348,
+			y=191,
+			wait=0,
+			deliver={
+				x=342,
+				y=178
+			}
+		},
+		ferry2={
+			x=428,
+			y=216,
+			wait=0,
+			deliver={
+				x=420,
+				y=205
+			}
+		}
+	},
+	{	ferry1={
+			x=158,
+			y=192,
+			wait=0,
+			deliver={
+				x=152,
+				y=181
+			}
+		},
+		ferry2={
+			x=92,
+			y=133,
+			wait=0,
+			deliver={
+				x=92,
+				y=122
+			}
+		}
+	}
+}
+
+function initVar()
+	Vars.Save1=firstAttack		--for ferryAttack
+	Vars.Save2=0							--for ferryAttack
+	Vars.Save3=0							--for checkMana
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 then
+		Game.EnemyPlayersLost(3)
+		Game.DefaultGameEndCheck()
+	else
+		if Goods.Amount(1,Goods.MEAT)>=50 and Goods.Amount(1,Goods.BREAD)>=50 and Goods.Amount(1,Goods.FISH)>=50 and
+			 Goods.Amount(1,Goods.WATER)>=50 then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function ferryAttack()
+	if Game.Time()>=Vars.Save1 and Vars.Save2==0 then
+		_position=Game.Random(4)+1
+		ferry1=ferryPositions[_position]["ferry1"]
+		Vehicles.AddVehicle(446,11,3,Vehicles.FERRY,2,0,1)
+		AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry1.x,ferry1.y)
+		ferry1.wait=0
+		if Game.GetDifficulty()==1 then
+			ferry2=ferryPositions[_position]["ferry2"]
+			Vehicles.AddVehicle(459,11,3,Vehicles.FERRY,2,0,1)
+			AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry2.x,ferry2.y)
+			ferry2.wait=0
+		end
+		Vars.Save2=1
+		Vars.Save1=Vars.Save1+pirateFerryMinDelay+Game.Random(randomDelay)
+	else
+		if Vars.Save2==1 then
+			if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry1.x,ferry1.y,0)==1 then
+				if ferry1.wait==0 then
+					deliverSquad(Game.GetDifficulty(),ferry1.deliver.x,ferry1.deliver.y)
+					ferry1.wait=1
+				else
+					ferry1.wait=ferry1.wait+1
+				end
+			end
+			if Game.GetDifficulty()==1 then
+				if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry2.x,ferry2.y,0)==1 then
+					if ferry2.wait==0 then
+						deliverSquad(Game.GetDifficulty(),ferry2.deliver.x,ferry2.deliver.y)
+						ferry2.wait=1
+					else
+						ferry2.wait=ferry2.wait+1
+					end
+				end
+				if ferry1.wait>=3 and ferry2.wait>=3 then
+					Vars.Save2=2
+				end
+			else
+				if ferry1.wait>=3 then
+					Vars.Save2=2
+				end
+			end
+		else
+			if Vars.Save2==2 then
+				if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry1.x,ferry1.y,1)>0 then
+					Vehicles.KillVehicles(3,Vehicles.FERRY,ferry1.x,ferry1.y,0,0)
+					Vehicles.AddVehicle(ferry1.x,ferry1.y,3,Vehicles.FERRY,ferry1.direction,0,1)
+					AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,371,11)
+				end
+				if Game.GetDifficulty()==1 then
+					if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry2.x,ferry2.y,1)>0 then
+						Vehicles.KillVehicles(3,Vehicles.FERRY,ferry2.x,ferry2.y,0,0)
+						Vehicles.AddVehicle(ferry2.x,ferry2.y,3,Vehicles.FERRY,ferry2.direction,0,1)
+						AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,11,122)
+					end
+				end
+				Vars.Save2=0
+			end
+		end
+	end
+end
+
+function deliverSquad(_difficulty,_x,_y)
+	if _difficulty==0 then
+		_amount=minSquadSize+Game.Random(randomSquadSize)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_01,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.AXEWARRIOR_01,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_01,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	else
+		_amount=15+Game.Random(6)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_02,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.AXEWARRIOR_02,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_02,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	end
+	AI.NewSquad(3,AI.CMD_SUICIDE_MISSION)
+end
+
+function checkMana()
+	if Vars.Save3==0 and Magic.CurrentManaAmount(2)>=190 then
+		Game.ShowText("MD2_VIKING_TWO_SCRIPT_01",244,178)
+		Vars.Save3=1
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,244,173,0)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,8)
+		Goods.AddPileEx(244,173,Goods.BREAD,2)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,238,171,0)
+		Goods.AddPileEx(238,171,Goods.MEAT,8)
+		Goods.AddPileEx(238,171,Goods.MEAT,8)
+		Goods.AddPileEx(238,171,Goods.MEAT,8)
+		Goods.AddPileEx(238,171,Goods.MEAT,8)
+		Goods.AddPileEx(238,171,Goods.MEAT,8)
+		Goods.AddPileEx(238,171,Goods.MEAT,2)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,248,181,0)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,8)
+		Goods.AddPileEx(248,181,Goods.FISH,2)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,245,185,0)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,8)
+		Goods.AddPileEx(245,185,Goods.WATER,2)
+		unrequest_event(checkMana,Events.FIVE_TICKS)
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(checkMana,Events.FIVE_TICKS)
+	request_event(ferryAttack,Events.FIVE_TICKS)
+	Magic.IncreaseMana(1,100)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(checkMana)
+	reg_func(ferryAttack)
+end
+	

@@ -1,0 +1,66 @@
+if Game.GetDifficulty()==0 then
+	spawnTime=45						--time for first spawn (in minutes)
+	spawnDelay=8						--time between two consecutive spawns
+	spawnAmount=25					--number of Settlers to be spawned
+else
+	spawnTime=30							--time for first spawn (in minutes)
+	spawnDelay=5						--time between two consecutive spawns
+	spawnAmount=30					--number of Settlers to be spawned
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayersLostCheck()
+	mu,l1,l2,l3,sl,fc=Vehicles.GetFerryCargoInArea(1,295,64,64)
+	Mu,L1,L2,L3,Sl,Fc=Vehicles.GetFerryCargoInArea(1,467,374,64)
+	soldiers=l1+l2+l3+sl+L1+L2+L3+Sl
+	if Game.HasPlayerLost(1)==1 then
+		Game.DefaultGameEndCheck()
+	else
+		if Vehicles.Amount(1,Vehicles.FERRY)>=4	and Vehicles.Amount(1,Vehicles.WARSHIP)>=3 and
+			 soldiers>=60 then
+
+					Game.EnemyPlayersLost(1)
+					Game.DefaultGameEndCheck("MD2_ROMAN_SCRIPT_ONE_01","MD2_ROMAN_SCRIPT_ONE_02")
+		end
+	end
+end
+
+function spawnSettlers()
+	if Game.Time()>=spawnTime then
+		if Game.FindAnyUnit(1,319,171,32)==0 then
+			Settlers.AddSettlers(319,171,2,Settlers.CARRIER,spawnAmount)
+			spawnTime=Game.Time()+spawnDelay
+		else
+			if Game.FindAnyUnit(1,393,180,32)==0 then
+				Settlers.AddSettlers(393,180,2,Settlers.CARRIER,spawnAmount)
+				spawnTime=Game.Time()+spawnDelay
+			end
+		end
+	end
+end
+
+function new_game()
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(spawnSettlers,Events.FIVE_TICKS)
+
+	AI.SetPlayerVar(2, "AttackMode", 1, 1, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 30, 20, 30)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(victoryConditionCheck)
+	reg_func(spawnSettlers)
+end
+
+--for testing only
+
+function addLoadedFerry(_settlerType)
+	newFerryID=Vehicles.AddVehicle(252,11,1,Vehicles.FERRY,0,0,0)
+	Settlers.AddSettlersToFerry(newFerryID, _settlerType, 15)
+end
+
+function addWarShip()
+	Vehicles.AddVehicle(252,11,1,Vehicles.WARSHIP,0,0,0)
+end

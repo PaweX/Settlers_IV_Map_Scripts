@@ -1,0 +1,314 @@
+_eyecatcher=0
+_checked=1
+
+gates={
+	{x=396,y=268,radius=5},
+	{x=68,y=86,radius=5}
+}
+
+eyecatcher={
+	{x=385,y=438,radius=8},
+	{x=395,y=458,radius=8},
+	{x=362,y=438,radius=8},
+	{x=378,y=467,radius=8},
+	{x=340,y=431,radius=9},
+	{x=360,y=471,radius=8},
+	{x=332,y=474,radius=8},
+	{x=311,y=421,radius=8},
+	{x=304,y=471,radius=8},
+	{x=279,y=414,radius=8},
+	{x=268,y=464,radius=8},
+	{x=250,y=409,radius=8}
+}
+
+towers={
+	{x=509,y=365},
+	{x=517,y=387},
+	{x=500,y=401},
+	{x=493,y=423},
+	{x=475,y=437},
+	{x=457,y=449},
+	{x=429,y=448},
+	{x=403,y=450},
+	{x=376,y=451},
+	{x=349,y=451},
+	{x=319,y=442},
+	{x=290,y=438},
+	{x=264,y=419},
+	{x=281,y=459},
+	{x=236,y=437}
+}
+
+function initVar()
+	Vars.Save1=0				--used for entrance check
+	Vars.Save2=0				--used for checking decoobjects
+	Vars.Save3=0				--used for message when units are "beamed" the first time
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayersLostCheck()
+	if Game.HasPlayerLost(2)==1 then
+		Game.SetFightingStrength(3,-1)
+	else
+		if Vars.Save1>=3 then
+			AI.AttackNow(3,2,5)
+		end
+	end
+	if Game.HasPlayerLost(1)==1 then
+		Game.PlayerLost(2)
+		Game.DefaultGameEndCheck()
+	else
+		if Vars.Save2==3 then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function checkMiddle()
+	if Game.FindAnyUnit(1,218,386,25)==1 then
+		Vars.Save1=4
+		unrequest_event(checkMiddle,Events.FIVE_TICKS)
+	end
+end
+
+function checkEntrance()
+	if Vars.Save1==4 then
+		request_event(checkEyecatcher,Events.TICK)
+		unrequest_event(checkEntrance,Events.FIVE_TICKS)
+	end
+	if Vars.Save1==2 then
+		Game.ShowText("MD2_TROJAN_SCRIPT_FIVE_02",457,211)
+		request_event(checkSwitches,Events.FIVE_TICKS)
+		unrequest_event(checkEntrance,Events.FIVE_TICKS)
+	else
+		if Game.FindAnyUnit(1,473,201,20)==1 or Game.FindAnyUnit(1,457,211,20)==1 or
+			 Game.FindAnyUnit(1,503,227,20)==1 then
+
+				if Settlers.AmountInArea(1,Settlers.SQUADLEADER,473,201,20)>0 or
+					 Settlers.AmountInArea(1,Settlers.SQUADLEADER,457,211,20)>0 or
+			 		 Settlers.AmountInArea(1,Settlers.SQUADLEADER,503,227,20)>0 then
+
+						Vars.Save1=2
+				else
+					if Vars.Save1==0 then
+						Game.ShowText("MD2_TROJAN_SCRIPT_FIVE_01",457,211)
+						Vars.Save1=1
+					end
+				end
+		end
+	end
+end
+
+function checkSwitches()
+	if Vars.Save1==4 then
+		request_event(checkEyecatcher,Events.TICK)
+		unrequest_event(checkSwitches,Events.FIVE_TICKS)
+	end
+	if Vars.Save1==3 then
+		Game.ShowText("MD2_TROJAN_SCRIPT_FIVE_03",521,381)
+		Game.SetFightingStrength(3,150)
+		AI.AttackNow(3,2,5)
+		_tower=1
+		while _tower<=getn(towers) do
+			Buildings.AddBuildingEx(towers[_tower]["x"],towers[_tower]["y"],1,Buildings.GUARDTOWERSMALL)
+			_tower=_tower+1
+		end
+		Settlers.AddSettlers(521,381,1,Settlers.CARRIER,15)
+		Settlers.AddSettlers(521,381,1,Settlers.BUILDER,10)
+		Settlers.AddSettlers(521,381,1,Settlers.DIGGER,10)
+		Settlers.AddSettlers(521,381,1,Settlers.MINEWORKER,3)
+		Goods.AddPileEx(521,381,Goods.BOARD,8)
+		Goods.AddPileEx(521,381,Goods.BOARD,8)
+		Goods.AddPileEx(521,381,Goods.STONE,8)
+		Goods.AddPileEx(521,381,Goods.STONE,8)
+		Goods.AddPileEx(521,381,Goods.AXE,6)
+		Goods.AddPileEx(521,381,Goods.SAW,2)
+		Goods.AddPileEx(521,381,Goods.PICKAXE,5)
+		Goods.AddPileEx(521,381,Goods.HAMMER,3)
+		Goods.AddPileEx(521,381,Goods.ROD,2)
+		Goods.AddPileEx(521,381,Goods.SCYTHE,3)
+		Goods.AddPileEx(521,381,Goods.FISH,8)
+		Goods.AddPileEx(521,381,Goods.BREAD,8)
+		Goods.AddPileEx(521,381,Goods.MEAT,8)
+		Vehicles.AddVehicle(505,298,1,Vehicles.FERRY,2,0,0)
+		request_event(checkEyecatcher,Events.TICK)
+		unrequest_event(checkSwitches,Events.FIVE_TICKS)
+	else
+		_soldiers1=0
+		_soldiers2=0
+		_type=29
+		while _type<64 do
+			_soldiers1=_soldiers1+Settlers.AmountInArea(1,_type,356,159,25)
+			_soldiers2=_soldiers2+Settlers.AmountInArea(1,_type,595,278,25)
+			if _type==34 then
+				_type=44
+			else
+				if _type==44 then
+					_type=61
+				else
+					_type=_type+1
+				end
+			end
+		end
+		if _soldiers1>=10 and _soldiers2>=10 then
+			Vars.Save1=3
+		end
+	end
+end
+
+function checkEyecatcher()
+	if Vars.Save2==2 then
+		--Map.DeleteDecoObject(223,436,5,59)
+		--Map.DeleteDecoObject(222,429,5,66)
+		--Map.DeleteDecoObject(227,442,5,57)
+		--Map.DeleteDecoObject(229,438,5,66)
+		--Map.DeleteDecoObject(217,431,5,58)
+		--Map.DeleteDecoObject(221,439,5,56)
+		--Map.DeleteDecoObject(211,429,5,67)
+		Map.DeleteDecoObject(225,436,5,54)
+		--	Magic.CastSpell(3,-1,Magic.SPELL_TERRAIN,224,435)
+		Map.AddDecoObject(223,436,119)
+		Game.ShowText("MD2_TROJAN_SCRIPT_FOUR_03",223,436)
+		request_event(checkGoal,Events.FIVE_TICKS)
+		unrequest_event(checkEyecatcher,Events.TICK)
+	else
+		if Vars.Save2==0 then
+			if Game.FindAnyUnit(1,379,445,25)==1 or Game.FindAnyUnit(1,266,421,25)==1 or Game.FindAnyUnit(1,277,456,25)==1 then
+				Game.ShowText("MD2_TROJAN_SCRIPT_FIVE_04",379,445)
+				Vars.Save2=1
+			end
+		else
+			if Vars.Save2==1 then
+				if _checked<=12 then
+					_type=64
+					while _type<=75 do
+						if Buildings.ExistsBuildingInArea(1,_type,eyecatcher[_checked]["x"],eyecatcher[_checked]["y"],eyecatcher[_checked]["radius"])==1 then
+							_eyecatcher=_eyecatcher+1
+							_type=76
+						end
+						_type=_type+1
+					end
+					_checked=_checked+1
+				else
+					if _eyecatcher>=12 then
+						Vars.Save2=2
+					end
+					_eyecatcher=0
+					_checked=1
+				end
+			end
+		end
+	end
+end
+
+function checkGoal()
+	--if Vars.Save2==3 then
+	--	unrequest_event(checkGoal,Events.FIVE_TICKS)
+--	else
+		if Settlers.AmountInArea(1,Settlers.SQUADLEADER,223,436,6)>=1 then
+			Vars.Save2=3
+		end
+		Settlers.KillSelectableSettlers(1,-1,223,436,5,0)
+--	end
+end
+
+function checkGates()
+	_type=29
+	while _type<64 do
+		_amount=Settlers.AmountInArea(1,_type,gates[1]["x"],gates[1]["y"],5)
+		if _amount>0 then
+			if Vars.Save3==0 then
+				Game.ShowText("MD2_TROJAN_SCRIPT_FIVE_05",gates[2]["x"],gates[2]["y"])
+				Vars.Save3=1
+				Magic.CastSpell(3,-1,Magic.SPELL_TERRAIN,113,129)
+			end
+			Settlers.KillSelectableSettlers(1,_type,gates[1]["x"],gates[1]["y"],5,0)
+			Settlers.AddSettlers(gates[2]["x"],gates[2]["y"],1,_type,_amount)
+		end
+		if _type==34 then
+			_type=44
+		else
+			if _type==50 then
+				_type=61
+			else
+				_type=_type+1
+			end
+		end
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(checkEntrance,Events.FIVE_TICKS)
+	request_event(checkGates,Events.FIVE_TICKS)
+	request_event(checkMiddle,Events.FIVE_TICKS)
+	Map.AddDecoObject(225,436,54)
+	Map.AddDecoObject(gates[1]["x"],gates[1]["y"],119)
+	Map.AddDecoObject(gates[2]["x"],gates[2]["y"],119)
+	--Map.AddDecoObject(223,436,59)
+	--Map.AddDecoObject(222,429,66)
+	--Map.AddDecoObject(227,442,57)
+	--Map.AddDecoObject(229,438,66)
+	--Map.AddDecoObject(217,431,58)
+	--Map.AddDecoObject(221,439,56)
+	--Map.AddDecoObject(211,429,67)
+	--Map.AddDecoObject(215,436,56)
+	
+	--Map.AddDecoObject(216,437,66)
+	--Map.AddDecoObject(210,433,67)
+	--Map.AddDecoObject(226,435,66)
+		
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 75, 60, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(checkEntrance)
+	reg_func(checkSwitches)
+	reg_func(checkEyecatcher)
+	reg_func(checkGoal)
+	reg_func(checkGates)
+	reg_func(checkMiddle)
+end
+
+--for testing only
+function getSquadleader()
+	Settlers.AddSettlers(619,195,1,Settlers.SQUADLEADER,1)
+end
+
+function getFerry()
+	Vehicles.AddVehicle(670,30,1,Vehicles.FERRY,0,0,0)
+end
+
+function getSoldiers()
+	Settlers.AddSettlers(610,160,1,Settlers.SWORDSMAN_03,20)
+	Settlers.AddSettlers(610,160,1,Settlers.BOWMAN_03,20)
+end
+
+function getRessources()
+	Goods.AddPileEx(521,381,Goods.BOARD,8)
+	Goods.AddPileEx(521,381,Goods.BOARD,8)
+	Goods.AddPileEx(521,381,Goods.BOARD,8)
+	Goods.AddPileEx(521,381,Goods.BOARD,8)
+	Goods.AddPileEx(521,381,Goods.BOARD,8)
+	Goods.AddPileEx(521,381,Goods.STONE,8)
+	Goods.AddPileEx(521,381,Goods.STONE,8)
+	Goods.AddPileEx(521,381,Goods.STONE,8)
+	Goods.AddPileEx(521,381,Goods.STONE,8)
+	Goods.AddPileEx(521,381,Goods.STONE,8)
+	Goods.AddPileEx(521,381,Goods.GOLDBAR,8)
+	Goods.AddPileEx(521,381,Goods.GOLDBAR,8)
+	Goods.AddPileEx(521,381,Goods.GOLDBAR,8)
+	Goods.AddPileEx(521,381,Goods.GOLDBAR,8)
+	Goods.AddPileEx(521,381,Goods.GOLDBAR,8)
+end
+
+
+   

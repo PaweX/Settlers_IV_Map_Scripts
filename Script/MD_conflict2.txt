@@ -1,0 +1,76 @@
+--// MD_CONFLICT_2
+--//-------------------
+
+function InitVar()
+
+	Vars.Save1 = 1
+
+end
+
+
+function MassiveAttackCheck()
+	if Settlers.AmountInArea(1, Settlers.PIONEER,641,680,30) == 1 and Vars.Save1 == 1 then
+		AI.AttackNow(3, 1, 2)
+		AI.AttackNow(4, 1, 2)
+	end
+
+end
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+
+	if Game.IsAreaOwned( 1,641,680,20) == 1 
+	and Game.HasPlayerLost(1) == 0 
+	and Game.HasPlayerLost(2) == 1
+	and Game.HasPlayerLost(3) == 1
+	and Game.HasPlayerLost(4) == 1 then
+
+ 		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	
+
+	elseif Game.HasPlayerLost(1) == 1 then 
+		Game.DefaultGameEndCheck()
+	end
+  	
+	
+	
+end
+
+
+function new_game()
+	
+		 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+		AI.SetPlayerVar(2, "AttackMode", 0, 1, 2)
+		AI.SetPlayerVar(3, "AttackMode", 0, 1, 2)
+		AI.SetPlayerVar(4, "AttackMode", 1, 2, 2)
+	
+		AI.SetPlayerVar(2, "AttackDelay", 130, 90, 10) 
+		AI.SetPlayerVar(3, "AttackDelay", 130, 90, 10) 
+		AI.SetPlayerVar(4, "AttackDelay", 150, 80, 10) 
+	
+			--// SOLDIERLIMITRELATIVE
+	
+		AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,100,300)
+		AI.SetPlayerVar(3, "SoldierLimitRelative", 80,120,150)
+	
+		AI.SetPlayerVar(4, "SoldierLimitAbsolute", 50,100,300)
+		AI.SetPlayerVar(4, "SoldierLimitRelative", 80,120,150)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)	
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(MassiveAttackCheck,Events.FIVE_TICKS)	
+
+end
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+	reg_func(InitVar)
+	reg_func(MassiveAttackCheck)
+   
+end
+
+

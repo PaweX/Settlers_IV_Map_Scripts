@@ -1,0 +1,165 @@
+--// MD_ROMAN_4
+--//-------------
+
+if Game.GetDifficulty() == 0 then	
+		--// for EASY
+		ATTACKTIME = 90
+		else
+		--// for NORMAL
+		ATTACKTIME = 60
+end
+
+
+function InitVar()
+
+	--// toggling flag for one-time call
+	Vars.Save1 = 1
+	Vars.Save8 = 1
+	
+
+	--// set time period in minutes here
+	Vars.Save6 = 20 +  Game.Random(5)
+	
+	--// first time of "enemy landing"  
+	Vars.Save2 = 20 +  Game.Random(5)
+
+	--// tickcounter
+	Vars.Save7  = 0
+	
+	Vars.Save9 = 1
+	
+	if Game.GetDifficulty() == 0 then	
+		--// counters for # of soldiers for EASY
+		Vars.Save3 = 2
+		Vars.Save4 = 2 
+		Vars.Save5 = 2
+		
+		else
+		--// counters for # of soldiers for NORMAL
+		Vars.Save3 = 2
+		Vars.Save4 = 2 
+		Vars.Save5 = 1
+		
+		end
+
+end
+
+--// -----------------------------------------------------------------------------
+--// Generate Ship & Enemy soldiers every Vars.Save2 min. 
+--// With growing number of soldiers
+--// -----------------------------------------------------------------------------
+
+function GenerateEnemies()
+--// -----------------------------------------------------------------------------
+--// switch ship on and deliever soldiers
+--// -----------------------------------------------------------------------------
+  if Buildings.ExistsBuildingInArea(2,Buildings.GUARDTOWERBIG,68,305,10) == 0 then 
+ 	  Vars.Save9 = 0
+	  
+  end
+	if Game.Time() == Vars.Save2  and Vars.Save1 == 1 and Vars.Save9 == 1 then
+		Vehicles.AddVehicle(11,187, 2, Vehicles.WARSHIP, 5,80, 1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_VANISH, 59,281)
+    		Vars.Save1 = 2
+			Vars.Save2 = Vars.Save2 + Vars.Save6
+    		Vars.Save6 = 20 +  Game.Random(5)
+
+  	end
+
+--//FAKE: ship returns to vikingsettlement
+	if Vehicles.AmountInArea(2,Vehicles.WARSHIP,58,278, 1) == 1 and Vars.Save1  == 2 then
+		Vars.Save1  = 3
+	
+	end
+	
+--// wait some ticks
+	if Vars.Save1  == 3 then
+		Vars.Save7 = Vars.Save7 + 1
+
+	end
+
+	if Vars.Save1  == 3 and Vars.Save7 == 21  then
+		Vehicles.AddVehicle(59,281, 2, Vehicles.WARSHIP, 2,80, 1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_VANISH, 11,187)
+		Vars.Save1 = 1
+		Vars.Save7  = 0
+--// Warrios leave the ship and attack the player
+		Settlers.AddSettlers(64,299, 2, Settlers.SWORDSMAN_01, Vars.Save3)
+    		Settlers.AddSettlers(63,301, 2, Settlers.BOWMAN_02, Vars.Save4)
+    		Settlers.AddSettlers(64,304, 2, Settlers.BLOWGUNWARRIOR_02, Vars.Save5)
+    		AI.NewSquad(2, AI.CMD_MOVE_HOME)
+    
+--// increase number of soldiers for next delievery
+		if Game.GetDifficulty() == 0 then	
+    			Vars.Save3 = Vars.Save3 + 1
+    			Vars.Save4 = Vars.Save4 + 1
+    			Vars.Save5 = Vars.Save5 + 1
+    	else
+    			Vars.Save3 = Vars.Save3 + 2
+    			Vars.Save4 = Vars.Save4 + 2
+    			Vars.Save5 = Vars.Save5 + 1
+    	end
+	end 
+
+
+	if Game.Time() == ATTACKTIME and Vars.Save8 == 1 then
+		AI.AttackNow(4, 3, 1)
+		Vars.Save8 = 0
+		
+	end
+
+end
+
+
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+ 	
+ 	if Game.HasPlayerLost(3) == 1 then
+     		Game.EnemyPlayersLost(4)
+  	end
+
+  	Game.DefaultGameEndCheck()
+  
+end
+
+
+
+function new_game()
+	
+	 --// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	--//2: Maya
+	--//3: Wikinger
+	--//4: DV
+	AI.SetPlayerVar(4, "AttackMode", 0, 1, 2) 
+	
+	AI.SetPlayerVar(2, "AttackMode", 0, 1, 2) 
+	AI.SetPlayerVar(3, "AttackMode", 0, 0, 2) 
+	
+	AI.SetPlayerVar(2, "AttackDelay", 120, 120, 10) 
+
+		
+	--//dbg.pi(3456)
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 80,150,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 100,150,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,30,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 50,40,150)
+	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(GenerateEnemies, Events.TICK)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	
+end
+
+
+function register_functions()
+
+  reg_func(VictoryConditionCheck)
+  reg_func(GenerateEnemies)
+  reg_func(InitVar)
+
+end

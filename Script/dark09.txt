@@ -1,0 +1,113 @@
+-- =============================================================================
+--// dark09
+--// Player wins when explore the hole map
+--//   0.90.545 noch schiffe per script setzten
+-- =============================================================================
+
+
+function InitVar()
+	--// first time of "enemy landing" in the RIGHT corner 
+	Vars.Save1 = Game.Random(3)
+
+	--// set time period in minutes here in the RIGHT corner
+	--//INFO: A ship need 8 min. to drive from one side to another
+	Vars.Save2 = 3 +  Game.Random(5)
+
+	--// first time of "enemy landing" in the LEFT corner 
+	Vars.Save3 = Game.Random(5)
+
+	--// set time period in minutes here in the LEFT corner
+	Vars.Save4 = 5 +  Game.Random(5)
+
+	--// set ships
+	Vehicles.AddVehicle(151,238, 2, Vehicles.WARSHIP, 4,80, 0)
+	Vehicles.AddVehicle(137,246, 3, Vehicles.WARSHIP, 1,80, 0)
+	Vehicles.AddVehicle(105,318, 2, Vehicles.WARSHIP, 2,80, 0)
+	Vehicles.AddVehicle(284,385, 4, Vehicles.WARSHIP, 3,80, 0)
+	Vehicles.AddVehicle(312,462, 2, Vehicles.WARSHIP, 1,80, 0)
+	Vehicles.AddVehicle(446,581, 3, Vehicles.WARSHIP, 4,80, 0)
+	Vehicles.AddVehicle(435,435, 2, Vehicles.WARSHIP, 4,80, 0)
+
+end
+
+
+-- -----------------------------------------------------------------------------
+-- THE PIRATES RULEZ
+-- -----------------------------------------------------------------------------
+
+function CrossingPirates()
+
+--// RIGHT Corner
+	if Game.Time() ==  Vars.Save1 then
+    		Vars.Save1 = Vars.Save1 + Vars.Save2
+    		Vars.Save2 = 3 +  Game.Random(5)
+    		Vehicles.AddVehicle(672, 754, 2, Vehicles.WARSHIP, 4,80, 1)
+    		Vehicles.AddVehicle(667, 754, 3, Vehicles.WARSHIP, 4,80, 1)
+    		Vehicles.AddVehicle(658, 754, 4, Vehicles.WARSHIP, 4,80, 1)
+    		Vehicles.AddVehicle(651, 754, 2, Vehicles.WARSHIP, 4,80, 1)
+   			AI.NewSquad(2, AI.CMD_MOVE_AND_VANISH, 9, 311)
+   			AI.NewSquad(3, AI.CMD_MOVE_AND_VANISH, 9, 311)
+   			AI.NewSquad(4, AI.CMD_MOVE_AND_VANISH, 9, 311)
+  	end
+
+--// LEFT Corner  	
+	if Game.Time() ==  Vars.Save3 then
+    		Vars.Save3 = Vars.Save3 + Vars.Save4
+    		Vars.Save4 = 5 +  Game.Random(5)
+    		Vehicles.AddVehicle(9, 300, 4, Vehicles.WARSHIP, 0,80, 1)
+    		Vehicles.AddVehicle(9, 315, 3, Vehicles.WARSHIP, 0,80, 1)
+    		Vehicles.AddVehicle(9, 330, 4, Vehicles.WARSHIP, 0,80, 1)
+    		--Vehicles.AddVehicle(8, 260, 2, Vehicles.WARSHIP, 5, 1)
+   			-- AI.NewSquad(2, AI.CMD_MOVE_AND_VANISH, 644, 758)
+   			AI.NewSquad(3, AI.CMD_MOVE_AND_VANISH, 644, 758)
+   			AI.NewSquad(4, AI.CMD_MOVE_AND_VANISH, 644, 758)
+  	end
+end
+  	
+-- -----------------------------------------------------------------------------
+--// Victory condition check: Player wins when one of his settlers discovered a 
+--// certain circle on the map
+-- -----------------------------------------------------------------------------
+ 
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+	Game.DefaultGameEndCheck("DARKTRIBE_SCRIPT_NINE_01","DARKTRIBE_SCRIPT_NINE_02")
+
+end
+
+
+-- -----------------------------------------------------------------------------
+-- The "new_game" function (will be called when a new game starts)
+-- -----------------------------------------------------------------------------
+
+function new_game()
+  
+--// SetPlayerVaribles //--
+
+	--// SOLDIERLIMITRELATIVE//--
+
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 90,110,150)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,300)
+
+
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+  request_event(CrossingPirates,Events.FIVE_TICKS)
+  request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+  
+end
+
+
+-- -----------------------------------------------------------------------------
+--// The "register_functions" function (registers functions, which requests events)
+-- -----------------------------------------------------------------------------
+
+function register_functions()
+
+  --// Every function, which requests events, must be registered here!
+  
+  reg_func(VictoryConditionCheck)
+  reg_func(CrossingPirates)
+  reg_func(InitVar)
+
+end

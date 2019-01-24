@@ -1,0 +1,274 @@
+if Game.GetDifficulty()==0 then
+	mana=120
+	firstAttack=40
+	pirateFerryMinDelay=8
+	pirateFerryMaxDelay=15
+	minSquadSize=10
+	maxSquadSize=15
+else
+	mana=80
+	firstAttack=30
+	pirateFerryMinDelay=7
+	pirateFerryMaxDelay=12
+	minSquadSize=10
+	maxSquadSize=15
+end
+
+randomDelay=pirateFerryMaxDelay-pirateFerryMinDelay+1
+randomSquadSize=maxSquadSize-minSquadSize+1
+
+ferryPositions={
+	{	ferry1={
+			x=332,
+			y=156,
+			wait=0,
+			deliver={
+				x=336,
+				y=175
+			}
+		},
+	  ferry2={
+	 		x=309,
+	 		y=143,
+	 		wait=0,
+			deliver={
+				x=310,
+				y=156
+			}
+	 	}
+	},
+	{	ferry1={
+			x=201,
+			y=184,
+			wait=0,
+			deliver={
+				x=216,
+				y=202
+			}
+		},
+		ferry2={
+			x=191
+			,y=225,
+			wait=0,
+			deliver={
+				x=204,
+				y=242
+			}
+		}
+	},
+	{	ferry1={
+			x=461,
+			y=346,
+			wait=0,
+			deliver={
+				x=448,
+				y=337
+			}
+		},
+		ferry2={
+			x=442,
+			y=266,
+			wait=0,
+			deliver={
+				x=444,
+				y=281
+			}
+		}
+	},
+	{	ferry1={
+			x=500,
+			y=316,
+			wait=0,
+			deliver={
+				x=510,
+				y=336
+			}
+		},
+		ferry2={
+			x=483,
+			y=310,
+			wait=0,
+			deliver={
+				x=490,
+				y=324
+			}
+		}
+	}
+}
+
+function initVar()
+	Vars.Save1=firstAttack
+	Vars.Save2=0
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 then
+		Game.PlayerLost(2)
+		Game.DefaultGameEndCheck()
+	else
+		mu,l1,l2,l3,sl,fc=Vehicles.GetFerryCargoInArea(1,13,225,25)
+		if mu>=45 and l3>=15 and Settlers.Amount(1,Settlers.PIONEER)>=15 and
+			 Settlers.Amount(1,Settlers.GEOLOGIST)>=15 and Settlers.Amount(1,Settlers.GARDENER)>=15 and
+			 Settlers.Amount(1,Settlers.SWORDSMAN_03)>=15 then
+
+			 		Game.EnemyPlayersLost(1)
+			 		Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function ferryAttack()
+	Game.DefaultPlayerLostCheck(3)
+	if Game.HasPlayerLost(3)==1 then
+		unrequest_event(ferryAttack,Events.FIVE_TICKS)
+	else
+		if Game.Time()>=Vars.Save1 then
+			_position=Game.Random(4)+1
+			ferry1=ferryPositions[_position]["ferry1"]
+			Vehicles.AddVehicle(507,128,3,Vehicles.FERRY,2,0,1)
+			AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry1.x,ferry1.y)
+			ferry1.wait=0
+			if Game.GetDifficulty()==1 then
+				ferry2=ferryPositions[_position]["ferry2"]
+				Vehicles.AddVehicle(518,139,3,Vehicles.FERRY,2,0,1)
+				AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry2.x,ferry2.y)
+				ferry2.wait=0
+			end
+			Vars.Save2=1
+			Vars.Save1=Vars.Save1+pirateFerryMinDelay+Game.Random(randomDelay)
+		else
+			if Vars.Save2==1 then
+				if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry1.x,ferry1.y,0)==1 then
+					if ferry1.wait==0 then
+						deliverSquad(Game.GetDifficulty(),ferry1.deliver.x,ferry1.deliver.y)
+						ferry1.wait=1
+					else
+						ferry1.wait=ferry1.wait+1
+					end
+				end
+				if Game.GetDifficulty()==1 then
+					if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry2.x,ferry2.y,0)==1 then
+						if ferry2.wait==0 then
+							deliverSquad(Game.GetDifficulty(),ferry2.deliver.x,ferry2.deliver.y)
+							ferry2.wait=1
+						else
+							ferry2.wait=ferry2.wait+1
+						end
+					end
+					if ferry1.wait>=3 and ferry2.wait>=3 then
+						Vars.Save2=2
+					end
+				else
+					if ferry1.wait>=3 then
+						Vars.Save2=2
+					end
+				end
+			else
+				if Vars.Save2==2 then
+					Vehicles.KillVehicles(3,Vehicles.FERRY,ferry1.x,ferry1.y,0,0)
+					Vehicles.AddVehicle(ferry1.x,ferry1.y,3,Vehicles.FERRY,ferry1.direction,0,1)
+					AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,371,11)
+					if Game.GetDifficulty()==1 then
+						Vehicles.KillVehicles(3,Vehicles.FERRY,ferry2.x,ferry2.y,0,0)
+						Vehicles.AddVehicle(ferry2.x,ferry2.y,3,Vehicles.FERRY,ferry2.direction,0,1)
+						AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,360,11)
+					end
+					Vars.Save2=0
+				end
+			end
+		end
+	end
+end
+
+function deliverSquad(_difficulty,_x,_y)
+	if _difficulty==0 then
+		_amount=minSquadSize+Game.Random(randomSquadSize)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_01,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.BLOWGUNWARRIOR_01,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_01,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	else
+		_amount=15+Game.Random(6)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_02,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.BLOWGUNWARRIOR_02,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_02,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	end
+	AI.NewSquad(3,AI.CMD_SUICIDE_MISSION)
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(ferryAttack,Events.FIVE_TICKS)
+
+	Magic.IncreaseMana(1,mana)
+	if Game.GetDifficulty()==1 then
+		Settlers.AddSettlers(563,129,3,Settlers.SWORDSMAN_02,30)
+		Settlers.AddSettlers(563,129,3,Settlers.BOWMAN_02,30)
+		Settlers.AddSettlers(563,129,3,Settlers.SQUADLEADER,3)
+		AI.NewSquad(3,AI.CMD_MOVE_HOME)
+	end
+	Map.SetScreenPos(446,440)
+
+	AI.SetPlayerVar(3, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 75, 45, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(ferryAttack)
+end
+
+--for testing only
+
+function getSoldiers()
+	Settlers.AddSettlers(539,117,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(539,117,1,Settlers.BOWMAN_03,200)
+end
+
+function getSoldiers2()
+	Settlers.AddSettlers(284,241,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(284,241,1,Settlers.BOWMAN_03,200)
+end
+
+function getUnits()
+	Settlers.AddSettlers(284,241,1,Settlers.SWORDSMAN_03,15)
+	Settlers.AddSettlers(284,241,1,Settlers.GARDENER,15)
+	Settlers.AddSettlers(284,241,1,Settlers.PIONEER,15)
+	Settlers.AddSettlers(284,241,1,Settlers.GEOLOGIST,15)
+end
+
+function getFerry()
+	Vehicles.AddVehicle(360,230,1,Vehicles.FERRY,0,0,0)
+end

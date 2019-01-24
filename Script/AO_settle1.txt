@@ -1,0 +1,246 @@
+--//AO_Settle 1
+--//------------
+
+	--// Amount of goods, the Player must produce
+	
+	gAmountSwords = 200
+	gAmountBread  = 150
+	gAmountMeat   = 160
+	gAmountFish   = 255
+	gAmountBow    = 220
+	gAmountGold   = 250
+	
+
+function InitVar()
+	Vars.Save1 = 1 
+	Vars.Save2 = 1
+	Vars.Save3 = 1
+	Vars.Save4 = 1 
+	Vars.Save5 = 1
+end
+
+function DisturbThePlayer()
+
+	if Goods.GetAmountInArea(1,Goods.SWORD,395,246,70) >= 10 
+	and	Goods.GetAmountInArea(1,Goods.BREAD,395,246,70) >= 20
+	and Goods.GetAmountInArea(1,Goods.MEAT,395,246,70) >= 10
+	and Goods.GetAmountInArea(1,Goods.FISH,395,246,70) >= 10
+	and Goods.GetAmountInArea(1,Goods.BOW,395,246,70) >= 10
+	and Goods.GetAmountInArea(1,Goods.GOLDBAR,395,246,70) >= 10
+	and Vars.Save1 == 1 then
+	
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 262,333, 0)
+		Settlers.AddSettlers(262,333,3,Settlers.PRIEST,1)
+		Magic.IncreaseMana(3,500)
+		Game.ShowText("AO_SETTLE_SCRIPT_ONE_01",262,333)
+			Magic.CastSpell(3,2,3, 258,333)
+			Magic.CastSpell(3,2,3, 261,340)
+			Magic.CastSpell(3,2,3, 265,343)
+			Magic.CastSpell(3,2,3, 278,341)
+
+			Magic.CastSpell(3,2,3, 268,341)
+			Magic.CastSpell(3,2,3, 268,337)
+			Magic.CastSpell(3,2,3, 265,331)
+			Magic.CastSpell(3,2,3, 261,329)
+			Magic.CastSpell(3,2,3, 273,332)
+
+			Magic.CastSpell(3,2,3, 276,243)
+			Magic.CastSpell(3,2,3, 253,333)
+			--//Magic.CastSpell(3,2,3, 282,330)
+			Vars.Save1 = 2
+	end
+
+	if Buildings.Amount(1,Buildings.SMELTIRON,Buildings.ALL) >= 2 
+	and Buildings.Amount(1,Buildings.COALMINE,Buildings.READY) >= 3 
+	and Buildings.Amount(1,Buildings.IRONMINE,Buildings.READY) >= 2 
+	and Vars.Save2 == 1 then
+		Settlers.AddSettlers(210,300,3,Settlers.SABOTEUR,6)
+		Settlers.AddSettlers(268,343,3,Settlers.SABOTEUR,5)
+		Settlers.AddSettlers(187,271,3,Settlers.SABOTEUR,8)
+		Settlers.AddSettlers(251,343,3,Settlers.SABOTEUR,3)
+		Settlers.AddSettlers(288,374,3,Settlers.SABOTEUR,2)
+		Settlers.AddSettlers(276,411,3,Settlers.SABOTEUR,3)
+		Settlers.AddSettlers(321,386,3,Settlers.SABOTEUR,5)
+		Game.ShowText("AO_SETTLE_SCRIPT_ONE_02",255,297)
+		Vars.Save2 = 0
+	end
+	
+
+	if Goods.GetAmountInArea(1,Goods.SWORD,395,246,70) >= 30
+	and	Goods.GetAmountInArea(1,Goods.BREAD,395,246,70) >= 30
+	and Goods.GetAmountInArea(1,Goods.MEAT,395,246,70) >= 30
+	and Goods.GetAmountInArea(1,Goods.FISH,395,246,70) >= 30
+	and Goods.GetAmountInArea(1,Goods.BOW,395,246,70) >= 30
+	and Goods.GetAmountInArea(1,Goods.GOLDBAR,395,246,70) >= 30
+	and Vars.Save3 == 1 then
+		Settlers.AddSettlers(395,250,3,Settlers.SABOTEUR,4)
+		Game.ShowText("AO_SETTLE_SCRIPT_ONE_03",396,263)
+		Vars.Save3 = 0
+	end
+
+	if Goods.GetAmountInArea(1,Goods.FISH,395,246,70) >= 100
+	and Vars.Save4 == 1 then
+		
+		if Vars.Save5 == 1 then
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 406,246, 0)
+			Settlers.AddSettlers(406,246,4,Settlers.PRIEST,1)
+			Magic.IncreaseMana(4,1000)
+			Game.ShowText("AO_SETTLE_SCRIPT_ONE_04",406,246)
+			Vars.Save5 = 0
+		end
+		
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 374 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 375 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 376 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 378 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 379 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 380 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 381 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 382 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 383 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 384 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 385 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 386 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 387 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 388 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 389 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 390 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 391 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 392 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 393 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 394 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 395 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 396 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 397 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 398 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 399 ,(211 + Game.Random(50)))
+			Magic.CastSpell(4,-1,Magic.SPELL_CONVERT_GOOD, 400 ,(211 + Game.Random(50)))
+			Vars.Save4 = 0
+	
+	end
+end
+
+
+function VictoryConditionCheck()
+
+	if Goods.Amount(1,Goods.SWORD) >= 200
+	and	Goods.Amount(1,Goods.BREAD) >= 150
+	and Goods.Amount(1,Goods.MEAT) >= 160
+	and Goods.Amount(1,Goods.FISH) >= 255
+	and Goods.Amount(1,Goods.BOW) >= 220
+	and Goods.Amount(1,Goods.GOLDBAR) >= 250 
+	and Goods.GetAmountInArea(1,Goods.SWORD,395,246,73) >= 80
+	and	Goods.GetAmountInArea(1,Goods.BREAD,395,246,73) >= 50
+	and Goods.GetAmountInArea(1,Goods.MEAT,395,246,73) >= 40
+	and Goods.GetAmountInArea(1,Goods.FISH,395,246,73) >= 50
+	and Goods.GetAmountInArea(1,Goods.BOW,395,246,73) >= 50
+	and Goods.GetAmountInArea(1,Goods.GOLDBAR,395,246,73) >= 60 then
+
+		Game.DefaultPlayersLostCheck()			
+		Game.DefaultGameEndCheck()
+			
+	end
+
+	Game.DefaultPlayerLostCheck(1)
+	Game.DefaultPlayerLostCheck(2)
+end
+
+function DisableLastNPlayersInStatistic()
+
+--//request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+--//reg_func(DisableLastNPlayersInStatistic)
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+
+function new_game()
+
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(242,339)
+	end
+
+
+
+--//for testing
+
+--//Goods.AddPileEx(377,224, Goods.SWORD, 4)
+--//Goods.AddPileEx(377,222, Goods.BREAD, 4)
+--//Goods.AddPileEx(377,222, Goods.MEAT, 4)
+--//Goods.AddPileEx(377,222, Goods.FISH, 4)
+--//Goods.AddPileEx(377,222, Goods.BOW, 4)
+--//Goods.AddPileEx(377,222, Goods.GOLDBAR, 4)
+
+--//Goods.AddPileEx(242,339, Goods.SWORD, 8)
+--//Goods.AddPileEx(242,339, Goods.BREAD, 4)
+--//Goods.AddPileEx(242,339, Goods.MEAT, 4)
+--//Goods.AddPileEx(242,339, Goods.FISH, 4)
+--//Goods.AddPileEx(242,339, Goods.BOW, 4)
+--//Goods.AddPileEx(242,339, Goods.GOLDBAR, 4)
+
+
+	Buildings.AddBuildingEx(377,222,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(382,218,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(388,215,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(398,225,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(408,232,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(415,242,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(419,255,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(408,252,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(398,237,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(383,235,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(389,229,1,Buildings.STORAGEAREA)
+	Buildings.AddBuildingEx(408,242,1,Buildings.STORAGEAREA)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(DisturbThePlayer, Events.FIVE_TICKS)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(DisableLastNPlayersInStatistic,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+end
+
+-- -----------------------------------------------------------------------------
+
+function register_functions()
+
+
+reg_func(VictoryConditionCheck)
+reg_func(DisturbThePlayer)
+reg_func(InitVar)
+reg_func(DisableLastNPlayersInStatistic)
+
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

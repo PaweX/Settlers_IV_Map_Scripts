@@ -1,0 +1,681 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL 5 22.01.01 16:55
+--		
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1		
+gTutorialStep = 1		
+gSpaceOk = 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gSettlerCount = 0
+gWantedSettler = -1
+
+gSetText0 = "TUT_05_001_R" 
+gSetText1 = "TUT_NEXT"  
+LastText0 = 0
+LastText1 = 0
+------------------------
+eycatcherflag01 = 1
+eycatcherflag02 = 1
+eycatcherflag03 = 1
+eycatcherflag04 = 1
+eycatcherflag05 = 1
+eycatcherflag06 = 1
+eycatcherflag07 = 1
+eycatcherflag08 = 1
+eycatcherflag09 = 1
+eycatcherflag10 = 1
+eycatcherflag11 = 1
+eycatcherflag12 = 1
+eycatchercounter = 0
+----------------------------------------------------------------------------------
+function DummyVictoryCheck()
+end
+----------------------------------------------------------------------------------	
+--// HACK
+function EycatcherUnderconstructionCheck()
+	if Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER01, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag01 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag01 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER02, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag02 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag02 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER03, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag03 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag03 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER04, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag04 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag04 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER05, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag05 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag05 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER06, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag06 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag06 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER07, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag07 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag07 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER08, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag08 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag08 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER09, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag09 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag09 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER10, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag10 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag10 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER11, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag11 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag11 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER12, Buildings.UNDERCONSTRUCTION) > 0 and eycatcherflag12 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag12 = 0
+		
+	end
+end
+
+----------------------------------------------------------------------------------	
+function EycatcherAmountCheck()
+	if Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER01, Buildings.READY) > 0 and eycatcherflag01 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag01 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER02, Buildings.READY) > 0 and eycatcherflag02 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag02 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER03, Buildings.READY) > 0 and eycatcherflag03 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag03 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER04, Buildings.READY) > 0 and eycatcherflag04 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag04 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER05, Buildings.READY) > 0 and eycatcherflag05 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag05 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER06, Buildings.READY) > 0 and eycatcherflag06 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag06 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER07, Buildings.READY) > 0 and eycatcherflag07 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag07 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER08, Buildings.READY) > 0 and eycatcherflag08 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag08 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER09, Buildings.READY) > 0 and eycatcherflag09 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag09 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER10, Buildings.READY) > 0 and eycatcherflag10 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag10 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER11, Buildings.READY) > 0 and eycatcherflag11 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag11 = 0
+	elseif Buildings.Amount( Game.LocalPlayer(), Buildings.EYECATCHER12, Buildings.READY) > 0 and eycatcherflag12 == 1 then
+		eycatchercounter = eycatchercounter + 1
+		eycatcherflag12 = 0
+		
+	end
+end
+		
+----------------------------------------------------------------------------------	
+
+
+function OnDragBuilding(type)
+    if gWantedBuilding == -1 then
+        return
+    end
+
+	if (gWantedBuilding == type) then
+        gTutorialStep = gTutorialStep+1
+        gWantedBuilding = -1
+    end
+end
+
+--//-----------------------------------------------------------------------------
+--// WHEN SETTLERTYPE IN PRODUCTION, the gTutorialStep will be increased
+--//-----------------------------------------------------------------------------
+function OnSettlerProduction(settlertype)
+	if (gWantedSettler == settlertype) then
+		if gSettlerCount <= 15 then
+			gSettlerCount = gSettlerCount +1
+		end
+		if gSettlerCount == 15 then
+			gTutorialStep = gTutorialStep + 1
+		
+		end	
+	end
+end
+
+--//-----------------------------------------------------------------------------
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+		OnSpace()
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		Map.SetScreenPos(113,216)
+		Tutorial.SetZoom(17)
+		Tutorial.ClearMarker()
+		gCommandOk = 0
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_MILITARY)
+		
+		
+		if (gTutorialStep == 6) or (gTutorialStep == 5) or (gTutorialStep == 4) then
+			Tutorial.SetMarker(150,309)
+			Map.SetScreenPos(128,191)
+		elseif (gTutorialStep == 10) then
+			Map.SetScreenPos(113,250)
+						
+		elseif (gTutorialStep == 11) then
+			Tutorial.SelectNextBuilding(Buildings.GUARDTOWERBIG )
+			Tutorial.PressButton(Dialog.DLG_MILITARYBUILDINGCONTEXT, Control.DLG_MILITARYBUILDINGCONTEXT_CMD_DESTROYBUILDING)
+			Map.SetScreenPos(113,250)
+			--//Tutorial.SetMarker(193,284)
+			
+		elseif (gTutorialStep == 14) or (gTutorialStep == 15) then
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_FIGURES)
+			Tutorial.PressButton(Dialog.DLG_FIGURESSUBMENU, Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION)
+			Tutorial.SetMarker(167,447)
+			
+		elseif (gTutorialStep == 18) then
+			Map.SetScreenPos(137,167)
+		elseif (gTutorialStep == 20) then
+			Map.SetScreenPos(152,151)
+			Tutorial.SetMarker(150,309)
+
+		elseif (gTutorialStep == 22) then
+			Map.SetScreenPos(185,168)
+			Tutorial.SetMarker(150,366)
+		
+		elseif (gTutorialStep >= 23) then
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)
+		end		
+	end
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+
+
+
+
+-------------------------------------------------------------------------------
+
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+
+-------------------------------------------------------------------------------
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype, x,y)
+
+	if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.READY) == 0 then
+		if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.UNDERCONSTRUCTION) == 0 then
+			id = Buildings.GetFirstBuilding(1,buildingtype)
+			Buildings.CrushBuilding(id)
+			Tutorial.DeleteWorldCursor()
+			LastText0 = 0
+			LastText1 = 0
+			gPrevTutStep = 0
+			if x == 128 and y == 191 then
+				gTutorialStep = gTutorialStep - 3
+			else
+				gTutorialStep = gTutorialStep - 2
+			end
+		end	
+	end
+end
+-------------------------------------------------------------------------------
+--
+--	main tutorial function
+--
+--------------------------------------------------------------------------------
+function tutorial_main()
+	
+	gCommandOk = 1
+
+	if Goods.Amount(1,Goods.GOLDBAR) < 1 then
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 136,218, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 133,211, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 140,224, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 139,223, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 133,225, 0)
+
+		Goods.AddPileEx(136,218, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(133,211, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(140,224, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(139,223, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(133,225, Goods.GOLDBAR, 8)
+	
+	end
+	
+	
+	--// Text rein schreiben //-- 
+	if (gSetText0 ~= LastText0 ) or  (gSetText1 ~= LastText1 )then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		LastText0 = gSetText0
+		LastText1 = gSetText1
+	end
+	
+	if gActiveMenu == Menu.SETTLERPRODUCTION then
+			Tutorial.PressButton (Dialog.DLG_SETTLERPRODUCTIONMENU, Control.DLG_SETTLERPRODUCTIONMENU_CMD_PIONEER)
+		end
+	
+	if (gPrevTutStep == gTutorialStep) then
+		return
+	end
+
+	if gTutorialStep == 1 then
+		AI.DeactivateAllPlayerAIs()
+		Tutorial.DisableExcept()
+		gSetText0 = "TUT_05_001_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 2 then
+		gSetText0 = "TUT_05_002_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 3 then
+		gSetText0 = "TUT_05_003_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+
+	elseif gTutorialStep == 4 then
+		gSetText0 = "TUT_05_004_R"
+		gSetText1 = "TUT_05_004_N"
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_MILITARY,
+			Control.DLG_BUILDMILITARY_CMD_GUARDTOWERSMALL
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_MILITARY)
+		Tutorial.SetWorldCursor(128,191)
+		Tutorial.SetMarker(150,309)
+		gCommandOk = 0
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 5 then	
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+		
+	elseif gTutorialStep == 6 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL, Buildings.READY) > 1 then
+			gSetText0 = "TUT_05_005_R"
+			gSetText1 = "TUT_05_005_N"
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.GUARDTOWERSMALL, 128,191)
+		end
+		return
+
+	elseif gTutorialStep == 7 then
+		if Buildings.CheckBuildingInhabitants ( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL) ==1 then
+			gSetText0 = "TUT_05_006_R"
+			gSetText1 = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+	
+	elseif gTutorialStep == 8 then
+		gSpaceOk = 1
+
+	elseif gTutorialStep == 9 then
+		Map.SetScreenPos(113,250)
+		gSetText0 = "TUT_05_007_R"
+		gSetText1 = "TUT_05_007_N"
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+
+	elseif gTutorialStep == 10 then
+		if Buildings.IsSelected ( Buildings.GUARDTOWERBIG ) == 1 then
+			gSetText0 = "TUT_05_008_R"
+			gSetText1 = "TUT_05_008_N"
+			Tutorial.DisableExcept
+			(
+			 Control.DLG_MILITARYBUILDINGCONTEXT_CMD_DESTROYBUILDING,
+			 Control.DLG_YESNO_CMD_YES
+			)
+			Tutorial.SetMarker(193,284)
+			gCommandOk = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+
+	elseif gTutorialStep == 11 then
+		if Buildings.Amount ( Game.LocalPlayer(), Buildings.GUARDTOWERBIG, Buildings.ALL ) == 0 then
+			Tutorial.DisableExcept()
+			gSetText0 = "TUT_05_009_R"
+			gSetText1 = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+
+	elseif gTutorialStep == 12 then
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 13 then
+		Map.SetScreenPos(119,226)
+		gSetText0 = "TUT_05_010_R"
+		gSetText1 = "TUT_05_010_N"
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_FIGURES,
+			Control.DLG_FIGURESSUBMENU_CMD_CARRIER,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_PIONEER,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_1UP,
+			Control.DLG_SETTLERPRODUCTIONMENU_CMD_8UP
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_FIGURES)
+		Tutorial.PressButton(Dialog.DLG_FIGURESSUBMENU, Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION)
+		gCommandOk = 0
+		Tutorial.SetMarker(167,447)
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 14 then
+		Tutorial.PressButton (Dialog.DLG_SETTLERPRODUCTIONMENU, Control.DLG_SETTLERPRODUCTIONMENU_CMD_PIONEER)
+		gCommandOk = 0
+		gSpaceOk = 0
+		gWantedSettler = Settlers.PIONEER
+	
+	elseif gTutorialStep == 15 then
+		Tutorial.DisableExcept()
+		Tutorial.ClearMarker()
+		gCommandOk = 0
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 16 then
+		if Settlers.Amount( Game.LocalPlayer(), Settlers.PIONEER) >= 13 then
+			gSetText0 = "TUT_05_011_R"
+			gSetText1 = "TUT_05_011_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+
+	elseif gTutorialStep == 17 then
+		if Settlers.IsSelected( Settlers.PIONEER, 10 ) == 1 then
+			gSetText0 = "TUT_05_012_R"
+			gSetText1 = "TUT_05_012_N"
+			Tutorial.SetWorldCursor(137,167)
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+
+	elseif gTutorialStep == 18 then
+		if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.PIONEER,137,167,2 ) >= 2 then
+		--if Game.IsAreaOwned ( Game.LocalPlayer(), 133,158,1 ) == 1 then
+			--//gSetText0 = "TUT_05_013_R"
+			gSetText1 = "TUT_05_013_N"
+			Tutorial.DeleteWorldCursor()
+			
+			gSpaceOk = 0
+			gTutorialStep = 30
+			
+		end
+		return
+		
+	--// 	gTutorialStep Sprung, damit nix durcheinander kommt //--
+	
+	elseif gTutorialStep == 30 then
+		if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.PIONEER,141,158,2 ) >= 2 then
+			gSetText0 = "TUT_05_013_R"
+			Tutorial.SetWorldCursor(152,151)
+			
+			gSpaceOk = 0
+			gTutorialStep = 19
+		end
+		return
+		
+	elseif gTutorialStep == 19 then
+		--if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.PIONEER,137,176,2 ) >= 2 then
+		if Game.IsAreaOwned ( Game.LocalPlayer(), 152,149,2 ) == 1 then
+			gSetText0 = "TUT_05_014_R"
+			gSetText1 = "TUT_05_014_N"
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_MILITARY,
+			Control.DLG_BUILDMILITARY_CMD_GUARDTOWERSMALL
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_MILITARY)
+			gCommandOk = 0
+			Tutorial.DeleteWorldCursor()
+			Tutorial.SetWorldCursor(152,151)
+			Tutorial.SetMarker(150,309)
+			Settlers.AddSettlers( 120,157, Game.LocalPlayer(), Settlers.SWORDSMAN_03,1)
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 20 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL, Buildings.UNDERCONSTRUCTION) == 1 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL, Buildings.READY) > 2 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.GUARDTOWERSMALL, 152,151)
+		end
+		return
+		
+	elseif gTutorialStep == 21 then
+		if Buildings.CheckBuildingInhabitants ( Game.LocalPlayer(), Buildings.GUARDTOWERSMALL) ==1 then
+			gSetText0 = "TUT_05_015_R"
+			gSetText1 = "TUT_05_015_N"
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_MILITARY,
+			Control.DLG_BUILDMILITARY_CMD_LOOKOUTTOWER
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_MILITARY)
+			Tutorial.SetWorldCursor(185,168)
+			Tutorial.SetMarker(150,366)
+			gCommandOk = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			
+		end
+		return
+
+	elseif gTutorialStep == 22 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.LOOKOUTTOWER, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.LOOKOUTTOWER, Buildings.READY) > 0 then
+	 		Tutorial.DisableExcept()	
+			Tutorial.DeleteWorldCursor()
+			Tutorial.ClearMarker()
+			gSetText0 = "TUT_05_016_R"
+			--//gSetText1 = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.LOOKOUTTOWER, 185,168)
+		end
+		return
+		
+	elseif gTutorialStep == 23 then
+	
+	if Buildings.Amount( Game.LocalPlayer(), Buildings.LOOKOUTTOWER, Buildings.READY) > 0 then
+			gSetText0 = "TUT_05_018_R"
+			gSetText1 = "TUT_05_018_N"
+			Tutorial.DisableExcept
+			(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_TOWN,
+			Control.DLG_BUILDTOWN_CMD_LANDSCAPEMAKERHUT,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE00,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE01,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE02,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE03,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE04,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE05,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE06,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE07,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE08,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE09,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE10,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE11,
+			Control.DLG_BUILDEYECATCHER_CMD_EYE12
+			
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)
+			Tutorial.SetMarker(149,479)
+			gCommandOk = 0
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+	
+	elseif gTutorialStep == 24 then
+		gTutorialStep = gTutorialStep+1
+		--//Buildings.AddBuilding(134,299,3,Buildings.GUARDTOWERSMALL)
+		gSpaceOk = 0
+		return
+		
+	elseif gTutorialStep == 25 then
+		if gActiveMenu ==  Menu.EYECATCHER_SIDBAR then
+			--//Tutorial.PressButton(Dialog.DLG_BUILDTOWN, Control.DLG_BUILDTOWN_CMD_LANDSCAPEMAKERHUT)
+			gSetText0 = "TUT_05_019_R"
+			gSetText1 = "TUT_05_019_N"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+			
+	elseif gTutorialStep == 26 then
+		EycatcherUnderconstructionCheck()
+		if eycatchercounter == 5  then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			eycatcherflag01 = 1
+			eycatcherflag02 = 1
+			eycatcherflag03 = 1
+			eycatcherflag04 = 1
+			eycatcherflag05 = 1
+			eycatcherflag06 = 1
+			eycatcherflag07 = 1
+			eycatcherflag08 = 1
+			eycatcherflag09 = 1
+			eycatcherflag10 = 1
+			eycatcherflag11 = 1
+			eycatcherflag12 = 1
+			eycatchercounter = 0
+		end
+		return
+
+	elseif gTutorialStep == 27 then			
+		EycatcherAmountCheck()			
+		if eycatchercounter == 5  then
+			gSetText0 = "TUT_05_020_R"
+			gSetText1 = "TUT_END"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+				
+	elseif gTutorialStep == 28 then
+		Settlers.AddSettlers(141,217,1,Settlers.PRIEST,1)
+		Settlers.AddSettlers(136,218,1,Settlers.SQUADLEADER,1)
+		Settlers.AddSettlers(136,218,1,Settlers.SWORDSMAN_03,2)
+		Settlers.AddSettlers(136,218,1,Settlers.BOWMAN_03,2)
+			
+		Settlers.AddSettlers(139,217,3,Settlers.PRIEST,1)
+		Settlers.AddSettlers(145,217,3,Settlers.SQUADLEADER,1)
+		Settlers.AddSettlers(146,217,3,Settlers.SWORDSMAN_03,2)
+		Settlers.AddSettlers(144,217,3,Settlers.BOWMAN_03,2)
+		Map.SetScreenPos(142,222)
+		Tutorial.SetZoom(40)		
+		Tutorial.Won()
+		gSpaceOk = 1
+	
+		
+										
+	elseif gTutorialStep == 29 then
+		
+		Tutorial.Exit()
+	end
+	
+	gPrevTutStep = gTutorialStep
+end
+
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+	Buildings.AddBuildingEx(135,208, Game.LocalPlayer(), Buildings.MARKETPLACE)
+
+	Goods.AddPileEx(136,218, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(133,211, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(140,224, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(139,223, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(133,225, Goods.GOLDBAR, 8)
+	
+	
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING )
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )
+	request_event( OnSettlerProduction, Events.SETTLER_CHANGE_TYPE)
+	
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( DummyVictoryCheck )
+	reg_func( tutorial_main )
+	reg_func( OnDragBuilding )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+	reg_func( OnSettlerProduction )
+	
+end
+

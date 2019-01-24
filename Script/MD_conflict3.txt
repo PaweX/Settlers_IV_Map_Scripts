@@ -1,0 +1,64 @@
+--// MD_CONFLICT_3
+--//-------------------
+
+
+
+
+
+function Crushatstart()
+
+	tickcounter = tickcounter + 1
+
+	if tickcounter == 40 then
+		Buildings.Delete( Buildings.GetFirstBuilding(1,Buildings.BIGTEMPLE),2)
+		Buildings.Delete( Buildings.GetFirstBuilding(1,Buildings.BIGTEMPLE),2)
+		Buildings.Delete( Buildings.GetFirstBuilding(1,Buildings.BIGTEMPLE),2)
+		AI.NewSquad(2, AI.CMD_MOVE_HOME)
+		AI.NewSquad(3, AI.CMD_MOVE_HOME)
+		Game.ShowText("MD_CONFLICT_SCRIPT_ONE_01",156,627)
+		unrequest_event(Crushatstart,Events.TICK)	
+	end
+
+
+end
+
+
+function new_game()
+	
+tickcounter = 0
+
+	Settlers.AddSettlers(170,687, 2, Settlers.SWORDSMAN_01, 2) 
+	Settlers.AddSettlers(177,686, 3, Settlers.BOWMAN_01, 3)
+	
+	Settlers.AddSettlers(144,618, 3, Settlers.SWORDSMAN_01, 3)
+	Settlers.AddSettlers(152,618, 2, Settlers.BOWMAN_01, 2)
+
+	Settlers.AddSettlers(109,628, 3, Settlers.SWORDSMAN_01, 2)
+	Settlers.AddSettlers(117,628, 2, Settlers.BOWMAN_01, 3)
+	
+
+
+	 --// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 70, 50, 10) 
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 90, 60, 10) 
+
+	--// SOLDIERLIMITRELATIVE
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,100,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 80,150,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,100,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 80,120,150)
+	
+	request_event(Crushatstart,Events.TICK)	
+ 
+end
+
+function register_functions()
+
+	reg_func(Crushatstart)
+	   
+end

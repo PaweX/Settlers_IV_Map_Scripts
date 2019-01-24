@@ -1,0 +1,375 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL 1  	22.01.01 16:53
+--			
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1
+gWantedMenu = -1		
+gTutorialStep =1		
+gTemp = 0			
+gSpaceOk= 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gCommandOk = 1
+gSetText0 = "TUT_01_001_R"
+gSetText1 = "TUT_01_SPACE_NEXT"
+LastText0 = 0
+LastText1 = 0
+----------------------------------------------------------------------------------
+
+function DummyVictoryCheck()
+end
+	
+----------------------------------------------------------------------------------
+function OnDragBuilding(type)
+
+    	if gWantedBuilding == -1 then
+        	return
+    	end
+
+	if (gWantedBuilding == type) then
+        	gTutorialStep = gTutorialStep+1
+        	gWantedBuilding = -1
+    	end
+end
+
+------------------------------------------------------------------------------
+
+function check_zoom ()
+
+   if Tutorial.GetCurrentZoomFactor() <= 15 then
+	unrequest_event( check_zoom, Events.TICK )
+	request_event( tutorial_main, Events.TICK )
+	gTutorialStep = gTutorialStep+1
+   end
+	
+end
+
+function wait_for_zoom ()
+	unrequest_event( tutorial_main, Events.TICK )
+	request_event( check_zoom, Events.TICK )
+
+end
+-------------------------------------------------------------------------------
+
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+		OnSpace()
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		Map.SetScreenPos(111,90)
+		Tutorial.SetZoom(17)
+		gCommandOk = 0
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+    		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+    		Tutorial.ClearMarker()
+    		
+    		if (gTutorialStep == 10) or (gTutorialStep == 12) then
+			Tutorial.SetMarker(89,312)
+		elseif (gTutorialStep == 16 ) or (gTutorialStep == 18) then
+			Tutorial.SetMarker(90,363)
+		elseif (gTutorialStep == 19) then
+			Tutorial.SetMarker(154,309)
+		end
+	end
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+-------------------------------------------------------------------------------
+
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+-------------------------------------------------------------------------------
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype, x,y)
+	if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.READY) == 0 then
+		if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.UNDERCONSTRUCTION) == 0 then
+			id = Buildings.GetFirstBuilding(1,buildingtype)
+			Buildings.CrushBuilding(id)
+			Tutorial.DeleteWorldCursor()
+			LastText0 = 0
+			LastText1 = 0
+			gPrevTutStep = 0
+			if buildingtype == Buildings.STONECUTTERHUT then
+				gTutorialStep = gTutorialStep - 2
+			else
+				gTutorialStep = gTutorialStep - 3
+			end
+		end	
+	end
+end
+
+-------------------------------------------------------------------------------
+--
+--	main tutorial function
+--
+--------------------------------------------------------------------------------
+function tutorial_main()
+	
+	gCommandOk = 1
+	
+	--// Text rein schreiben //-- 
+	if (gSetText0 ~= LastText0 ) or (gSetText1 ~= LastText1 )then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		LastText0 = gSetText0
+		LastText1 = gSetText1
+	end	
+	
+	
+		
+	if (gPrevTutStep == gTutorialStep) then
+		return
+	end
+
+	if gTutorialStep == 1 then
+		Tutorial.RWM(1)
+		Tutorial.DisableExcept()
+		--//Für das Next Fenster //--
+		gSetText0 = "TUT_01_001_R"
+		gSetText1 = "TUT_01_SPACE_NEXT"
+		gSpaceOk = 1
+	 
+	elseif gTutorialStep == 2 then
+		gSetText0 = "TUT_01_002_R"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 3 then
+		gSetText0 = "TUT_01_003_R"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 4 then
+		gSetText0 = "TUT_01_004_R"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 5 then
+		gSetText0 = "TUT_01_005_R"
+		gSetText1 = "TUT_01_005_N"
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+
+	elseif gTutorialStep == 6 then
+		if (Map.PointIsOnScreen(66,87) == 1) then
+			gSetText0 = "TUT_01_006_N"
+			gSetText1 = "TUT_01_SPACE_NEXT"
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end 
+		return
+	
+	elseif gTutorialStep == 7 then
+		gSpaceOk = 1
+	
+	elseif gTutorialStep == 8 then
+		gSetText0 = "TUT_01_006_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+	
+	elseif gTutorialStep == 8 then
+		gSetText0 = "TUT_01_007_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 9 then
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_MINIMAP_CMD_FIGURES,
+			Control.DLG_MINIMAP_CMD_PRODUCTION,
+			Control.DLG_MINIMAP_CMD_STATISTICS	
+		)
+		gSetText0 = "TUT_01_008_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 10 then
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_BASIC,
+			Control.DLG_BUILDBASIC_CMD_LUMBERHUT
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+		Tutorial.SetMarker(89,312)
+		gSetText0 = "TUT_01_009_R"
+		gSetText1 = "TUT_01_009_N"
+		gSpaceOk = 0
+		gWantedBuilding = Buildings.WOODCUTTERHUT
+        			
+	elseif gTutorialStep == 11 then
+		gSetText0 = "TUT_01_010_R"
+		gSetText1 = "TUT_01_010_N"
+		Tutorial.SetWorldCursor(124,95)
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk = 0
+		return
+					
+	elseif gTutorialStep == 12 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.WOODCUTTERHUT, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.WOODCUTTERHUT, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gSetText0 = "TUT_01_011_R"
+			gSetText1 = "TUT_01_011_N"
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.WOODCUTTERHUT, 124,95)
+		end
+		return
+	
+	 elseif gTutorialStep == 13 then
+	 	if Buildings.Amount( Game.LocalPlayer(), Buildings.WOODCUTTERHUT, Buildings.READY) > 0 then
+		    	gSetText0 = "TUT_01_012_R"
+			gSetText1 = "TUT_NEXT"
+		    	gSpaceOk = 0
+            		gTutorialStep = gTutorialStep+1
+            	end
+	        return
+	
+	elseif gTutorialStep == 14 then
+	
+		if Buildings.CheckBuildingInhabitants ( Game.LocalPlayer(), Buildings.WOODCUTTERHUT) == 1 then
+			gSpaceOk = 0
+           		gTutorialStep = gTutorialStep+1
+	       	end
+	       	return	        
+	        
+	elseif gTutorialStep == 15 then
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 16 then
+		gSetText0 = "TUT_01_013_R"
+		gSetText1 = "TUT_01_013_N"
+		Tutorial.DisableExcept
+		(
+		Control.DLG_MINIMAP_CMD_BUILD,
+		Control.DLG_BUILDSUBMENU_CMD_BASIC,
+		Control.DLG_BUILDBASIC_CMD_SAWMILL
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+    		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+		Tutorial.SetMarker(90,363)
+		gSpaceOk = 0
+            	gWantedBuilding = Buildings.SAWMILL
+            				
+	elseif gTutorialStep == 17 then
+		gSetText0 = "TUT_01_014_R"
+		gSetText1 = "TUT_01_014_N"
+		Tutorial.SetWorldCursor(122,107)
+		gSpaceOk = 0
+            	gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 18 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.SAWMILL, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.SAWMILL, Buildings.READY) > 0 then
+			gSetText0 = "TUT_01_015_R"
+			gSetText1 = "TUT_01_015_N"
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept
+			(
+				Control.DLG_MINIMAP_CMD_BUILD,
+				Control.DLG_BUILDSUBMENU_CMD_BASIC,
+				Control.DLG_BUILDBASIC_CMD_STONEMINERHUT
+			)
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)			
+			Tutorial.SetMarker(154,309)
+			Tutorial.SetWorldCursor(102,81)
+			gSpaceOk = 0
+            		gTutorialStep = gTutorialStep+1
+            		BuildingOnRightPlaceAndDestroyCheck(Buildings.SAWMILL, 122,107)
+		end
+		return
+							
+	elseif gTutorialStep == 19 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.STONECUTTERHUT, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.STONECUTTERHUT, Buildings.READY) > 0 then
+			gSetText0 = "TUT_01_016_R"
+			gSetText1 = "TUT_01_016_N"
+			Tutorial.ClearMarker()
+			Tutorial.DisableExcept()
+			Tutorial.DeleteWorldCursor()
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.STONECUTTERHUT, 102,81)
+		end
+		return
+	
+	elseif gTutorialStep == 20 then
+		if (Buildings.Amount( Game.LocalPlayer(), Buildings.STONECUTTERHUT, Buildings.READY) > 0) and 
+		   (Buildings.Amount( Game.LocalPlayer(), Buildings.SAWMILL, Buildings.READY) > 0) then
+			Tutorial.DisableExcept()
+			gSetText0 = "TUT_01_017_R"
+			gSetText1 = "TUT_END"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 21 then
+	--// evtl. wieder einbauen, wenn vernünftige effecte da sind //--
+		Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.NO_SOUND, 109, 109, 2)
+		Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.NO_SOUND, 123, 121, 10)
+		Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.NO_SOUND, 132, 116, 18)
+		Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.NO_SOUND, 139, 108, 22)
+		Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.NO_SOUND, 110, 109, 27)
+		Tutorial.Won()
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 22 then
+		Tutorial.Exit()
+	end
+	
+	gPrevTutStep = gTutorialStep
+end
+
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+
+	--// add Pickaxe//--
+
+	Goods.AddPileEx(108,82,Goods.PICKAXE,1)
+
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING )
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( DummyVictoryCheck )
+	reg_func( tutorial_main )
+	reg_func( OnDragBuilding )
+	reg_func( check_zoom )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+end
+

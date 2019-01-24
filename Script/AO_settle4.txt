@@ -1,0 +1,72 @@
+--// AO_Settle4
+--//--------------------
+
+function VictoryConditionCheck()
+	
+		--//Wald in gegend
+		if Game.GetAmountOfTreesInArea(155,570,40) >= 250
+		and Game.GetAmountOfTreesInArea(438,611,40) >= 250
+		and Game.GetAmountOfTreesInArea(591,552,40) >= 250
+		and Game.GetAmountOfTreesInArea(681,526,40) >= 250
+		and Game.GetAmountOfTreesInArea(817,496,40) >= 250 then
+
+			Game.DefaultGameEndCheck()
+		end
+
+end
+
+
+
+
+function new_game()
+
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(426,216)
+	end
+	Magic.IncreaseMana(1,123)
+
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+
+end
+
+
+function register_functions()
+
+	reg_func(VictoryConditionCheck)
+
+end
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

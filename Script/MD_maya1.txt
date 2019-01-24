@@ -1,0 +1,65 @@
+--// Maya 1
+--//-------------------
+
+
+function InitVar()
+	Vars.Save1 = 1 --//flag for one time attack
+	Vars.Save2 = 1 --//flag for text call
+end
+
+
+function PriesterSendCheck()
+	if Settlers.AmountInArea(1, Settlers.PRIEST,342,525,50) == 1 and Vars.Save1 == 1 then
+		Settlers.AddSettlers(368,431, 2,Settlers.SWORDSMAN_02, 20)
+		Settlers.AddSettlers(368,431, 2, Settlers.BOWMAN_02, 20)
+		AI.NewSquad(2, AI.CMD_SUICIDE_MISSION )
+		AI.AttackNow(2, 1, 1)
+		Game.ShowText("MD_HISTORICAL_SCRIPT_ONE_01",342,525)
+		Game.ShowText("MD_HISTORICAL_SCRIPT_ONE_02",342,525)
+		Vars.Save1 = 0
+	end
+
+	if (Game.FindAnyUnit(1,584,432,32) == 1
+		or Game.FindAnyUnit(1,540,348,32) == 1
+		or Game.FindAnyUnit(1,504,281,32) == 1)
+		and Vars.Save2 == 1 then
+			Game.ShowText("MD_HISTORICAL_SCRIPT_ONE_03",584,432)
+		Vars.Save2 = 0
+	end
+
+end
+
+
+
+function new_game()
+
+	--// SetPlayerVaribles //--
+	
+	--// Attack Mode//--
+	AI.SetPlayerVar(3, "AttackMode", 0, 0, 0) 
+
+	  --// Attack Delay //--
+	AI.SetPlayerVar(3, "AttackDelay", 800, 800, 10) 
+	AI.SetPlayerVar(2, "AttackDelay", 80, 80, 10) 
+
+	--//SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 30,30,400)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 30,30,150)
+
+
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,250,400)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 100,130,150)
+
+
+
+  request_event(PriesterSendCheck, Events.FIVE_TICKS)
+  request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)  
+end
+
+
+function register_functions()
+
+  reg_func(PriesterSendCheck)
+  reg_func(InitVar)
+  
+end

@@ -1,0 +1,62 @@
+--// Maya3
+--//--------------
+
+
+
+if Game.GetDifficulty() == 0 then
+		--//EASY
+		FRIENDSHIPATTACK  = 90 + Game.Random(10)
+else
+		--//NORMAL
+		FRIENDSHIPATTACK   = 50 + Game.Random(10)
+end
+
+
+function InitVar()
+
+	--//flag for ATTACKTIME and FRIENDSHIPATTACK   
+	Vars.Save1 = 1 
+	Vars.Save2 = 1
+	
+end
+
+function MassiveAttackCheck()
+
+	--//vernichtung der Mayas
+	if Game.HasPlayerLost(2) == 1 and Vars.Save1 == 1  then
+		AI.AttackNow(3, 1, 2)
+		AI.AttackNow(4, 1, 2)
+		--//oh nein, freund zerstört, wir werden die nächsten sein
+		Game.ShowText("MD_HISTORICAL_SCRIPT_THREE_02",609,628)
+		Vars.Save1 = 0 
+	end
+		
+	--//wenn das dv die Mayasiedlung vernichtet hat
+
+	if Game.Time() == FRIENDSHIPATTACK 
+		and Game.HasPlayerLost(2) == 0 
+		and Vars.Save2 == 1  then
+		--//laß uns zusammen losziehen
+		Game.ShowText("MD_HISTORICAL_SCRIPT_THREE_01",609,628)
+		AI.AttackNow(2, 3, 3)
+		Vars.Save2	= 0
+		
+	end
+
+end
+
+
+function new_game()
+
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(MassiveAttackCheck,Events.FIVE_TICKS)	
+
+end
+
+function register_functions()
+
+  reg_func(MassiveAttackCheck)
+  reg_func(InitVar)
+
+end

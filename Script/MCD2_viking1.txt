@@ -1,0 +1,668 @@
+circles={
+	holyCircle={
+		center={
+			x=553,
+			y=428
+		},
+		radius=9,
+		effect=Effects.MAGIC_PILE01,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=15,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	circle1={
+		center={
+			x=369,
+			y=331
+		},
+		radius=6,
+		effect=Effects.MAGIC_PILE02,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	circle2={
+		center={
+			x=134,
+			y=569
+		},
+		radius=15,
+		effect=Effects.RMAGIC_GIFTOFGOD,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	circle3={
+		center={
+			x=211,
+			y=411
+		},
+		radius=15,
+		effect=Effects.RMAGIC_GIFTOFGOD,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	goal={
+		center={
+			x=596,
+			y=598
+		},
+		radius=14,
+		effect=Effects.MAGIC_PILE03,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=15,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
+}
+
+barriers={
+	barrier1={
+		{x=199,y=443,type=107},
+		{x=205,y=445,type=107},
+		{x=204,y=449,type=110},
+		{x=204,y=454,type=107},
+		{x=210,y=458,type=107},
+		{x=210,y=466,type=110},
+		{x=216,y=467,type=108},
+		{x=217,y=473,type=109},
+		{x=217,y=480,type=110},
+		{x=222,y=477,type=108}
+	},
+	barrier2={
+		{x=534,y=327,type=110},
+		{x=532,y=319,type=107},
+		{x=540,y=331,type=110},
+		{x=538,y=322,type=108},
+		{x=544,y=326,type=107},
+		{x=552,y=331,type=110},
+		{x=544,y=318,type=110},
+		{x=552,y=325,type=108}
+	},
+	barrier3={
+		{x=403,y=480,type=107},
+		{x=403,y=487,type=109},
+		{x=409,y=491,type=107},
+		{x=406,y=498,type=108},
+		{x=416,y=502,type=109},
+		{x=414,y=507,type=108}
+	},
+	barrier4={
+		{x=333,y=396,type=107},
+		{x=367,y=401,type=107},
+		{x=337,y=405,type=107},
+		{x=321,y=385,type=107},
+		{x=338,y=399,type=107},
+		{x=327,y=387,type=107},
+		{x=328,y=396,type=107}
+	},
+	barrier5={
+		{x=269,y=544,type=107},
+		{x=269,y=553,type=108},
+		{x=275,y=553,type=108},
+		{x=276,y=563,type=109},
+		{x=282,y=563,type=107}
+	}
+}
+
+function initVar()
+	Vars.Save1=0		--for barrier1
+	Vars.Save2=0		--for barrier2
+	Vars.Save3=0		--for barrier3
+	Vars.Save4=0		--for barrier4
+	Vars.Save5=0		--for barrier5
+end
+
+function victoryConditionCheck()
+	if Vehicles.Amount(1,Vehicles.FERRY)==0 then
+		Game.PlayerLost(1)
+		Game.PlayerLost(2)
+		Game.PlayerLost(6)
+		Game.DefaultGameEndCheck()
+	else
+		if Vehicles.AmountInArea(1,Vehicles.FERRY,circles.goal.center.x,circles.goal.center.y,circles.goal.radius)>0 
+		or Vehicles.AmountInArea(1,Vehicles.WARSHIP,circles.goal.center.x,circles.goal.center.y,circles.goal.radius)>0 then
+			 		Game.EnemyPlayersLost(1)
+			 		Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function barrier1()
+	if Vars.Save1==2 then
+		unrequest_event(barrier1,Events.FIVE_TICKS)
+	else
+		if (Vehicles.AmountInArea(1,Vehicles.FERRY,202,458,25)>0 or Vehicles.AmountInArea(1,Vehicles.WARSHIP,202,458,25)>0 or
+			  Game.FindAnyUnit(1,235,437,10)==1) and Vars.Save1==0 then
+						Settlers.AddSettlers(209,433,1,Settlers.GARDENER,1)
+			 			Game.ShowText("MD2_VIKING_SCRIPT_ONE_01",209,433)
+			 			request_event(drawCircle3,Events.TICK)
+						Vars.Save1=1
+		else
+			if Vars.Save1==1 and Buildings.ExistsBuildingInArea(1,Buildings.GRAINFARM,209,405,30,Buildings.READY)==1 then
+				Game.ShowText("MD2_VIKING_SCRIPT_ONE_02",209,433)
+				barriers.remove(barriers.barrier1)
+				Vars.Save1=2
+			end
+		end
+	end
+end
+
+function barrier2()
+	if Vars.Save2==2 then
+		unrequest_event(barrier2,Events.FIVE_TICKS)
+	else
+		if (Vehicles.AmountInArea(1,Vehicles.FERRY,536,323,25)>0 or Vehicles.AmountInArea(1,Vehicles.WARSHIP,536,323,25)>0)
+			 and Vars.Save2==0 then
+
+			  		Game.ShowText("MD2_VIKING_SCRIPT_ONE_03",550,306)
+						Vars.Save2=1
+		else
+			Game.DefaultPlayerLostCheck(4)
+			if Vars.Save2==1 and Game.HasPlayerLost(4)==1 then
+				Game.ShowText("MD2_VIKING_SCRIPT_ONE_04",550,306)
+				barriers.remove(barriers.barrier2)
+				Vars.Save2=2
+			end
+		end
+	end
+end
+
+function barrier3()
+	if Vars.Save3==0 and (Vehicles.AmountInArea(1,Vehicles.FERRY,421,496,25)>0 or Vehicles.AmountInArea(1,Vehicles.WARSHIP,421,496,25)>0 or
+		 Game.FindAnyUnit(1,376,482,10)==1) then
+				Settlers.AddSettlers(376,482,1,Settlers.PRIEST,1)
+				request_event(drawCircles,Events.TICK)
+				Game.ShowText("MD2_VIKING_SCRIPT_ONE_05",376,482)
+				Vars.Save3=1
+	end
+	if Game.FindAnyUnit(1,circles.holyCircle.center.x,circles.holyCircle.center.y,(circles.holyCircle.radius+10))==1 then
+		AI.AttackNow(5,1,0)
+		AI.NewSquad(5,AI.CMD_SUICIDE_MISSION)
+	end
+	_soldiers=Settlers.AmountInArea(1,Settlers.SWORDSMAN_03,circles.holyCircle.center.x,circles.holyCircle.center.y,circles.holyCircle.radius)
+						+Settlers.AmountInArea(1,Settlers.BOWMAN_03,circles.holyCircle.center.x,circles.holyCircle.center.y,circles.holyCircle.radius)
+						+Settlers.AmountInArea(1,Settlers.AXEWARRIOR_03,circles.holyCircle.center.x,circles.holyCircle.center.y,circles.holyCircle.radius)
+						+Settlers.AmountInArea(1,Settlers.SQUADLEADER,circles.holyCircle.center.x,circles.holyCircle.center.y,circles.holyCircle.radius)
+	if Vars.Save3==1 and _soldiers>=10 then
+		Game.ShowText("MD2_VIKING_SCRIPT_ONE_10",376,482)
+		barriers.remove(barriers.barrier3)
+		Vars.Save3=2
+		unrequest_event(barrier3,Events.FIVE_TICKS)
+	end
+end
+
+function barrier4()
+	if Vars.Save4==2 then
+		unrequest_event(barrier4,Events.FIVE_TICKS)
+	else
+		if (Vehicles.AmountInArea(1,Vehicles.FERRY,331,393,18)>0 or Vehicles.AmountInArea(1,Vehicles.WARSHIP,331,393,18)>0 or
+				Game.FindAnyUnit(1,310,373,10)==1) and Vars.Save4==0 then
+	
+				Settlers.AddSettlers(313,377,1,Settlers.PRIEST,1)
+					Game.ShowText("MD2_VIKING_SCRIPT_ONE_06",310,373)
+					Vars.Save4=1
+					request_event(drawCircle1,Events.TICK)
+		else
+			if Vars.Save4==1 and Game.FindAnyUnit(1,367,331,2)==1 then
+				Map.DeleteDecoObject(367,331,5,91)
+				Vars.Save4=2
+				Game.ShowText("MD2_VIKING_SCRIPT_ONE_07",310,373)
+				barriers.remove(barriers.barrier4)
+			end
+		end
+	end
+end
+
+function barrier5()
+	if Vars.Save5==2 then
+		unrequest_event(barrier5,Events.FIVE_TICKS)
+	else
+		if (Vehicles.AmountInArea(1,Vehicles.FERRY,275,554,18)>0 or Vehicles.AmountInArea(1,Vehicles.WARSHIP,275,554,18)>0 or
+				Game.FindAnyUnit(1,290,580,10)==1) and Vars.Save5==0 then
+				
+					Settlers.AddSettlers(290,580,1,Settlers.PRIEST,1)
+					Game.ShowText("MD2_VIKING_SCRIPT_ONE_08",290,580)
+					request_event(drawCircle2,Events.TICK)
+					Vars.Save5=1
+		else
+			if Vars.Save5==1 and Game.IsAreaOwned(1,133,567,12)==1 then
+				Game.ShowText("MD2_VIKING_SCRIPT_ONE_09",290,580)
+				Vars.Save5=2
+				barriers.remove(barriers.barrier5)
+			end
+		end
+	end
+end
+
+function addShips()
+	ferryId1=Vehicles.AddVehicle(42,61,1,Vehicles.FERRY,0,0,0)
+	Settlers.AddSettlersToFerry(ferryId1,Settlers.PIONEER,10)
+	Vehicles.AddWheelerToFerry(ferryId1,Vehicles.FOUNDATION_CART)
+	ferryId2=Vehicles.AddVehicle(62,61,1,Vehicles.FERRY,0,0,0)
+	Settlers.AddSettlersToFerry(ferryId2,Settlers.SWORDSMAN_03,5)
+	Settlers.AddSettlersToFerry(ferryId2,Settlers.BOWMAN_03,5)
+	Settlers.AddSettlersToFerry(ferryId2,Settlers.AXEWARRIOR_03,5)
+	ferryId3=Vehicles.AddVehicle(82,61,1,Vehicles.FERRY,0,0,0)
+	Vehicles.AddWheelerToFerry(ferryId3,Vehicles.FOUNDATION_CART)
+	Settlers.AddSettlersToFerry(ferryId3,Settlers.SWORDSMAN_03,5)
+	Settlers.AddSettlersToFerry(ferryId3,Settlers.PIONEER,5)
+	if Game.GetDifficulty()==0 then
+		ferryId4=Vehicles.AddVehicle(102,61,1,Vehicles.FERRY,0,0,0)
+		Settlers.AddSettlersToFerry(ferryId4,Settlers.BOWMAN_03,5)
+		Settlers.AddSettlersToFerry(ferryId4,Settlers.SWORDSMAN_03,5)
+		Settlers.AddSettlersToFerry(ferryId4,Settlers.AXEWARRIOR_03,5)
+		
+		ferryId5=Vehicles.AddVehicle(126,60,1,Vehicles.FERRY,0,0,0)
+		Settlers.AddSettlersToFerry(ferryId5,Settlers.BOWMAN_03,5)
+		Settlers.AddSettlersToFerry(ferryId5,Settlers.SWORDSMAN_03,5)
+		Settlers.AddSettlersToFerry(ferryId5,Settlers.AXEWARRIOR_03,5)
+	end
+	Vehicles.AddVehicle(106,85,1,Vehicles.WARSHIP,0,100,0)
+	Vehicles.AddVehicle(126,85,1,Vehicles.WARSHIP,0,100,0)
+	Magic.IncreaseMana(1,60)
+	if Game.GetDifficulty()==0 then
+		Vehicles.AddVehicle(146,85,1,Vehicles.WARSHIP,0,100,0)
+		Magic.IncreaseMana(1,60)
+	end
+	Vehicles.AddVehicle(301,279,3,Vehicles.WARSHIP,3,100,0)
+	Vehicles.AddVehicle(306,272,3,Vehicles.WARSHIP,3,100,0)
+end
+
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
+end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.holyCircle)
+	circles.calculate(circles.circle1)
+	circles.calculate(circles.circle2)
+	circles.calculate(circles.circle3)
+	circles.calculate(circles.goal)
+end
+
+function drawCircles()
+	if Vars.Save3==2 then
+		unrequest_event(drawCircles,Events.TICK)
+	else
+		circles.draw(circles.holyCircle)
+	end
+end
+
+function drawCircle1()
+	if Vars.Save4==2 then
+		unrequest_event(drawCircle1,Events.TICK)
+	else
+		circles.draw(circles.circle1)
+	end
+end
+
+function drawCircle2()
+	if Vars.Save5==2 then
+		unrequest_event(drawCircle2,Events.TICK)
+	else
+		circles.draw(circles.circle2)
+	end
+end
+
+function drawCircle3()
+	if Vars.Save1==2 then
+		unrequest_event(drawCircle3,Events.TICK)
+	else
+		circles.draw(circles.circle3)
+	end
+end
+
+function drawGoal()
+	circles.draw(circles.goal)
+end
+
+function barriers.set(_barrier)
+	_set=1
+	while _set<=getn(_barrier) do
+		Map.AddReef(_barrier[_set]["x"],_barrier[_set]["y"],_barrier[_set]["type"])
+		_set=_set+1
+	end
+end
+
+function barriers.remove(_barrier)
+	_rem=1
+	while _rem<=getn(_barrier) do
+		Map.DeleteReef(_barrier[_rem]["x"],_barrier[_rem]["y"])
+		_rem=_rem+1
+	end
+end
+
+function setBarriers()
+	barriers.set(barriers.barrier1)
+	barriers.set(barriers.barrier2)
+	barriers.set(barriers.barrier3)
+	barriers.set(barriers.barrier4)
+	barriers.set(barriers.barrier5)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(drawGoal,Events.TICK)
+	request_event(barrier1,Events.FIVE_TICKS)
+	request_event(barrier2,Events.FIVE_TICKS)
+	request_event(barrier3,Events.FIVE_TICKS)
+	request_event(barrier4,Events.FIVE_TICKS)
+	request_event(barrier5,Events.FIVE_TICKS)
+
+  Game.SetAlliesDontRevealFog(1)
+  Game.ResetFogging()
+	setBarriers()
+	addShips()
+	Buildings.AddBuildingEx(585,461,5,Buildings.GUARDTOWERSMALL)
+	Buildings.AddBuildingEx(525,387,5,Buildings.GUARDTOWERSMALL)
+	Game.SetFightingStrength(1,100)
+
+	AI.SetPlayerVar(3, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 75, 45, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(4, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 75, 45, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(5, "AttackMode", 2, 2, 2)
+	AI.SetPlayerVar(5, "AttackDelay", 75, 45, 30)
+	AI.SetPlayerVar(5, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(5, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(calculateCircles)
+	reg_func(drawCircles)
+	reg_func(drawCircle2)
+	reg_func(drawCircle3)
+	reg_func(drawGoal)
+	reg_func(barrier1)
+	reg_func(barrier2)
+	reg_func(barrier3)
+	reg_func(barrier4)
+	reg_func(barrier5)
+	reg_func(drawCircle1)
+end

@@ -1,0 +1,104 @@
+--// AO_VIKING1
+--//--------------
+
+
+function InitVar()
+
+	--// Prist send flag
+	Vars.Save1 = 1
+	Vars.Save2 = 1
+	Vars.Save2 = 0
+end
+--------
+function AttackCheck()
+
+	if Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,806,800,5,Buildings.READY) >= 1
+	and Vars.Save2 == 1 then
+		AI.AttackNow(2, 3, 1)
+		dbg.pi(1)
+		--//wir helfen mit
+		Game.ShowText("AO_VIKING_SCRIPT_ONE_01")
+		Vars.Save2 = 0
+		Vars.Save3 = Game.Time() + Game.Random(5) + 20
+	end
+
+	if Vars.Save3 == Game.Time() and Vars.Save4 == 1 then
+		Vars.Save4 = 0
+		AI.AttackNow(2, 3, 3)
+		dbg.pi(2)
+		--//wir helfen nochmal mit
+		Game.ShowText("AO_VIKING_SCRIPT_ONE_02")
+	end
+		
+  
+end
+
+
+function new_game()
+
+	--//Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(254,177)
+		Magic.IncreaseMana(1,30)
+	end
+
+
+	--//Settlers.AddSettlers(806,800,1,Settlers.SWORDSMAN_03,100)
+			--// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 70, 40, 10) 
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 150,200,100)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 150,250,100)
+
+	--// Damit Trojaner nicht meine arbeit macht
+	AI.SetPlayerVar(2, "AttackMode", 0, 0, 2) 
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 100,100,100)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 60,70,100)
+
+
+	request_event(AttackCheck, Events.FIVE_TICKS)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+end
+
+
+function register_functions()
+  
+  reg_func(AttackCheck)  
+  reg_func(InitVar)
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

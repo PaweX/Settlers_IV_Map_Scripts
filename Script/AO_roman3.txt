@@ -1,0 +1,166 @@
+--// AO_ROMAN3
+--//---------------
+--// Produce gBoardAmount and gNumberOfSwordsman and gNumberOfBowman and gNumberOfThiefs and gNumberOfSquadleader 
+--// Attack when gAmountOfBoardsForAttack is produced
+
+
+--//Elitetrupp
+gNumberOfSwordsman = 20
+gNumberOfBowman = 20
+gNumberOfThiefs = 20
+gNumberOfSquadleader = 1
+	--//Boards for Horse
+gBoardAmount = 300
+
+--//AmountOfBoardsForAttack in easy and normal
+
+if Game.GetDifficulty() == 0 then
+	gAmountOfBoardsForAttack = 	gBoardAmount - 100
+else
+	gAmountOfBoardsForAttack =	gBoardAmount/2
+end
+
+
+function InitVar()
+
+	--//flag for ATTACKTIME 
+	Vars.Save1 = 1 
+	Vars.Save3 = 1 
+
+	if Game.GetDifficulty() == 0 then
+	
+		--//Amount Attacking Squads
+		Vars.Save2 = 1
+	else
+		--//normal
+	
+		--//Amount Attacking Squads
+		Vars.Save2 = 3
+	end
+
+	
+		
+end
+
+function AttackCheck()
+
+	--//Attack wenn Holz da ist 
+	if Goods.Amount(1,Goods.BOARD) >= gAmountOfBoardsForAttack 
+		and Vars.Save1 == 1  then
+	dbg.pi(1)
+	
+		AI.AttackNow(2, 1, Vars.Save2)
+		
+		--//deactivate flag
+		Vars.Save1	= 0
+		
+	end
+
+	if Buildings.ExistsBuildingInArea(1,Buildings.GOLDMINE,192,392,10,Buildings.READY) >= 1 and Vars.Save3	== 1 then
+		Vars.Save3	= 0
+		AI.AttackNow(2, 1, 3)
+	end
+
+end
+
+function VictoryConditionCheck()
+	 	
+
+--// noch in Nähe des Pferdes bringen
+	if Settlers.AmountInArea(1,Settlers.SWORDSMAN_03,438,555,20) >= gNumberOfSwordsman
+	and Settlers.AmountInArea(1,Settlers.BOWMAN_03,438,555,20) >= gNumberOfBowman 
+	and Settlers.AmountInArea(1,Settlers.THIEF,438,555,20) >= gNumberOfThiefs 
+	and Settlers.AmountInArea(1,Settlers.SQUADLEADER,438,555,20) >= gNumberOfSquadleader
+	and Goods.Amount(1,Goods.BOARD) >= gBoardAmount then
+
+     	Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck("AO_ROMAN_SCRIPT_THREE_01","AO_ROMAN_SCRIPT_THREE_02")
+ 	
+	else
+		Game.DefaultPlayerLostCheck(1)
+		Game.DefaultGameEndCheck()
+	end
+	
+	
+  	  
+end
+
+
+
+
+function new_game()
+
+--//for testing
+
+--//Goods.AddPileEx(435,550, Goods.BOARD, 8)
+
+--// Set Horse
+	Map.AddDecoObject(438,555,117)
+
+	
+		--// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	
+	AI.SetPlayerVar(2, "AttackDelay", 80, 60, 10) 
+
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,100)
+
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 80,200,100)
+
+
+		--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(373,539)
+	end
+
+	
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(AttackCheck,Events.FIVE_TICKS)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+
+end
+
+function register_functions()
+
+  reg_func(AttackCheck)
+  reg_func(InitVar)
+  reg_func(VictoryConditionCheck)
+
+end
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

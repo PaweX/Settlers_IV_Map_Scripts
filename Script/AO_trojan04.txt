@@ -1,0 +1,257 @@
+--// ===================================================
+--// AO_trojan04
+--// ===================================================
+
+
+--//Manakopterangriffe
+
+function InitVar()
+	
+
+	if Game.GetDifficulty() == 0 then
+		--//easy//--
+		Vars.Save1 = 40 + Game.Random(5)  --//first attacktime
+	else
+		--//normal
+		Vars.Save1 = 35 + Game.Random(5)
+	
+	end
+
+	Vars.Save2 = 1 --//flag for Attacktime
+	Vars.Save3 = 1 --//flag for Ship
+	
+end
+
+function ManacopterAttackCheck()
+
+	if Game.Time() == Vars.Save1  and Vars.Save2 == 1  then
+		--//erster Manakopterangriff
+		AI.AttackNow(2, 1, 1)
+		Vars.Save2 = 0
+		Vars.Save1  = Vars.Save1  + 1
+		dbg.pi(1)
+	end
+
+	--//vielleicht erneut eingreifen
+	--//if Game.Time() == Vars.Save1  and Vars.Save2 == 0  then
+		--//dbg.pi(0)
+		--//if Game.GetDifficulty() == 0 then
+		--//easy//--
+			--//Vars.Save1 = Vars.Save1 + 30 + Game.Random(5)  --//next attacktime
+		--//else
+		--//normal
+			--//Vars.Save1 = Vars.Save1 + 10 + Game.Random(5)
+		--//end
+		--//Vars.Save2 = 1
+	--//end
+	
+
+
+	--// Wenn Schiffe in Gegend angekommen sind
+	if Vehicles.AmountInArea(1,Vehicles.FERRY,200,204,20) == 1 
+	and Vars.Save3 == 1 then
+		AI.AttackNow(2, 1, 8)
+		Vars.Save3 = 0
+				
+	end
+
+	
+	
+end
+
+--//-----------------------------------------------------------------------------------
+
+function VictoryConditionCheck()
+
+	if Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.BIGTEMPLE,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER01,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER02,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER03,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER04,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER05,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER06,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER07,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER08,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER09,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER10,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER11,562,545,300,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER12,562,545,300,Buildings.READY) >= 1 then
+
+
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck()
+	else
+		Game.DefaultPlayerLostCheck(1)
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function new_game()
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(220,185)
+	end
+
+	--//for testing
+	--//CreateStartResourcesMany(562,545, 1, 0)
+
+	--// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 55, 30, 10) 
+
+	AI.SetPlayerVar(2, "DTAttackCheckDelay", 15, 5, 1) 
+
+	AI.SetPlayerVar(2, "DTManakopterDelay", 600, 300, 10) 
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(ManacopterAttackCheck,Events.FIVE_TICKS)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+
+end
+
+--//-----------------------------------------------------------------------------------
+
+function register_functions()
+
+  reg_func(ManacopterAttackCheck)
+  reg_func(InitVar)
+  reg_func(VictoryConditionCheck)
+
+end
+
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end
+
+
+function CreateStartResourcesMany(_X, _Y, _Player, _AI)
+
+    -- Create building
+    
+    Buildings.AddBuildingEx(_X, _Y, _Player, Buildings.GUARDTOWERSMALL)
+
+    -- Create piles
+    
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   6)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   7)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  4)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  6)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     8)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 5)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     3)
+    Goods.AddPileEx(_X, _Y, Goods.ROD,     2)
+    Goods.AddPileEx(_X, _Y, Goods.SCYTHE,  3)
+    Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+    Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+    Goods.AddPileEx(_X, _Y, Goods.BREAD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BREAD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.MEAT,    5)
+    Goods.AddPileEx(_X, _Y, Goods.MEAT,    3)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    6)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    4)
+    Goods.AddPileEx(_X, _Y, Goods.IRONORE, 8)
+    Goods.AddPileEx(_X, _Y, Goods.IRONORE, 4)
+    Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+	Goods.AddPileEx(_X, _Y, Goods.GOLDBAR, 8)
+    
+
+    -- Create settlers
+    
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.BUILDER,        2)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.DIGGER,         2)
+
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.SMITH,         3)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.MINEWORKER,    6)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.CARRIER,      50)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 12)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.BOWMAN_01,     6)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.GEOLOGIST,     5)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.DONKEY,        3)
+    Settlers.AddSettlers(_X, _Y, _Player, Settlers.HUNTER,        1)
+    
+    -- Create AI stuff
+    
+    if _AI >= 1 then
+    
+        Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+        
+    end
+    
+    if _AI >= 2 then
+
+        Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+        
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 5)
+        Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+    
+    end
+    
+end

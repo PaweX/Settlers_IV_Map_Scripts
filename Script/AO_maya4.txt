@@ -1,0 +1,224 @@
+--//AO_Maya4
+--// nur trojaner pläten und schatz finden
+x_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+y_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+
+function InitVar()
+	Vars.Save1 = 1 --//flag for textcall	
+	Vars.Save2 = 0 --// Initialiazing Counter for function EffectArrow
+	Vars.Save3 = 1
+	Vars.Save4 = 1
+	Vars.Save5 = 1
+	Vars.Save6 = 1
+end
+
+
+function EffectCross(x,y,speed)
+
+--//X,Y,Geschindigkeit des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//Vars.Save2=0 		--// Initialiazing Counter for function EffectArrow
+--//und das nicht
+--//x_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+--//y_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+
+--//dbg.pi(i)
+		
+		if (Vars.Save2 >= 0) and (Vars.Save2 <= 40) then
+			x_int_Arrow = x 
+			y_int_Arrow = y +Vars.Save2-36
+			Vars.Save2 = Vars.Save2 + speed
+			Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, x_int_Arrow,y_int_Arrow, 0)
+		end
+		
+		if (Vars.Save2 >= 0) and (Vars.Save2 <= 40) then
+			x_int_Arrow = x -Vars.Save2+20
+			y_int_Arrow = y -Vars.Save2
+			Vars.Save2 = Vars.Save2 + speed
+			Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, x_int_Arrow,y_int_Arrow, 0)
+		end
+		
+				
+		if Vars.Save2>=30 then
+			Vars.Save2=0
+		end
+
+end
+
+function UnitAtTreasureCheck()
+	if Game.FindAnyUnit(1,61,109,5) == 1 
+		and Vars.Save1 == 1 then
+		Vars.Save1 = 0
+		--// Da ist der Schatz, jetzt müssen wir nur schaun, das es auch unserer bleibt
+		Game.ShowText("AO_MAYAN_SCRIPT_FOUR_01",61,109)
+	end
+
+	if Game.FindAnyUnit(1,504,401,30) == 1 
+	and Vars.Save3 == 1 then
+		Vars.Save3 = 0
+		dbg.pi(1)
+		--//Römer helfen
+		Game.ShowText("AO_MAYAN_SCRIPT_FOUR_02",504,401)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 194,344)
+	end
+	
+	if Game.FindAnyUnit(1,275,164,30) == 1 
+	and Vars.Save4 == 1 then
+		Vars.Save4 = 0
+		dbg.pi(2)
+		AI.NewSquad(3, AI.CMD_MOVE_AND_STAY, 459,241)
+	end
+	
+	if Game.FindAnyUnit(1,241,297,30) == 1 
+	and Vars.Save5 == 1 then
+		Vars.Save5 = 0
+		dbg.pi(3)
+		AI.NewSquad(4, AI.CMD_MOVE_AND_STAY, 453,235)
+	end
+
+	if Game.FindAnyUnit(1,490,627,30) == 1 
+	and Vars.Save6 == 1 then
+		Vars.Save6 = 2
+		dbg.pi(1)
+		--//Römer helfen mit Heilern
+		Game.ShowText("AO_MAYAN_SCRIPT_FOUR_03",504,401)
+		Vehicles.AddVehicle(451,760,2, Vehicles.FERRY, 1,0, 1)
+		AI.NewSquad(2, AI.CMD_MOVE_AND_STAY, 475,712)
+	end
+
+	--//Fähre in der Gegend  2 --> Soldaten setzen
+	if Vehicles.AmountInArea(2,Vehicles.FERRY,475,712, 2) == 1 and Vars.Save6 == 2 then
+		Settlers.AddSettlers(474,701, 2, 37, 15)
+    	Vars.Save6 = 3
+	end
+	
+	
+
+end
+
+--//Siegbedingung: Schatz gehört uns
+function VictoryConditionCheck()
+
+	if Goods.GetAmountInArea(1,Goods.GOLDBAR,154,591,40) >= 150 
+	and Game.HasPlayerLost(4) == 1 then
+		Game.EnemyPlayersLost(1) 
+		Game.DefaultGameEndCheck("AO_MAYAN_SCRIPT_FOUR_04","AO_MAYAN_SCRIPT_FOUR_05")
+
+	end
+
+	Game.DefaultPlayersLostCheck()
+
+	
+	if Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck("AO_MAYAN_SCRIPT_FOUR_03","AO_MAYAN_SCRIPT_FOUR_04")
+	end
+
+
+end
+
+
+function PermanentEffect()
+	EffectCross(153,612,1)
+end
+
+function new_game()
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(543,135)
+	end
+	
+--//for testing
+--//Vehicles.AddVehicle(504,401,1, Vehicles.WARSHIP, 5,90, 1)
+--//Settlers.AddSettlers(490,627, 1, Settlers.BOWMAN_03, 15)
+
+--//set ships
+	Vehicles.AddVehicle(204,211,3, Vehicles.WARSHIP, 5,90, 1)
+	Vehicles.AddVehicle(209,224,3, Vehicles.WARSHIP, 1,90, 0)
+	Vehicles.AddVehicle(263,332,3, Vehicles.WARSHIP, 5,90, 0)
+	Vehicles.AddVehicle(230,254,3, Vehicles.WARSHIP, 5,90, 1)
+	
+	Vehicles.AddVehicle(196,354,4, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(210,394,4, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(216,436,4, Vehicles.WARSHIP, -1,90, 0)
+	Vehicles.AddVehicle(218,315,4, Vehicles.WARSHIP, 5,90, 1)
+	Vehicles.AddVehicle(233,340,4, Vehicles.WARSHIP, 5,90, 1)
+	
+	Vehicles.AddVehicle(492,552,2, Vehicles.WARSHIP, -1,90, 1)
+	Vehicles.AddVehicle(510,551,2, Vehicles.WARSHIP, -1,90, 1)
+	Vehicles.AddVehicle(504,563,2, Vehicles.WARSHIP, -1,90, 1)
+
+
+	AI.SetPlayerVar(4, "UsePioneers", 0, 0, 2) 
+
+
+	
+		--// SetPlayerVaribles
+	  --// AttackMode
+	--//AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	--//AI.SetPlayerVar(2, "AttackDelay", 100, 60, 10) 
+	--//AI.SetPlayerVar(2, "SoldierLimitAbsolute", 150,200,100)
+	--//AI.SetPlayerVar(2, "SoldierLimitRelative", 150,250,100)
+
+	--//AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	--//AI.SetPlayerVar(3, "AttackDelay", 100, 60, 10) 
+	--//AI.SetPlayerVar(3, "SoldierLimitAbsolute", 150,200,100)
+	--//AI.SetPlayerVar(3, "SoldierLimitRelative", 150,250,100)
+
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 100, 60, 10) 
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 150,200,100)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 120,200,100)
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)		
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(PermanentEffect,Events.TICK)
+	request_event(UnitAtTreasureCheck,Events.FIVE_TICKS)
+end
+
+
+function register_functions()
+	
+	reg_func(InitVar)
+	reg_func(VictoryConditionCheck)
+	reg_func(PermanentEffect)
+	reg_func(UnitAtTreasureCheck)
+
+  
+end
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

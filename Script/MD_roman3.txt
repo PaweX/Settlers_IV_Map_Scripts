@@ -1,0 +1,209 @@
+--// MD_ROMAN3
+--//---------------
+
+
+--// time to win
+	gTimeOut = 180
+
+
+function InitVar()
+
+	
+	--// flag for activates the clock dialog one time
+
+	Vars.Save9 = 1
+	Vars.Save3 = 1
+	Vars.Save7 = 0
+	
+	
+	if Game.GetDifficulty() == 0 then	
+		--//--------------EASY------------------------
+		
+		--// first time of "enemy attack"  
+		Vars.Save1 = 55 +  Game.Random(10)
+		
+		--// set time period in minutes here
+		Vars.Save6 = 30 +  Game.Random(5)
+	
+
+	else
+		--//-------------NORMAL--------------------
+
+		--// first time of "enemy attack"  
+		Vars.Save1 = 40 +  Game.Random(5)
+
+
+		--// set time period in minutes here
+		Vars.Save6 = 30 +  Game.Random(5)
+	
+	end
+
+end
+
+
+--// -----------------------------------------------------------------------------
+--// Activate the clock
+--// -----------------------------------------------------------------------------
+
+function TurnOnTheClock()
+	Game.ShowClock(10800)
+	
+end
+
+
+function GenerateEnemies()
+  	
+--// -----------------------------------------------------------------------------
+--// Countdown
+--// -----------------------------------------------------------------------------	
+--// Zeitansage 10 min vor schluß //--
+	
+	if Game.Time() >= (gTimeOut - 10) and  Vars.Save7 == 2 then
+		Game.ShowText("MD_DARK_SCRIPT_THREE_01")
+		Vars.Save7 = 3
+	end
+
+--// Zeitansage 20 min vor schluß //--
+	if (Game.Time() >= (gTimeOut - 20)) and  (Vars.Save7 == 1) then
+		Game.ShowText("MD_DARK_SCRIPT_THREE_02")
+		Vars.Save7 = 2
+	end
+--// Zeitansage 30 min vor schluß //--
+	if Game.Time() >= (gTimeOut-30) and  Vars.Save7 == 0 then
+		Game.ShowText("MD_DARK_SCRIPT_THREE_03")
+		Vars.Save7 = 1 
+	end
+	
+	if Game.Time() == Vars.Save1 then
+		
+		Vars.Save1 = Vars.Save1 + Vars.Save6
+
+		if Game.GetDifficulty() == 0 then	
+    		
+    		--//set AttackNow EASY
+			AI.AttackNow(2, 1, 1)
+
+    	else
+    		--//set AttackNow NORMAL
+			AI.AttackNow(2, 1, 2)
+
+    	end
+	end
+
+	if Game.Time() == (gTimeOut - 2) 
+		and Vars.Save3  == 1 then
+		if Game.GetDifficulty() == 1 then	
+    		dbg.pi(1)
+    		--//set AttackNow EASY
+			AI.AttackNow(2, 1, 2)
+
+    	else
+    		--//set AttackNow NORMAL
+			AI.AttackNow(2, 1, 5)
+
+    	end
+		Vars.Save3 = 0
+	end
+	
+end
+--// -----------------------------------------------------------------------------
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+
+--// -----------------------------------------------------------------------------
+--// Game lost until time out 
+--// -----------------------------------------------------------------------------
+	
+	Game.DefaultPlayerLostCheck(1)
+
+	--// beenden des Spiels bei überschreitung der zeit //--
+		
+	if Game.Time() >=  gTimeOut and Game.HasPlayerLost(1) == 0 then  
+		Game.EnemyPlayersLost(1)
+	end
+
+	if 
+	(
+	Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,115,115,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,115,115,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,115,115,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,115,218,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,115,218,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,115,218,74,Buildings.READY) == 0
+	) 
+
+	or	
+	(
+	Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,415,110,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,415,110,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,415,110,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,524,252,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,524,252,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,524,252,74,Buildings.READY) == 0
+	)
+
+	or	
+	(
+	Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,100,402,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,100,402,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,100,402,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,216,540,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,216,540,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,216,540,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,130,539,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,130,539,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,130,539,74,Buildings.READY) == 0
+	)
+
+	or	
+	(
+	Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,560,110,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,560,110,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,560,110,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,560,463,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,560,463,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,560,463,74,Buildings.READY) == 0
+
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,500,568,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,500,568,74,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,500,568,74,Buildings.READY) == 0
+	) then
+		Game.PlayerLost(1)
+	end
+
+	
+	Game.DefaultGameEndCheck()
+	
+	
+   	Game.DefaultGameEndCheck("MD_DARK_SCRIPT_THREE_04","MD_DARK_SCRIPT_THREE_05")
+	
+	
+end
+
+--//--------------------------------------------------------------------------
+
+function new_game()
+
+	request_event(TurnOnTheClock,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(GenerateEnemies, Events.FIVE_TICKS)
+  	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+  	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+  	
+end
+
+
+function register_functions()
+
+  reg_func(GenerateEnemies)
+  reg_func(VictoryConditionCheck)
+  reg_func(TurnOnTheClock)
+  reg_func(InitVar)
+   
+end

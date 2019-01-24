@@ -1,0 +1,179 @@
+squadLeaders=4					--number of squadleaders that have to be fetched by ferry
+l3Soldiers=25						--number of L3 Soldiers that have to be fetched by ferry
+ferry_X={82,111,143}
+ferry_Y={450,466,489}
+
+numOfGoods=30					--amount of goods that the player has to produce of each type
+
+function initVar()
+	Vars.Save1=0				--flag, turns 1 when thiefs reach startposition
+	Vars.Save2=0				--flag, turns 1 when ferry drops items
+	Vars.Save3=0				--flag, turns 1 when player reaches ferrys
+end
+
+function victoryConditionCheck()
+	mu,l1,l2,l3,sl,fc=Vehicles.GetFerryCargoInArea(1,520,270,50)
+	Game.DefaultPlayerLostCheck(1)
+	if (Settlers.Amount(1,Settlers.THIEF)==0 and Vars.Save1==0) or
+		 Game.HasPlayerLost(1)==1 then
+
+				if Game.HasPlayerLost(1)==0 then
+					Game.ShowText("MD2_ROMAN_SCRIPT_FOUR_01")
+				end
+				Game.PlayerLost(1)
+				Game.PlayerLost(3)
+				Game.DefaultGameEndCheck()
+	else
+		if Goods.Amount(1,Goods.WATER)>=numOfGoods and Goods.Amount(1,Goods.BREAD)>=numOfGoods
+			 and Goods.Amount(1,Goods.FISH)>=numOfGoods and Goods.Amount(1,Goods.MEAT)>=numOfGoods
+			 and Vars.Save3==1 and Vehicles.AmountInArea(1,Vehicles.FERRY,520,270,50)>=3
+			 and Game.FindAnyUnit(1,-1,159,76,30)==0 then
+
+			 		Game.EnemyPlayersLost(1)
+		 			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function thiefCheck()
+	if Vars.Save1==1 then
+		request_event(killThieves,Events.FIVE_TICKS)
+		unrequest_event(thiefCheck,Events.TICK)
+	else
+		if Settlers.AmountInArea(1,Settlers.THIEF,480,262,20)>=1 and Vars.Save1==0 then
+			Vars.Save1=1
+		end
+	end
+end
+
+function ship()
+	Vehicles.AddVehicle(564,234,3,Vehicles.FERRY,0,0,1)
+	AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,509,263)
+	request_event(destroyShip,Events.TICK)
+end
+
+function killThieves()
+	if Settlers.AmountInArea(1,Settlers.THIEF,142,506,50)>0 or Settlers.AmountInArea(1,Settlers.THIEF,199,515,50)>0 then
+		_set=0
+		while _set<16 do
+			_y=489+Game.Random(51)
+			_x=(_y-489)/2+152+Game.Random(51)
+			Settlers.AddSettlers(_x,_y,2,Settlers.BOWMAN_01,1)
+			_set=_set+1
+		end
+		AI.NewSquad(2,AI.CMD_MOVE_HOME)
+		Settlers.KillSelectableSettlers(1,Settlers.THIEF,142,506,50,0)
+		Settlers.KillSelectableSettlers(1,Settlers.THIEF,199,515,50,0)
+	else
+		Game.ShowText("MD2_ROMAN_SCRIPT_FOUR_02",480,262)
+		ship()
+		Vars.Save1=2
+		unrequest_event(killThieves,Events.FIVE_TICKS)
+	end
+end
+
+function destroyShip()
+	if Vehicles.AmountInArea(3,Vehicles.FERRY,509,263,1)>=1 then
+		Effects.AddEffect(Effects.IMPACT_SHIP,Sounds.NO_SOUND,509,263,0)
+		Vehicles.KillVehicles(3,Vehicles.FERRY,509,263,1,1)
+		Effects.AddEffect(Effects.IMPACT_WATER,Sounds.NO_SOUND,509,263,0)
+		dropItems()
+		Vars.Save2=1
+		unrequest_event(destroyShip,Events.TICK)
+	end
+end
+
+function dropItems()
+	Settlers.AddSettlers(499,268,1,Settlers.CARRIER,10)
+	Settlers.AddSettlers(499,268,1,Settlers.BUILDER,6)
+	Settlers.AddSettlers(499,268,1,Settlers.DIGGER,7)
+	Settlers.AddSettlers(499,268,1,Settlers.HUNTER,1)
+	Settlers.AddSettlers(499,268,1,Settlers.GEOLOGIST,3)
+	Settlers.AddSettlers(499,268,1,Settlers.STONECUTTER,3)
+	Settlers.AddSettlers(499,268,1,Settlers.SWORDSMAN_01,4)
+	Goods.AddPileEx(499,268,Goods.AXE,3)
+	Goods.AddPileEx(499,268,Goods.SAW,1)
+	Goods.AddPileEx(499,268,Goods.PICKAXE,3)
+end
+
+function ferryCheck()
+	settlerType=29
+	while settlerType<51 do							--cycles through all selectable units
+		if settlerType==38 then						--skip non-roman units
+			settlerType=44
+		end
+		if (Settlers.AmountInArea(1,settlerType,ferry_X[1],ferry_Y[1],30)>=1 or
+			  Settlers.AmountInArea(1,settlerType,ferry_X[2],ferry_Y[2],30)>=1 or
+			  Settlers.AmountInArea(1,settlerType,ferry_X[3],ferry_Y[3],30)>=1) and
+			  Vars.Save3==0 and Vars.Save1==2 then
+
+					Game.ShowText("MD2_ROMAN_SCRIPT_FOUR_03",ferry_X[2],ferry_Y[2])
+					Vars.Save3=1
+					giveShips()
+					unrequest_event(ferryCheck,Events.FIVE_TICKS)
+		end
+		settlerType=settlerType+1
+	end
+end
+
+function giveShips()
+	Vehicles.KillVehicles(3,Vehicles.FERRY,ferry_X[1],ferry_Y[1],1,0)
+	Vehicles.AddVehicle(ferry_X[1],ferry_Y[1],1,Vehicles.FERRY,5,0,0)
+	Vehicles.KillVehicles(3,Vehicles.FERRY,ferry_X[2],ferry_Y[2],1,0)
+	Vehicles.AddVehicle(ferry_X[2],ferry_Y[2],1,Vehicles.FERRY,4,0,0)
+	Vehicles.KillVehicles(3,Vehicles.FERRY,ferry_X[3],ferry_Y[3],1,0)
+	Vehicles.AddVehicle(ferry_X[3],ferry_Y[3],1,Vehicles.FERRY,0,0,0)
+end
+
+function disableStats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function new_game()
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(disableStats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(thiefCheck,Events.TICK)
+	request_event(ferryCheck,Events.FIVE_TICKS)
+
+	Vehicles.AddVehicle(ferry_X[1],ferry_Y[1],3,Vehicles.FERRY,5,0,0)
+	Vehicles.AddVehicle(ferry_X[2],ferry_Y[2],3,Vehicles.FERRY,4,0,0)
+	Vehicles.AddVehicle(ferry_X[3],ferry_Y[3],3,Vehicles.FERRY,0,0,0)
+
+	AI.SetPlayerVar(2,"AttackMode",0,1)
+end
+
+function register_functions()
+	reg_func(victoryConditionCheck)
+	reg_func(initVar)
+	reg_func(disableStats)
+	reg_func(thiefCheck)
+	reg_func(ferryCheck)
+	reg_func(destroyShip)
+	reg_func(killThieves)
+end
+
+--for testing only, remove when map done
+
+function getGoods()
+	Goods.AddPileEx(455,255,Goods.WATER,8)
+	Goods.AddPileEx(455,255,Goods.WATER,8)
+	Goods.AddPileEx(455,255,Goods.WATER,8)
+	Goods.AddPileEx(455,255,Goods.WATER,8)
+	Goods.AddPileEx(455,255,Goods.BREAD,8)
+	Goods.AddPileEx(455,255,Goods.BREAD,8)
+	Goods.AddPileEx(455,255,Goods.BREAD,8)
+	Goods.AddPileEx(455,255,Goods.BREAD,8)
+	Goods.AddPileEx(455,255,Goods.FISH,8)
+	Goods.AddPileEx(455,255,Goods.FISH,8)
+	Goods.AddPileEx(455,255,Goods.FISH,8)
+	Goods.AddPileEx(455,255,Goods.FISH,8)
+	Goods.AddPileEx(455,255,Goods.MEAT,8)
+	Goods.AddPileEx(455,255,Goods.MEAT,8)
+	Goods.AddPileEx(455,255,Goods.MEAT,8)
+	Goods.AddPileEx(455,255,Goods.MEAT,8)
+end
+
+function getSoldiers()
+	Settlers.AddSettlers(252,527,1,Settlers.SWORDSMAN_01,1)
+end

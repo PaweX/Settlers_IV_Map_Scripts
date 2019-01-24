@@ -1,0 +1,446 @@
+_destroyed=0
+_n=1
+_m=1
+
+sector={}
+sectorAmount=1
+
+temples={
+	{x=259,y=169,owner=2},
+	{x=549,y=395,owner=2},
+	{x=410,y=193,owner=3},
+	{x=478,y=242,owner=3},
+	{x=391,y=512,owner=4},
+	{x=263,y=518,owner=5},
+	{x=194,y=379,owner=5},
+	{x=147,y=260,owner=5}
+}
+
+circles={
+	circle1={
+		center={
+			x=331,
+			y=325
+		},
+		radius=32,
+		effect=Effects.DARKFLAME,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=25,
+		split=4,
+		coordinates={
+			x={},
+			y={}
+		},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
+}
+
+function initVar()
+	Vars.Save1=0			--for temples
+	Vars.Save2=0			--for text when finding the barrier
+end
+
+function victoryConditionCheck()
+	--//Game.DefaultPlayerLostCheck(1)
+	Game.DefaultPlayersLostCheck()
+	if Game.HasPlayerLost(1)==1 then
+		Game.DefaultGameEndCheck()
+	else
+		if Game.FindAnyUnit(1,331,325,8)==1 then
+			Map.SetScreenPos(331,325)
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck("MD2_VIKING_SCRIPT_FIVE_04","MD2_VIKING_SCRIPT_FIVE_05")
+		end
+	end
+end
+
+function checkTemples()
+	if Vars.Save1>5 then
+		Game.ShowText("MD2_VIKING_SCRIPT_FIVE_02",331,325)
+		unrequest_event(checkTemples,Events.TICK)
+	else
+		_checked=1
+		while _checked<3 do
+			if _n<=8 then
+				if Buildings.ExistsBuildingInArea(temples[_n]["owner"],Buildings.BIGTEMPLE,temples[_n]["x"],temples[_n]["y"],5)==0 then
+					_destroyed=_destroyed+1
+				end
+				_n=_n+1
+				_checked=_checked+1
+			else
+				if _destroyed+1>=Vars.Save1 then
+					Vars.Save1=_destroyed+1
+				end
+				_n=1
+				_destroyed=0
+			end
+		end
+	end
+end
+
+function templeCheck()
+	if Vars.Save1==1 then
+		request_event(checkTemples,Events.TICK)
+		unrequest_event(templeCheck,Events.TICK)
+	else
+		_checked=1
+		while _checked<3 do
+			if _n<=8 then
+				if Game.FindAnyUnit(1,temples[_n]["x"],temples[_n]["y"],20)==1 then
+					Game.ShowText("MD2_VIKING_SCRIPT_FIVE_01",temples[_n]["x"],temples[_n]["y"])
+					Vars.Save1=1
+				end
+				_n=_n+1
+				_checked=_checked+1
+			else
+				_n=1
+			end
+		end
+	end
+end
+
+function deathZone()
+	if Vars.Save1>5 then
+		unrequest_event(deathZone,Events.FIVE_TICKS)
+	else
+		if Vars.Save2==0 then
+			if Game.FindAnyUnit(1,372,354,15)==1 then
+				Game.ShowText("MD2_VIKING_SCRIPT_FIVE_03",372,354)
+				Vars.Save2=1
+			end
+		end
+		Settlers.KillSelectableSettlers(1,-1,circles.circle1.center.x,circles.circle1.center.y,(circles.circle1.radius-2),1)
+		Vehicles.KillVehicles(1,Vehicles.WARMACHINE,circles.circle1.center.x,circles.circle1.center.y,(circles.circle1.radius-2))
+		Vehicles.KillVehicles(1,Vehicles.CART,circles.circle1.center.x,circles.circle1.center.y,(circles.circle1.radius-2))
+	end
+end
+
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
+end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.circle1)
+end
+
+function drawCircles()
+	if Vars.Save1>5 then
+		unrequest_event(drawCircles,Events.TICK)
+	else
+		if Vars.Save1==2 then
+			circles.circle1.effectsPerTick=20
+		else
+			if Vars.Save1==3 then
+				circles.circle1.effectsPerTick=15
+			else
+				if Vars.Save1==4 then
+					circles.circle1.effectsPerTick=10
+				else
+					if Vars.Save1==5 then
+						circles.circle1.effectsPerTick=5
+					end
+				end
+			end
+		end
+		circles.draw(circles.circle1)
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(drawCircles,Events.TICK)
+	request_event(templeCheck,Events.TICK)
+	request_event(deathZone,Events.FIVE_TICKS)
+
+	Map.AddDecoObject(331,325,228)
+	if Game.GetDifficulty()==0 then
+		Settlers.AddSettlers(582,406,2,Settlers.SWORDSMAN_01,15)
+		Settlers.AddSettlers(582,406,2,Settlers.BOWMAN_01,15)
+		AI.NewSquad(2,AI.CMD_MOVE_HOME)
+		Settlers.AddSettlers(343,507,4,Settlers.SWORDSMAN_01,15)
+		Settlers.AddSettlers(343,507,4,Settlers.BOWMAN_01,15)
+		AI.NewSquad(4,AI.CMD_MOVE_HOME)
+	else
+		Settlers.AddSettlers(582,406,2,Settlers.SWORDSMAN_02,35)
+		Settlers.AddSettlers(582,406,2,Settlers.BOWMAN_02,35)
+		AI.NewSquad(2,AI.CMD_MOVE_HOME)
+		Settlers.AddSettlers(343,507,4,Settlers.SWORDSMAN_02,35)
+		Settlers.AddSettlers(343,507,4,Settlers.BOWMAN_02,35)
+		AI.NewSquad(4,AI.CMD_MOVE_HOME)
+	end
+
+	AI.SetPlayerVar(2, "AttackMode", 0, 1, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 90, 30, 10)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 50,100,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 50,100,0)
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 100, 60, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 50,100,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 60,190,0)
+
+	AI.SetPlayerVar(4, "AttackMode", 0, 2, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 100, 40, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 50,100,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 50,110,0)
+
+	AI.SetPlayerVar(5, "AttackMode", 1, 2, 2)
+	AI.SetPlayerVar(5, "AttackDelay", 120, 90, 30)
+	AI.SetPlayerVar(5, "SoldierLimitAbsolute", 50,100,0)
+	AI.SetPlayerVar(5, "SoldierLimitRelative", 75,240,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(calculateCircles)
+	reg_func(drawCircles)
+	reg_func(templeCheck)
+	reg_func(checkTemples)
+	reg_func(deathZone)
+end
+
+--for testing only
+
+function getSoldiers()
+	Settlers.AddSettlers(535,492,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(535,492,1,Settlers.BOWMAN_03,200)
+end

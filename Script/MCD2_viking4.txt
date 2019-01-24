@@ -1,0 +1,388 @@
+timeLimit=60
+
+if Game.GetDifficulty()==1 then
+	firstAttack=30
+	pirateFerryMinDelay=8
+	pirateFerryMaxDelay=12
+	minSquadSize=10
+	maxSquadSize=15
+	randomDelay=pirateFerryMaxDelay-pirateFerryMinDelay+1
+	randomSquadSize=maxSquadSize-minSquadSize+1
+end
+
+
+ferryPositions={
+	{	ferry1={
+			x=250,
+			y=124,
+			wait=0,
+			deliver={
+				x=240,
+				y=124
+			}
+		},
+	  ferry2={
+	 		x=262,
+	 		y=181,
+	 		wait=0,
+			deliver={
+				x=252,
+				y=166
+			}
+	 	}
+	},
+	{	ferry1={
+			x=550,
+			y=271,
+			wait=0,
+			deliver={
+				x=542,
+				y=254
+			}
+		},
+		ferry2={
+			x=650,
+			y=243,
+			wait=0,
+			deliver={
+				x=640,
+				y=232
+			}
+		}
+	},
+	{	ferry1={
+			x=321,
+			y=564,
+			wait=0,
+			deliver={
+				x=324,
+				y=578
+			}
+		},
+		ferry2={
+			x=342,
+			y=576,
+			wait=0,
+			deliver={
+				x=343,
+				y=591
+			}
+		}
+	},
+	{	ferry1={
+			x=569,
+			y=273,
+			wait=0,
+			deliver={
+				x=561,
+				y=260
+			}
+		},
+		ferry2={
+			x=473,
+			y=682,
+			wait=0,
+			deliver={
+				x=461,
+				y=676
+			}
+		}
+	}
+}
+
+storageAreas={
+	meat={x=602,y=102},
+	fish={x=142,y=140},
+	bread={x=358,y=635},
+	radius=15
+}
+
+barriers={
+	barrier1={
+		{x=538,y=537,type=107},
+		{x=540,y=530,type=107},
+		{x=546,y=527,type=109},
+		{x=532,y=517,type=108},
+		{x=527,y=526,type=109},
+	}
+}
+
+function initVar()
+	Vars.Save1=0						--for meat
+	Vars.Save2=0						--for fish
+	Vars.Save3=0						--for bread
+	Vars.Save4=0						--for ferry
+	Vars.Save5=firstAttack	--time for next pirate attack
+	Vars.Save6=0						--for ferryAttack
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 or (Game.Time()>=timeLimit) then
+		Game.EnemyPlayersLost(3)
+		Game.DefaultGameEndCheck()
+	else
+		if Vars.Save1==1 and Vars.Save2==1 and Vars.Save3==1 then
+			Game.EnemyPlayersLost(1)
+			Map.SetScreenPos(571,756)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function checkMeat()
+	if Goods.GetAmountInArea(1,Goods.MEAT,(storageAreas.meat.x+2),(storageAreas.meat.y+5),storageAreas.radius)>=64 then
+			Vars.Save1=1
+	end
+	
+	if Goods.GetAmountInArea(1,Goods.BREAD,(storageAreas.meat.x+2),(storageAreas.meat.y+5),storageAreas.radius)>=64 then
+			Vars.Save3=1
+	end
+end
+
+function checkFish()
+	if Goods.GetAmountInArea(1,Goods.FISH,(storageAreas.fish.x+2),(storageAreas.fish.y+5),storageAreas.radius)>=64 then
+		Vars.Save2=1
+	else
+		Vars.Save2=0
+	end
+end
+
+function checkBread()
+	if Goods.GetAmountInArea(1,Goods.MEAT,(storageAreas.bread.x+2),(storageAreas.bread.y+5),storageAreas.radius)>=64 then
+			Vars.Save1=1
+	end
+	if Goods.GetAmountInArea(1,Goods.BREAD,(storageAreas.bread.x+2),(storageAreas.bread.y+5),storageAreas.radius)>=64 then
+			Vars.Save3=1
+	end
+end
+
+function sendFerry()
+	if Vars.Save4==2 then
+		unrequest_event(sendFerry,Events.FIVE_TICKS)
+	else
+		if  Vars.Save1==1 and Vars.Save2==1 and Vars.Save3==1 and Vars.Save4==0 then
+			barriers.remove(barriers.barrier1)
+			Vehicles.AddVehicle(571,756,2,Vehicles.FERRY,1,0,1)
+			AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,479,475)
+			Vars.Save4=1
+		else
+			if Vars.Save4==1 then
+				if Vehicles.AmountInArea(2,Vehicles.FERRY,479,475,0)==1 then
+					Vars.Save4=2
+				end
+			end
+		end
+	end
+end
+
+function counter()
+	Game.ShowClock(timeLimit*60)
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+function placeStorageAreas()
+	Buildings.AddBuilding(137,132,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(147,138,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(144,145,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(595,95,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(601,93,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(607,105,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(362,631,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(352,625,1,Buildings.STORAGEAREA)
+	Buildings.AddBuilding(357,637,1,Buildings.STORAGEAREA)
+end
+
+function barriers.set(_barrier)
+	_set=1
+	while _set<=getn(_barrier) do
+		Map.AddReef(_barrier[_set]["x"],_barrier[_set]["y"],_barrier[_set]["type"])
+		_set=_set+1
+	end
+end
+
+function barriers.remove(_barrier)
+	_rem=1
+	while _rem<=getn(_barrier) do
+		Map.DeleteReef(_barrier[_rem]["x"],_barrier[_rem]["y"])
+		_rem=_rem+1
+	end
+end
+
+function ferryAttack()
+	if Game.Time()>=Vars.Save5 then
+		_position=Game.Random(4)+1
+		ferry1=ferryPositions[_position]["ferry1"]
+		Vehicles.AddVehicle(756,472,3,Vehicles.FERRY,2,0,1)
+		AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry1.x,ferry1.y)
+		ferry1.wait=0
+		if Game.GetDifficulty()==1 then
+			ferry2=ferryPositions[_position]["ferry2"]
+			Vehicles.AddVehicle(459,11,3,Vehicles.FERRY,2,0,1)
+			AI.NewSquad(3,AI.CMD_MOVE_AND_STAY,ferry2.x,ferry2.y)
+			ferry2.wait=0
+		end
+		Vars.Save6=1
+		Vars.Save5=Vars.Save5+pirateFerryMinDelay+Game.Random(randomDelay)
+	else
+		if Vars.Save6==1 then
+			if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry1.x,ferry1.y,0)==1 then
+				if ferry1.wait==0 then
+					deliverSquad(Game.GetDifficulty(),ferry1.deliver.x,ferry1.deliver.y)
+					ferry1.wait=1
+				else
+					ferry1.wait=ferry1.wait+1
+				end
+			end
+			if Game.GetDifficulty()==1 then
+				if Vehicles.AmountInArea(3,Vehicles.FERRY,ferry2.x,ferry2.y,0)==1 then
+					if ferry2.wait==0 then
+						deliverSquad(Game.GetDifficulty(),ferry2.deliver.x,ferry2.deliver.y)
+						ferry2.wait=1
+					else
+						ferry2.wait=ferry2.wait+1
+					end
+				end
+				if ferry1.wait>=3 and ferry2.wait>=3 then
+					Vars.Save6=2
+				end
+			else
+				if ferry1.wait>=3 then
+					Vars.Save6=2
+				end
+			end
+		else
+			if Vars.Save6==2 then
+				Vehicles.KillVehicles(3,Vehicles.FERRY,ferry1.x,ferry1.y,0,0)
+				Vehicles.AddVehicle(ferry1.x,ferry1.y,3,Vehicles.FERRY,ferry1.direction,0,1)
+				AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,371,11)
+				if Game.GetDifficulty()==1 then
+					Vehicles.KillVehicles(3,Vehicles.FERRY,ferry2.x,ferry2.y,0,0)
+					Vehicles.AddVehicle(ferry2.x,ferry2.y,3,Vehicles.FERRY,ferry2.direction,0,1)
+					AI.NewSquad(3,AI.CMD_MOVE_AND_VANISH,11,122)
+				end
+				Vars.Save6=0
+			end
+		end
+	end
+end
+
+function deliverSquad(_difficulty,_x,_y)
+	if _difficulty==0 then
+		_amount=minSquadSize+Game.Random(randomSquadSize)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_01,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.BLOWGUNWARRIOR_01,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_01,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	else
+		_amount=15+Game.Random(6)
+		_delivered=0
+		while _delivered<_amount do
+			rand=Game.Random(100)
+			if rand<40 then
+				Settlers.AddSettlers(_x,_y,3,Settlers.SWORDSMAN_02,1)
+			else
+				if rand>=90 then
+					Settlers.AddSettlers(_x,_y,3,Settlers.BLOWGUNWARRIOR_02,1)
+				else
+					Settlers.AddSettlers(_x,_y,3,Settlers.BOWMAN_02,1)
+				end
+			end
+			_delivered=_delivered+1
+		end
+	end
+	AI.NewSquad(3,AI.CMD_SUICIDE_MISSION)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(counter,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(placeStorageAreas,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(checkMeat,Events.FIVE_TICKS)
+	request_event(checkFish,Events.FIVE_TICKS)
+	request_event(checkBread,Events.FIVE_TICKS)
+	request_event(sendFerry,Events.FIVE_TICKS)
+	--//request_event(ferryAttack,Events.FIVE_TICKS)
+	if Game.GetDifficulty()==0 then
+		Goods.AddPileEx(570,119,Goods.SCYTHE,1)
+		Goods.AddPileEx(357,698,Goods.SCYTHE,1)
+		Goods.AddPileEx(133,86,Goods.ROD,1)
+		
+		Goods.AddPileEx(358,678,Goods.SHOVEL,3)
+		Goods.AddPileEx(579,133,Goods.SHOVEL,3)
+		Goods.AddPileEx(136,73,Goods.SHOVEL,3)
+		
+		Goods.AddPileEx(366,693,Goods.HAMMER,3)
+		Goods.AddPileEx(579,133,Goods.HAMMER,3)
+		Goods.AddPileEx(140,74,Goods.HAMMER,3)
+		
+		Goods.AddPileEx(358,678,Goods.BOARD,8)
+		Goods.AddPileEx(358,678,Goods.BOARD,2)
+		
+		Goods.AddPileEx(579,133,Goods.BOARD,8)
+		Goods.AddPileEx(579,133,Goods.BOARD,2)
+		
+		Goods.AddPileEx(136,73,Goods.BOARD,8)
+		Goods.AddPileEx(136,73,Goods.BOARD,2)
+		
+		Goods.AddPileEx(358,678,Goods.STONE,6)
+		Goods.AddPileEx(579,133,Goods.STONE,6)
+		Goods.AddPileEx(136,73,Goods.STONE,6)
+		
+		Settlers.AddSettlers(358,678,1,Settlers.GEOLOGIST,1)
+		Settlers.AddSettlers(579,133,1,Settlers.GEOLOGIST,1)
+		Settlers.AddSettlers(136,73,1,Settlers.GEOLOGIST,1)
+			
+ 	end
+
+	barriers.set(barriers.barrier1)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(counter)
+	reg_func(placeStorageAreas)
+	reg_func(checkMeat)
+	reg_func(checkFish)
+	reg_func(checkBread)
+	reg_func(sendFerry)
+	--//reg_func(ferryAttack)
+	reg_func(stats)
+end
+
+--for testing only
+function getGoods()
+	_xyz=0
+	while _xyz<8 do
+		Goods.AddPileEx(556,97,Goods.MEAT,8)
+		Goods.AddPileEx(556,97,Goods.BREAD,8)
+		_xyz=_xyz+1
+	end
+	_xyz=0
+	while _xyz<8 do
+		Goods.AddPileEx(134,71,Goods.FISH,8)
+		_xyz=_xyz+1
+	end
+	_xyz=0
+	while _xyz<8 do
+		Goods.AddPileEx(327,677,Goods.BREAD,8)
+		Goods.AddPileEx(327,677,Goods.MEAT,8)
+		_xyz=_xyz+1
+	end
+end

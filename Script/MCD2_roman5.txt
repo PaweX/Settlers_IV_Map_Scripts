@@ -1,0 +1,621 @@
+circles={
+	wonder1={
+		center={x=179,y=241},
+		radius=22,
+		effect=Effects.DARKFLAME,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=6,
+		split=3,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	wonder2={
+		center={x=525,y=232},
+		radius=22,
+		effect=Effects.DARKFLAME,
+		sound=Sounds.NO_SOUND,
+		density=3,
+		delay=0,
+		effectsPerTick=6,
+		split=3,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	well={
+		center={x=460,y=521},
+		radius=16,
+		effect=Effects.MAGIC_PILE02,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=15,
+		split=4,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
+}
+
+sector={}
+sectorAmount=1
+
+_heal=0
+minIntervall=10												--minimum ammount of time (in 5 Ticks) before healing is repeated
+randIntervall=9												--additional random time(in 5 Ticks) to be added before healing
+towers1_X={165,182,177,194}
+towers1_Y={230,230,254,254}
+towers2_X={510,527,539,522}
+towers2_Y={218,218,242,242}
+_kill1=0
+_kill2=0
+killDelay=6
+randKillDelay=9
+
+function initVar()
+	Vars.Save1=0			--flag, turns 1 when wonder1 is freed
+	Vars.Save2=0			--flag, turns 2 when wonder2 is freed
+	Vars.Save3=2			--flag for owner of healing well (0=nobody, 1=Player, 2=AI)
+	Vars.Save4=1			--flag, turns 1 when well is active (despite of whom owns it)
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayersLostCheck()
+	if Game.HasPlayerLost(1)==0 and Vars.Save1==30 and Vars.Save2==30 and
+		 Buildings.ExistsBuildingInArea(2,Buildings.CASTLE,333,286,10,Buildings.READY)==0 then
+
+				Game.EnemyPlayersLost(1)
+				Game.DefaultGameEndCheck()
+	end
+	if Game.HasPlayerLost(1)==1 then
+		Game.DefaultGameEndCheck()
+	end
+end
+
+function wonder1_Check()
+	if Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,towers1_X[1],towers1_Y[1],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,towers1_X[2],towers1_Y[2],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,towers1_X[3],towers1_Y[3],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,towers1_X[4],towers1_Y[4],5,Buildings.READY)==0
+		 then
+
+		 		Vars.Save1=1
+				Effects.AddEffect(Effects.VMAGIC_FRIGHTENSOLDIERS,Sounds.NO_SOUND,164,210,0)
+				request_event(delColossos,Events.TICK)
+		 		unrequest_event(wonder1_Check,Events.FIVE_TICKS)
+	else
+		if _kill1>=killDelay+Game.Random(randKillDelay) then
+			Settlers.KillSelectableSettlers(1,-1,circles.wonder1.center.x,circles.wonder1.center.y,circles.wonder1.radius,1)
+			Vehicles.KillVehicles(1,Vehicles.WARMACHINE,circles.wonder1.center.x,circles.wonder1.center.y,circles.wonder1.radius,1)
+			_kill1=0
+		else
+			_kill1=_kill1+1
+		end
+	end
+end
+
+function delColossos()
+	if Vars.Save1==30 then
+		unrequest_event(delColossos,Events.TICK)
+	else
+		if Vars.Save1==29 then
+			Map.DeleteDecoObject(177,239,5,225)
+			Vars.Save1=30
+		else
+			Vars.Save1=Vars.Save1+1
+			_y=219+Game.Random(26)
+			_x=(_y-219)/2+162+Game.Random(10)
+			Effects.AddEffect(Effects.MUSHROOMFARM_CRASH,Sounds.NO_SOUND,_x,_y,0)
+		end
+	end
+end
+
+function setStones()
+	stones=0
+	while stones<36 do
+		_y=226+Game.Random(14)
+		_x=(_y-226)/2+517+Game.Random(11)
+		Goods.AddPileEx(_x,_y,Goods.STONE,1)
+		stones=stones+1
+	end
+end
+
+function wonder2_Check()
+	if Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,towers2_X[1],towers2_Y[1],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,towers2_X[2],towers2_Y[2],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,towers2_X[3],towers2_Y[3],5,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,towers2_X[4],towers2_Y[4],5,Buildings.READY)==0
+		 then
+
+		 		Vars.Save2=1
+				Effects.AddEffect(Effects.VMAGIC_INCREASEANIMALS,Sounds.NO_SOUND,512,205,0)
+		 		request_event(delTower,Events.TICK)
+		 		unrequest_event(wonder2_Check,Events.FIVE_TICKS)
+	else
+		if _kill2>=killDelay+Game.Random(randKillDelay) then
+			Settlers.KillSelectableSettlers(1,-1,circles.wonder2.center.x,circles.wonder2.center.y,circles.wonder2.radius,1)
+			Vehicles.KillVehicles(1,Vehicles.WARMACHINE,circles.wonder2.center.x,circles.wonder2.center.y,circles.wonder2.radius,1)
+			_kill2=0
+		else
+			_kill2=_kill2+1
+		end
+	end
+end
+
+function delTower()
+	if Vars.Save2==30 then
+		unrequest_event(delTower,Events.TICK)
+	else
+		if Vars.Save2==29 then
+			Game.ShowText("MD2_ROMAN_SCRIPT_FIVE_01",524,230)
+			Map.DeleteDecoObject(524,230,5,224)
+			setStones()
+	 		attackPlayer()
+			Vars.Save2=30
+		else
+			Vars.Save2=Vars.Save2+1
+			_y=216+Game.Random(25)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.DESTROYBIG,Sounds.NO_SOUND,_x,_y,0)
+			_y=216+Game.Random(26)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.GRAYSMOKE02,Sounds.NO_SOUND,_x,_y,0)
+			_y=216+Game.Random(26)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.IMPACT_GROUND,Sounds.NO_SOUND,_x,_y,0)
+			_y=216+Game.Random(26)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.DESTROYBIG,Sounds.NO_SOUND,_x,_y,0)
+			_y=216+Game.Random(26)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.GRAYSMOKE01,Sounds.NO_SOUND,_x,_y,0)
+			_y=216+Game.Random(26)
+			_x=(_y-216)/2+511+Game.Random(10)
+			Effects.AddEffect(Effects.GRAYSMOKE03,Sounds.NO_SOUND,_x,_y,0)
+			Map.DeleteDecoObject(524,230,5,224)
+			_y=229+Game.Random(2)
+			_x=(_y-229)/2+523+Game.Random(2)
+			Map.AddDecoObject(_x,_y,224)
+		end
+	end
+end
+
+function templeCheck()
+	if Buildings.ExistsBuildingInArea(2,Buildings.SMALLTEMPLE,473,498,10,Buildings.READY)==0
+		 and Buildings.ExistsBuildingInArea(1,Buildings.SMALLTEMPLE,473,498,10,Buildings.READY)==0
+		 and Vars.Save3~=0 then
+
+		 		Vars.Save3=0
+	end
+	if Buildings.ExistsBuildingInArea(2,Buildings.SMALLTEMPLE,473,498,10,Buildings.READY)==1
+		 and Vars.Save3~=2 then
+
+		 		Vars.Save3=2
+		 		if Vars.Save4==0 then
+		 			request_event(heal,Events.FIVE_TICKS)
+		 			request_event(drawCircle3,Events.TICK)
+		 			_heal=0
+		 			Vars.Save4=1
+		 		end
+	end
+	if Buildings.ExistsBuildingInArea(1,Buildings.SMALLTEMPLE,473,498,10,Buildings.READY)==1
+		 and Vars.Save3~=1 then
+
+		 		Vars.Save3=1
+		 		if Vars.Save4==0 then
+		 			request_event(heal,Events.FIVE_TICKS)
+		 			request_event(drawCircle3,Events.TICK)
+		 			_heal=0
+		 			Vars.Save4=1
+					Game.ShowText("MD2_ROMAN_SCRIPT_FIVE_02",473,498)
+		 		end
+	end
+end
+
+function heal()
+	if Vars.Save3==0 then
+		unrequest_event(heal,Events.FIVE_TICKS)
+		Vars.Save4=0
+	end
+	if _heal>=minIntervall+Game.Random(randIntervall) and Vars.Save3~=0 then
+		_unit=29
+		if Vars.Save3==2 then
+			while _unit<=50 do
+				Settlers.SetHealthInArea(Vars.Save3,_unit,circles.well.center.x,circles.well.center.y,(circles.well.radius+8),300)
+				if _unit==34 then
+					_unit=41
+				else
+					_unit=_unit+1
+				end
+			end
+		else
+			while _unit<=50 do
+				Settlers.SetHealthInArea(Vars.Save3,_unit,circles.well.center.x,circles.well.center.y,(circles.well.radius+8),300)
+				if _unit==37 then
+					_unit=44
+				else
+					_unit=_unit+1
+				end
+			end
+		end
+		_heal=0
+	else _heal=_heal+1
+	end
+end
+
+function attackPlayer()
+	_soldiers=0
+	_units=29
+	while _units<45 do
+		_soldiers=_soldiers+Settlers.Amount(1,_units)
+		if _units==37 then
+			_units=44
+		else
+			_units=_units+1
+		end
+	end
+	if Game.GetDifficulty()==0 then
+		if _soldiers>=166 then
+			_amount=100
+		else
+			_amount=(_soldiers/5)*3
+		end
+	else
+		if _soldiers>=188 then
+			_amount=150
+		else
+		_amount=(_soldiers/5)*4
+		end
+	end
+	Settlers.AddSettlers(circles.wonder2.center.x,circles.wonder2.center.y,4,Settlers.SWORDSMAN_03,(_amount/2))
+	Settlers.AddSettlers(circles.wonder2.center.x,circles.wonder2.center.y,4,Settlers.BOWMAN_03,(_amount/2))
+	Game.SetFightingStrength(4,150)
+	AI.NewSquad(4,AI.CMD_SUICIDE_MISSION)
+end
+
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
+end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.wonder1)
+	circles.calculate(circles.wonder2)
+	circles.calculate(circles.well)
+end
+
+function drawCircle1()
+	if Vars.Save1>=1 then
+		unrequest_event(drawCircle1,Events.TICK)
+	else
+		circles.draw(circles.wonder1)
+	end
+end
+
+function drawCircle2()
+	if Vars.Save2>=1 then
+		unrequest_event(drawCircle2,Events.TICK)
+	else
+		circles.draw(circles.wonder2)
+	end
+end
+
+function drawCircle3()
+	if Vars.Save3==0 then
+		unrequest_event(drawCircle3,Events.TICK)
+	else
+		if Vars.Save3==2 then
+			circles.well.effect=Effects.MAGIC_PILE02
+		else
+			circles.well.effect=Effects.MAGIC_PILE01
+		end
+		circles.draw(circles.well)
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(drawCircle1,Events.TICK)
+	request_event(drawCircle2,Events.TICK)
+	request_event(drawCircle3,Events.TICK)
+	request_event(wonder1_Check,Events.FIVE_TICKS)
+	request_event(wonder2_Check,Events.FIVE_TICKS)
+	request_event(templeCheck,Events.FIVE_TICKS)
+	request_event(heal,Events.FIVE_TICKS)
+
+	Map.AddDecoObject(177,239,225)
+	Map.AddDecoObject(524,230,224)
+
+	AI.SetPlayerVar(2, "AttackMode", 1, 1, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 90, 75, 30)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(3, "AttackMode", 1, 1, 2)
+	AI.SetPlayerVar(3, "AttackDelay", 90, 75, 30)
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 200,250,0)
+	AI.SetPlayerVar(4, "AttackMode", 1, 1, 2)
+	AI.SetPlayerVar(4, "AttackDelay", 90, 75, 30)
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)
+
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(calculateCircles)
+	reg_func(victoryConditionCheck)
+	reg_func(drawCircle1)
+	reg_func(drawCircle2)
+	reg_func(drawCircle3)
+	reg_func(wonder1_Check)
+	reg_func(wonder2_Check)
+	reg_func(delTower)
+	reg_func(delColossos)
+	reg_func(templeCheck)
+	reg_func(heal)
+end
+
+--for testing only
+function getSoldiers()
+	Settlers.AddSettlers(363,497,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(363,497,1,Settlers.BOWMAN_03,200)
+end
+
+function getWarMachine()
+	Vehicles.AddVehicle(200,282,1,Vehicles.WARMACHINE,0,100,0)
+end
+
+function getSoldiers2()
+	Settlers.AddSettlers(567,309,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(567,309,1,Settlers.BOWMAN_03,200)
+end
+
+function getWarMachine2()
+	Vehicles.AddVehicle(567,309,1,Vehicles.WARMACHINE,0,100,0)
+end
+
+function freeWonder1()
+	while Buildings.Amount(3,Buildings.GUARDTOWERBIG,Buildings.ALL)>0 do
+		Buildings.Delete(Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERBIG),2)
+	end
+end

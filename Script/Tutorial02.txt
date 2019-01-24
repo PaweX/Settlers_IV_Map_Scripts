@@ -1,0 +1,383 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL 2 FINAL 22.01.01 16:54
+--	Effectsounds einbauen, wennse da sind
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1		
+gTutorialStep =1		
+gSpaceOk= 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gCommandOk = 1
+gSetText0 = "TUT_02_001_R"
+gSetText1 = "TUT_NEXT"
+LastText0 = 0
+LastText1 = 0
+
+----------------------------------------------------------------------------------
+function DummyVictoryCheck()
+end
+----------------------------------------------------------------------------------
+
+function OnDragBuilding(type)
+    if gWantedBuilding == -1 then
+        return
+    end
+
+	if (gWantedBuilding == type) then
+        gTutorialStep = gTutorialStep+1
+        gWantedBuilding = -1
+    end
+end
+------------------------------------------------------------------------------
+
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT) then
+		OnSpace()
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		Map.SetScreenPos(118,92)
+		Tutorial.SetZoom(17)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+		gCommandOk = 0
+		Tutorial.ClearMarker()
+		
+		
+		if gTutorialStep == 3 then
+			Tutorial.SetMarker(157,364)
+			Map.SetScreenPos(139,105)
+		elseif gTutorialStep == 9 then
+			Tutorial.SetMarker(147,477)
+			Map.SetScreenPos(91,89)
+		elseif gTutorialStep == 13 then
+			Tutorial.SetMarker(97,430)
+			Map.SetScreenPos(113,104)
+		elseif gTutorialStep == 19 then
+			Map.SetScreenPos(139,153)
+		end
+	end
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+-------------------------------------------------------------------------------
+
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+
+--------------------------------------------------------------------------------
+
+function OnWarriorMove()
+	if gWarriorMoveOk == 1 then
+		gTutorialStep = gTutorialStep + 1
+		gWarriorMoveOk = 0
+	end
+end
+--------------------------------------------------------------------------------
+
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype, x,y)
+	if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.READY) == 0 then
+		if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.UNDERCONSTRUCTION) == 0 then
+			id = Buildings.GetFirstBuilding(1,buildingtype)
+			Buildings.CrushBuilding(id)
+			Tutorial.DeleteWorldCursor()
+			LastText0 = 0
+			LastText1 = 0
+			gPrevTutStep = 0
+			gTutorialStep = gTutorialStep - 2
+		end	
+	end
+end
+--------------------------------------------------------------------------------
+--
+--	main tutorial function
+--
+--------------------------------------------------------------------------------
+function tutorial_main()
+
+	gCommandOk = 1
+
+	--// Text rein schreiben //-- 
+	if (gSetText0 ~= LastText0 ) or (gSetText1 ~= LastText1 )then
+		Tutorial.ShowText(gSetText0,0)
+		Tutorial.ShowText(gSetText1,1)
+		LastText0 = gSetText0
+		LastText1 = gSetText1
+	end	
+
+	if (gPrevTutStep == gTutorialStep) then
+		return
+	end
+
+	if gTutorialStep == 1 then
+		Tutorial.RWM(1)
+		Tutorial.DisableExcept()
+		gSetText0 = "TUT_02_001_R"
+		gSetText1 = "TUT_NEXT"
+		gSpaceOk = 1
+			
+	elseif gTutorialStep == 2 then
+		gSetText0 = "TUT_02_002_R"
+		gSetText1 = "TUT_02_002_N"
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_BASIC,
+			Control.DLG_BUILDBASIC_CMD_FORESTERHUT
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)	
+		Tutorial.SetMarker(157,364)
+		Tutorial.SetWorldCursor(139,105)
+		gCommandOk = 0
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		return
+		
+	elseif gTutorialStep == 3 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.FORESTERHUT, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.FORESTERHUT, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gSetText0 = "TUT_02_003_R"
+			gSetText1 = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.FORESTERHUT, 139,105)
+		end
+		return
+		
+	elseif gTutorialStep == 4 then		
+		if Buildings.CheckBuildingInhabitants ( Game.LocalPlayer(), Buildings.FORESTERHUT ) == 1 then
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+		
+	elseif gTutorialStep == 5 then		
+		gSpaceOk = 1
+		
+		
+	elseif gTutorialStep == 6 then
+		gSetText0 = "TUT_02_004_R"
+		gSetText1 = "TUT_NEXT"
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk = 0
+		return
+		
+	elseif gTutorialStep == 7 then
+		gSpaceOk = 1
+		
+	elseif gTutorialStep == 8 then
+		gSetText0 = "TUT_02_005_R"
+		gSetText1 = "TUT_02_005_N"
+		--//Map.SetScreenPos(95,91)
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_BASIC,
+			Control.DLG_BUILDBASIC_CMD_STONEMINE
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC)
+		gCommandOk = 0
+		Tutorial.SetMarker(147,477)
+		Tutorial.SetWorldCursor(91,89)
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk = 0
+		return
+			
+	elseif gTutorialStep == 9 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.STONEMINE, 91,89)
+		end
+		return
+			
+	elseif gTutorialStep == 10 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.STONEMINE, Buildings.READY) > 0 then
+		--if Buildings.CheckBuildingInhabitants ( Game.LocalPlayer(), Buildings.STONEMINE) == 1 then
+			gSetText0 = "TUT_02_006_R"
+			gSetText1 = "TUT_NEXT"
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end
+		return
+		
+
+	elseif gTutorialStep == 11 then
+		gSpaceOk = 1
+
+	elseif gTutorialStep == 12 then
+		gSetText0 = "TUT_02_007_R"
+		gSetText1 = "TUT_02_007_N"
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_BASIC,
+			Control.DLG_BUILDBASIC_CMD_RESIDENTIALA
+		)
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_BASIC) 
+		Tutorial.SetMarker(97,430)
+		Tutorial.SetWorldCursor(113,104)
+		gCommandOk = 0
+		--//Map.SetScreenPos(113,104)
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk= 0
+		return
+
+	elseif gTutorialStep == 13 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.RESIDENCESMALL, Buildings.UNDERCONSTRUCTION) > 0 
+		or Buildings.Amount( Game.LocalPlayer(), Buildings.RESIDENCESMALL, Buildings.READY) > 0 then
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk= 0
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.RESIDENCESMALL, 113,104)
+		end
+		return
+	
+	      	
+	elseif gTutorialStep == 14 then
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.RESIDENCESMALL, Buildings.READY) > 0 then
+			gSetText0 = "TUT_02_008_R"
+			gSetText1 = "TUT_NEXT"
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk= 0
+		end
+		return
+				
+	elseif gTutorialStep == 15 then	
+		gSpaceOk= 1
+		
+	elseif gTutorialStep == 16 then
+		Settlers.AddSettlers(136,148, Game.LocalPlayer(),Settlers.SWORDSMAN_03,1)
+		Settlers.AddSettlers(141,153, Game.LocalPlayer(),Settlers.SWORDSMAN_03,1)
+		Settlers.AddSettlers(141,157, Game.LocalPlayer(),Settlers.SWORDSMAN_03,1)
+		Settlers.AddSettlers(137,153, Game.LocalPlayer(),Settlers.SWORDSMAN_03,1)
+		Settlers.AddSettlers(139,153, Game.LocalPlayer(),Settlers.PRIEST,1)
+		gSetText0 = "TUT_02_009_R"
+		gSetText1 = "TUT_02_009_N"
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk= 0
+		return
+	
+	elseif gTutorialStep == 17 then
+		if Map.PointIsOnScreen(142,159) == 1 then
+			gSetText0 = "TUT_02_010_R"
+			gSetText1 = "TUT_02_010_N"
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end
+		return
+	
+	elseif gTutorialStep == 18 then
+		if Map.PointIsOnScreen(65,136) == 1 then
+			gSetText0 = "TUT_02_011_R"
+			gSetText1 = "TUT_02_011_N"
+			Tutorial.SetWorldCursor(74,134)
+			gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+		end
+		return
+				
+	elseif gTutorialStep == 19 then
+		if (Settlers.IsSelected( Settlers.SWORDSMAN_03, 4 ) == 1) and (Settlers.IsSelected( Settlers.PRIEST, 1 ) == 1) then
+			gSetText0 = "TUT_02_012_R"
+			gSetText1 = "TUT_02_012_N"
+			--//gTutorialStep = gTutorialStep+1
+			gSpaceOk = 0
+			gWarriorMoveOk = 1
+		end
+		return
+	
+	elseif gTutorialStep == 20 then
+		gSetText0 = "TUT_02_013_R"
+		gSetText1 = "TUT_02_013_N"
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk= 0
+		return
+			
+	elseif gTutorialStep == 21 then
+		if Settlers.AmountInArea( Game.LocalPlayer(), Settlers.SWORDSMAN_03,73,133,5 ) >= 2
+	           and Settlers.AmountInArea( Game.LocalPlayer(), Settlers.PRIEST,73,133,5 ) > 0 then
+			Tutorial.DeleteWorldCursor()
+			--//Map.SetScreenPos(73,132)
+			--//Tutorial.SetZoom(20)
+			gSetText0 = "TUT_02_014_R"
+			gSetText1 = "TUT_END"
+			
+			Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 67, 127, 0)
+			Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 75, 127, 2)
+			Effects.AddEffect(Effects.MAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 72, 129, 4)
+			Goods.AddPileEx(67, 127, Goods.GOLDBAR, 4)
+			Goods.AddPileEx(75, 127, Goods.GOLDBAR, 3)
+			Goods.AddPileEx(72, 129, Goods.GOLDBAR, 5)
+			gSpaceOk= 0
+			gTutorialStep = gTutorialStep+1
+		end
+		return
+	
+	elseif gTutorialStep == 22 then
+		gSpaceOk= 1
+		Tutorial.Won()
+	
+	elseif gTutorialStep == 23 then
+		Tutorial.Exit()
+	end
+	
+	gPrevTutStep = gTutorialStep
+
+end
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING)
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )
+	request_event( OnWarriorMove,Events.WARRIOR_SENT )
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( DummyVictoryCheck )
+	reg_func( tutorial_main )
+	reg_func( OnDragBuilding )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+    	reg_func( OnWarriorMove )
+	
+end
+

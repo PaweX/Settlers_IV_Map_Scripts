@@ -1,0 +1,289 @@
+--//MD_ROMAN2
+--//------------
+
+
+
+	if Game.GetDifficulty() == 0 then
+		--//easy//--
+		ATTACKTIME = 25 + Game.Random(5)
+		WAITTIMEFORATTACK = 10
+	else
+		ATTACKTIME = 25 + Game.Random(5)
+		WAITTIMEFORATTACK = 5
+	end
+
+function InitVar()
+	
+	--//flag for ATTACKTIME
+	Vars.Save1 = 1 
+	Vars.Save4 = 1
+	Vars.Save5 = 1
+	Vars.Save6 = 1
+	--//Tinedelays
+	Vars.Save2 = 0
+	Vars.Save3 = -1
+	Vars.Save9 = 1
+	Vars.Save8 = 1
+
+
+end
+
+function MassiveAttackCheck()
+
+	if Game.Time() == ATTACKTIME and Vars.Save1 == 1  then
+		--//Settlers.AddSettlers(377,162, 2,Settlers.SWORDSMAN_01, 5)
+		--//Settlers.AddSettlers(377,162, 2, Settlers.BOWMAN_01, 5)
+		--//Settlers.AddSettlers(377,162, 2, Settlers.SHAMAN, 2)
+		AI.AttackNow(2, 1, 1)
+		
+		Vars.Save1 = 2 
+	end
+	
+	--//Wenn Einheiten ins Dorf eindringen:
+	if (Game.FindAnyUnit(2,420,386,32) == 1
+	or Game.FindAnyUnit(2,470,410,32) == 1
+	or Game.FindAnyUnit(2,520,438,20) == 1)
+	and Vars.Save4 == 1 then
+		Game.ShowText("MD_DARK_SCRIPT_TWO_01",440,369)
+		--// wir sollten unsere Sachen packen und abhauen
+		Vars.Save4 = 0
+	end
+	
+	--// Wenn Gründungskarren in Gegend angekommen sind
+	if Vehicles.AmountInArea(1,Vehicles.CART,200,204,20) == 1 
+	and Vars.Save5 == 1 then
+		Game.ShowText("MD_DARK_SCRIPT_TWO_02",200,204)
+		--// wir sollten weiter nördlich uns ein schönes fleckchen für unsere siedlung suchen und einen neugeginn starten
+		--// wir sollten alle ressourcen nach hier retten
+	
+		Settlers.AddSettlers(377, 162, 2, Settlers.SWORDSMAN_01, 50)
+		Settlers.AddSettlers(377, 162, 2, Settlers.BOWMAN_01, 50)
+		Settlers.AddSettlers(377, 162, 2, Settlers.SHAMAN, 10)
+		Vars.Save5 = 2
+		Vars.Save2 = Game.Time() + WAITTIMEFORATTACK
+		
+	end
+
+	if Game.Time() == Vars.Save2 and Vars.Save5 == 2  then
+		AI.AttackNow(2, 1, 8)
+		
+		Vars.Save5 = 3
+	end
+
+	--//wenn das dv die erste siedlung vernichtet haben
+
+	if Settlers.AmountInArea(1,Settlers.CARRIER,430,403,70) <= 8
+	and Settlers.AmountInArea(1,Settlers.WOODCUTTER,430,403,70) <= 2
+	and Settlers.AmountInArea(1,Settlers.STONECUTTER,430,403,70) <= 2
+	and Vars.Save5 == 3 then
+	--//radius noch prüfen
+		Game.ShowText("MD_DARK_SCRIPT_TWO_03",430,403)
+		--//oh nein erste siedlung so gut wie putt
+		Vars.Save5 = -1
+	end
+
+	--//wenn Spieler zum DV will, wird er vernichtet
+	if Game.FindAnyUnit(1,450,293,32) == 1 
+		and Vars.Save8 == 1 then
+		Settlers.AddSettlers(377, 162, 2, Settlers.SWORDSMAN_01, 300)
+		Settlers.AddSettlers(377, 162, 2, Settlers.BOWMAN_01, 300)
+		Settlers.AddSettlers(377, 162, 2, Settlers.SHAMAN, 50)		
+		Vars.Save8 = 0
+		AI.AttackNow(2, 1, 10)
+		AI.AttackNow(2, 1, 5)
+		AI.AttackNow(2, 1, 7)
+		AI.AttackNow(2, 1, 5)
+		Game.ShowText("MD_ECO_SCRIPT_ONE_02",430,415)
+		--// das war ein fehler, wir hätten nicht versuchen sollen  das DV anzugreifen
+	end
+
+
+
+
+
+end
+
+function VictoryConditionCheck()
+
+	if Game.IsAreaOwned( 1,105,130,55) == 1 
+		and Buildings.ExistsBuildingInArea(1,Buildings.WOODCUTTERHUT,105,130,74,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.STONECUTTERHUT,105,130,74,Buildings.READY) >= 1
+		and Buildings.ExistsBuildingInArea(1,Buildings.SAWMILL,105,130,74,Buildings.READY) >= 1
+		and (Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERSMALL,105,130,74,Buildings.READY) >= 1
+		or Buildings.ExistsBuildingInArea(1,Buildings.GUARDTOWERBIG,105,130,74,Buildings.READY) >= 1
+		or Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,105,130,74,Buildings.READY) >= 1)
+		and Vars.Save9 == 1 then 
+
+		Magic.IncreaseMana(3,500)
+		--//Schiffe adden,mayas angreifen lassen,noch auf die karte bringen
+		Vehicles.AddVehicle(263,120, 3, Vehicles.FERRY, 3)
+		Buildings.AddBuildingEx(276,122, 3, Buildings.GUARDTOWERSMALL)
+		Settlers.AddSettlers(276,122, 3, Settlers.SWORDSMAN_02, 5)
+		Settlers.AddSettlers(276,122, 3, Settlers.SWORDSMAN_03, 20)
+    	Settlers.AddSettlers(276,122, 3, Settlers.BOWMAN_02, 20)
+    	Settlers.AddSettlers(276,122, 3, Settlers.BLOWGUNWARRIOR_03, 5)
+    	
+
+		Vehicles.AddVehicle(535,203, 3, Vehicles.FERRY, 0)
+		Vehicles.AddVehicle(533,209, 3, Vehicles.FERRY, 0)
+		Vehicles.AddVehicle(531,217, 3, Vehicles.FERRY, 0)    	
+		
+		Settlers.AddSettlers(346,146, 3, Settlers.SWORDSMAN_03, 15)
+    	Settlers.AddSettlers(346,146, 3, Settlers.BOWMAN_03, 15)
+    	Settlers.AddSettlers(346,146, 3, Settlers.BLOWGUNWARRIOR_02, 10)
+		Settlers.AddSettlers(346,146, 3, Settlers.PRIEST, 3)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+
+		Settlers.AddSettlers(365,174, 3, Settlers.SWORDSMAN_03, 15)
+    	Settlers.AddSettlers(365,174, 3, Settlers.BOWMAN_02, 15)
+		Settlers.AddSettlers(365,174, 3, Settlers.PRIEST, 5)
+    	Settlers.AddSettlers(365,174, 3, Settlers.BLOWGUNWARRIOR_02, 10)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+
+		Settlers.AddSettlers(409,226, 3, Settlers.SWORDSMAN_02, 10)
+    	Settlers.AddSettlers(409,226, 3, Settlers.BOWMAN_03, 10)
+    	Settlers.AddSettlers(409,226, 3, Settlers.BLOWGUNWARRIOR_02, 10)
+		Settlers.AddSettlers(409,226, 3, Settlers.PRIEST, 5)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+
+		Settlers.AddSettlers(401,149, 3, Settlers.SWORDSMAN_02, 10)
+    	Settlers.AddSettlers(401,149, 3, Settlers.BOWMAN_02, 10)
+    	Settlers.AddSettlers(401,149, 3, Settlers.BLOWGUNWARRIOR_02, 10)
+		Settlers.AddSettlers(401,149, 3, Settlers.PRIEST, 5)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+
+		Settlers.AddSettlers(512,199, 3, Settlers.SWORDSMAN_02, 10)
+    	Settlers.AddSettlers(512,199, 3, Settlers.BOWMAN_02, 10)
+    	Settlers.AddSettlers(512,199, 3, Settlers.BLOWGUNWARRIOR_01, 5)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+		Settlers.AddSettlers(515,193, 3, Settlers.SWORDSMAN_01, 5)
+    	Settlers.AddSettlers(515,193, 3, Settlers.BOWMAN_02, 2)
+    	Settlers.AddSettlers(515,193, 3, Settlers.BLOWGUNWARRIOR_01, 1)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+		Settlers.AddSettlers(521,189, 3, Settlers.SWORDSMAN_01, 5)
+    	Settlers.AddSettlers(521,189, 3, Settlers.BOWMAN_02, 7)
+    	Settlers.AddSettlers(521,189, 3, Settlers.BLOWGUNWARRIOR_01, 8)
+    	AI.NewSquad(3, AI.CMD_MOVE_HOME)
+
+		Vars.Save3 = Game.Time() + 1
+		Vars.Save9 = 2
+	end
+
+	if  Game.Time() >= Vars.Save3 and Vars.Save9 == 2 then
+		Game.EnemyPlayersLost(1)
+		Game.DefaultGameEndCheck("MD_DARK_SCRIPT_TWO_04","MD_DARK_SCRIPT_TWO_05")
+	else
+		Game.DefaultPlayerLostCheck(1)
+		Game.DefaultGameEndCheck("MD_DARK_SCRIPT_TWO_04","MD_DARK_SCRIPT_TWO_05")
+	end
+
+	
+
+end
+
+
+function new_game()
+	--// Attack Mode//--
+	AI.SetPlayerVar(2, "AttackMode", 0, 1, 0) 
+	
+	Map.AddDecoObject(87,367,42)
+
+--//CreateStartResourcesMany(105,130,1,1)
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(MassiveAttackCheck,Events.FIVE_TICKS)	
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+
+end
+
+function register_functions()
+
+  reg_func(MassiveAttackCheck)
+  reg_func(InitVar)
+  reg_func(VictoryConditionCheck)
+
+end
+
+
+function CreateStartResourcesMany(_X, _Y, _Player, _AI)
+
+	-- Create building
+	
+	Buildings.AddBuildingEx(_X, _Y, _Player, Buildings.GUARDTOWERSMALL)
+
+	-- Create piles
+	
+	Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+	Goods.AddPileEx(_X, _Y, Goods.BOARD,   7)
+	Goods.AddPileEx(_X, _Y, Goods.BOARD,   7)
+	Goods.AddPileEx(_X, _Y, Goods.BOARD,   7)
+	Goods.AddPileEx(_X, _Y, Goods.BOARD,   7)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   7)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   6)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   5)
+	Goods.AddPileEx(_X, _Y, Goods.STONE,   6)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+	Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+	Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  7)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+	Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+	Goods.AddPileEx(_X, _Y, Goods.HAMMER,  7)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     8)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 4)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     3)
+    Goods.AddPileEx(_X, _Y, Goods.ROD,     2)
+    Goods.AddPileEx(_X, _Y, Goods.SCYTHE,  2)
+    Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+	Goods.AddPileEx(_X, _Y, Goods.FISH,    4)
+	Goods.AddPileEx(_X, _Y, Goods.BREAD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.MEAT,    5)
+	Goods.AddPileEx(_X, _Y, Goods.MEAT,    3)
+    Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+	Goods.AddPileEx(_X, _Y, Goods.COAL,    8)
+	Goods.AddPileEx(_X, _Y, Goods.COAL,    3)
+    Goods.AddPileEx(_X, _Y, Goods.IRONORE, 8)
+    Goods.AddPileEx(_X, _Y, Goods.GOLDORE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.BOW,     1)
+
+	-- Create settlers
+	
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.SMITH,         3)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.MINEWORKER,    6)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.CARRIER,      50)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 12)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.BOWMAN_01,     4)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.GEOLOGIST,     5)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.DONKEY,        3)
+	Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      100)
+	
+	-- Create AI stuff
+	
+	if _AI >= 1 then
+	
+		Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+		Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+		Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+		
+		Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+		
+	end
+	
+	if _AI >= 2 then
+
+		Goods.AddPileEx(_X, _Y, Goods.BOARD, 8)
+		Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+		Goods.AddPileEx(_X, _Y, Goods.STONE, 8)
+		
+		Settlers.AddSettlers(_X, _Y, _Player, Settlers.SWORDSMAN_01, 5)
+		Settlers.AddSettlers(_X, _Y, _Player, Settlers.PIONEER,      5)
+	
+	end
+	
+end

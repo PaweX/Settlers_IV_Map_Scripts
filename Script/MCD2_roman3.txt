@@ -1,0 +1,496 @@
+gGoldBars=128
+gWater=100
+gFerrys=4
+gWarShips=3
+storageAreas_Radius={10,10}
+storageAreas_X={278,263}
+storageAreas_Y={246,230}
+_tick=0
+
+circles={
+	storageArea1={
+		center={x=279,y=246},
+		radius=6,
+		effect=Effects.MAGIC_PILE02,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	},
+	storageArea2={
+		center={x=264,y=232},
+		radius=6,
+		effect=Effects.MAGIC_PILE02,
+		sound=Sounds.NO_SOUND,
+		density=1,
+		delay=0,
+		effectsPerTick=8,
+		split=4,
+		coordinates={x={},y={}},
+		effectsAmount=1,
+		_i=1,
+		_j=1
+	}
+}
+
+sector={}
+sectorAmount=1
+
+
+function initVar()
+	Vars.Save1=0
+	Vars.Save2=0
+	Vars.Save3=0
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==0 and Goods.Amount(1,Goods.WATER)>=gWater and
+		 Vehicles.Amount(1,Vehicles.FERRY)>=gFerrys and Vars.Save1==1 and
+		 Vehicles.Amount(1,Vehicles.WARSHIP)>=gWarShips then
+
+		 		Game.EnemyPlayersLost(1)
+		 		Game.DefaultGameEndCheck()
+	end
+	if Game.HasPlayerLost(1)==1 then
+		Game.PlayerLost(2)
+		Game.DefaultGameEndCheck()
+	end
+end
+
+function castleCheck()
+	if Vars.Save2==1 then
+		request_event(goldCheck,Events.FIVE_TICKS)
+		request_event(drawCircles,Events.TICK)
+		unrequest_event(castleCheck,Events.FIVE_TICKS)
+	else
+		if Game.FindAnyUnit(1,260,279,15)==1 then
+			Game.ShowText("MD2_ROMAN_SCRIPT_THREE_01",260,279)
+			Vars.Save2=1
+		end
+	end
+end
+
+function goldCheck()
+	if Vars.Save1==1 then
+		request_event(addTower,Events.FIVE_TICKS)
+		unrequest_event(goldCheck,Events.FIVE_TICKS)
+	else
+		_amount=0
+		_i=1
+		while _i<=2 do
+			_amount=_amount+Goods.GetAmountInArea(1,Goods.GOLDBAR,storageAreas_X[_i],storageAreas_Y[_i],storageAreas_Radius[_i])
+			_i=_i+1
+		end
+		if _amount>=128 and Vars.Save1==0 then
+			Vars.Save1=1
+			Effects.AddEffect(Effects.MMAGIC_RAISERANK,Sounds.NO_SOUND,storageAreas_X[1],storageAreas_Y[1],0)
+			Effects.AddEffect(Effects.MMAGIC_RAISERANK,Sounds.NO_SOUND,storageAreas_X[2],storageAreas_Y[2],0)
+			Goods.Delete(storageAreas_X[1],storageAreas_Y[1],10,Goods.GOLDBAR)
+			Goods.Delete(storageAreas_X[2],storageAreas_Y[2],10,Goods.GOLDBAR)
+		end
+	end
+end
+
+function addTower()
+	if Vars.Save3==3 then
+		Buildings.AddBuildingEx(210,362,1,Buildings.GUARDTOWERSMALL)
+		Goods.AddPileEx(210,362,Goods.BOARD,8)
+		Goods.AddPileEx(210,362,Goods.BOARD,8)
+		Goods.AddPileEx(210,362,Goods.STONE,8)
+		Goods.AddPileEx(210,362,Goods.STONE,8)
+		Goods.AddPileEx(210,362,Goods.AXE,6)
+		Goods.AddPileEx(210,362,Goods.SAW,2)
+		Goods.AddPileEx(210,362,Goods.PICKAXE,3)
+		Goods.AddPileEx(210,362,Goods.SHOVEL,5)
+		Goods.AddPileEx(210,362,Goods.HAMMER,5)
+		Settlers.AddSettlers(210,362,1,Settlers.CARRIER,15)
+		Settlers.AddSettlers(210,362,1,Settlers.BUILDER,5)
+		Settlers.AddSettlers(210,362,1,Settlers.DIGGER,5)
+		Game.ShowText("MD2_ROMAN_SCRIPT_THREE_03",210,362)
+		unrequest_event(addTower,Events.FIVE_TICKS)
+	else
+		Vars.Save3=Vars.Save3+1
+	end
+end
+
+function waterCheck()
+	if Vars.Save1==1 then
+		unrequest_event(waterCheck,Events.FIVE_TICKS)
+	else
+		if Goods.Amount(1,Goods.WATER)>=70 then
+			Game.ShowText("MD2_ROMAN_SCRIPT_THREE_02",260,279)
+			crushWaterEconomy()
+			crushShips()
+		end
+	end
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(1)
+end
+
+function crushWaterEconomy()
+	_counter=0
+	_waterWorks=Buildings.Amount(1,Buildings.WATERWORKHUT,Buildings.ALL)
+	while _counter<_waterWorks do
+		Buildings.CrushBuilding(Buildings.GetFirstBuilding(1,Buildings.WATERWORKHUT))
+		_counter=_counter+1
+	end
+	_y=50
+	while (_y<=702 and Goods.Amount(1,Goods.WATER)>0) do
+		_x=50
+		while (_x<=702 and Goods.Amount(1,Goods.WATER)>0) do
+			Goods.Delete(_x,_y,50,Goods.WATER)
+			_x=_x+50
+		end
+		_y=_y+50
+	end
+end
+
+function crushShips()
+	_ships=Vehicles.Amount(1,1)+Vehicles.Amount(1,2)+Vehicles.Amount(1,3)
+	_j=0
+	_y=40
+	while (_y<702 and _j<(_ships/2)) do
+		_x=40
+		while (_x<702 and _j<(_ships/2)) do
+			_j=_j+Vehicles.AmountInArea(1,1,_x,_y,50)+Vehicles.AmountInArea(1,2,_x,_y,50)+Vehicles.AmountInArea(1,3,_x,_y,50)
+			_z=1
+			while _z<=3 do
+				Vehicles.KillVehicles(1,_z,_x,_y,50,1)
+				_z=_z+1
+			end
+			_x=_x+80
+		end
+		_y=_y+80
+	end
+end
+
+function sqrt(_number)
+	lower=0
+	upper=_number
+	while upper-lower>0.001 do
+		result=(upper+lower)/2
+		if (result*result)<_number then
+			lower=result
+		else
+			upper=result
+		end
+	end
+	return result
+end
+
+function sort(_table)
+	i=1
+	sectorAmount=getn(_table.x)
+	sa=sectorAmount
+	while i<=(sectorAmount) do
+		j=1
+		while j<sa-1 do
+			if _table.x[j]>_table.x[sa] then
+				temp=_table.x[sa]
+				_table.x[sa]=_table.x[j]
+				_table.x[j]=temp
+				temp=_table.y[sa]
+				_table.y[sa]=_table.y[j]
+				_table.y[j]=temp
+			end
+			j=j+1
+		end
+		sa=sa-1
+		i=i+1
+	end
+	i=1
+	while i<=getn(_table.x) do
+		if _table.x[i]==_table.x[(i+1)] or _table.y[i]==_table.y[(i+1)] then
+			tremove(_table.x,i)
+			tremove(_table.y,i)
+		else
+			i=i+1
+		end
+	end
+	sectorAmount=getn(_table.x)
+end
+
+function circles.calculateFirstSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateSecondSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x+_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateThirdSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y+_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y+dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculateFourthSector(_circle)
+	sector={x={},y={}}
+	sectorAmount=1
+	_y=_circle.radius-1
+	while _y>=0 do
+		_z=(_circle.radius*_circle.radius)-(_y*_y)
+		if _z==0 then
+			dx=0
+		else
+			dx=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-dx
+		sector.y[sectorAmount]=_circle.center.y-_y
+		_y=_y-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	_x=_circle.radius-1
+	while _x>=0 do
+		_z=(_circle.radius*_circle.radius)-(_x*_x)
+		if _z==0 then
+			dy=0
+		else
+			dy=sqrt(_z)
+		end
+		sector.x[sectorAmount]=_circle.center.x-_x
+		sector.y[sectorAmount]=_circle.center.y-dy
+		_x=_x-_circle.density
+		sectorAmount=sectorAmount+1
+	end
+	sort(sector)
+end
+
+function circles.calculate(_circle)
+	circles.calculateFirstSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	circles.calculateSecondSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateThirdSector(_circle)
+	i=sectorAmount
+	while i>0 do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i-1
+	end
+	circles.calculateFourthSector(_circle)
+	i=1
+	while i<=sectorAmount do
+		_circle.coordinates.x[_circle.effectsAmount]=sector.x[i]
+		_circle.coordinates.y[_circle.effectsAmount]=sector.y[i]
+		_circle.effectsAmount=_circle.effectsAmount+1
+		i=i+1
+	end
+	i=1
+	while i<_circle.effectsAmount do
+		_y=_circle.coordinates.y[i]
+		_circle.coordinates.x[i]=_circle.coordinates.x[i]+(_y/2)-(_circle.center.y/2)
+		i=i+1
+	end
+	effectsAmount=getn(_circle.coordinates.x)
+end
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<=_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.storageArea1)
+	circles.calculate(circles.storageArea2)
+end
+
+function drawCircles()
+	if Buildings.ExistsBuildingInArea(1,Buildings.STORAGEAREA,278,248,10)==1 and
+		 Buildings.ExistsBuildingInArea(1,Buildings.STORAGEAREA,263,230,10)==1 then
+
+			unrequest_event(drawCircles,Events.TICK)
+	else
+		if Buildings.ExistsBuildingInArea(1,Buildings.STORAGEAREA,278,248,10)==0 then
+			circles.draw(circles.storageArea1)
+		end
+		if Buildings.ExistsBuildingInArea(1,Buildings.STORAGEAREA,263,230,10)==0 then
+			circles.draw(circles.storageArea2)
+		end
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(castleCheck,Events.FIVE_TICKS)
+	request_event(waterCheck,Events.FIVE_TICKS)
+
+	Game.SetAlliesDontRevealFog(1)
+  Game.ResetFogging()
+  Map.AddDecoObject(260,279,223)
+  ferryId=Vehicles.AddVehicle(636,334,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_03,15)
+  ferryId=Vehicles.AddVehicle(633,318,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.BOWMAN_03,15)
+  ferryId=Vehicles.AddVehicle(322,256,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.SWORDSMAN_03,15)
+  ferryId=Vehicles.AddVehicle(151,652,1,Vehicles.FERRY,0,0,0)
+  Settlers.AddSettlersToFerry(ferryId,Settlers.BOWMAN_03,15)
+  Vehicles.AddVehicle(131,656,1,Vehicles.WARSHIP,0,100,0)
+  Vehicles.AddVehicle(314,262,1,Vehicles.WARSHIP,0,100,0)
+  Vehicles.AddVehicle(640,344,1,Vehicles.WARSHIP,0,100,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(stats)
+	reg_func(calculateCircles)
+	reg_func(victoryConditionCheck)
+	reg_func(castleCheck)
+	reg_func(goldCheck)
+	reg_func(waterCheck)
+	reg_func(addTower)
+	reg_func(drawCircles)
+end
+
+--for testing only
+function getGold()
+	_n=0
+	while _n<16 do
+		Goods.AddPileEx((305+_n),(201+_n),Goods.GOLDBAR,8)
+		_n=_n+1
+	end
+end
+
+function getRessources()
+	_n=0
+	while _n<3 do
+		Goods.AddPileEx(305,201,Goods.BOARD,8)
+		Goods.AddPileEx(305,201,Goods.STONE,8)
+		_n=_n+1
+	end
+end
+
+function getShips()
+	_xyz=0
+	while _xyz<gFerrys do
+		Vehicles.AddVehicle((380+10*_xyz),(500+10*_xyz),1,Vehicles.FERRY,-1,0,0)
+		_xyz=_xyz+1
+	end
+	_xyz=0
+	while _xyz<gWarShips do
+		Vehicles.AddVehicle((100+10*_xyz),(400+10*_xyz),1,Vehicles.WARSHIP,-1,0,0)
+		_xyz=_xyz+1
+	end
+end

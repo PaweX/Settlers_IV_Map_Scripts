@@ -1,0 +1,258 @@
+delay=1
+timeLimit=90			--in minutes
+ticks=0
+stones=0
+_text=0
+
+if Game.GetDifficulty()==0 then
+	spawnTime=45						--time for first spawn (in minutes)
+	spawnDelay=8						--time between two consecutive spawns
+	spawnAmount=25					--number of Settlers to be spawned
+else
+	spawnTime=30							--time for first spawn (in minutes)
+	spawnDelay=5						--time between two consecutive spawns
+	spawnAmount=30					--number of Settlers to be spawned
+end
+
+
+stoneAreas={
+	{x=95,y=527},
+	{x=148,y=431},
+	{x=190,y=372},
+	{x=249,y=415},
+	{x=293,y=267},
+	{x=252,y=232},
+	{x=250,y=182}
+}
+
+easterIsleHeads={
+	{x=301,y=424},
+	{x=236,y=444},
+	{x=218,y=488},
+	{x=205,y=558},
+	{x=170,y=593},
+	{x=97,y=577},
+	{x=62,y=477},
+	{x=51,y=392},
+	{x=73,y=336},
+	{x=46,y=249},
+	{x=69,y=190},
+	{x=77,y=105},
+	{x=137,y=75},
+	{x=282,y=121},
+	{x=357,y=141},
+	{x=437,y=165},
+	{x=544,y=175},
+	{x=607,y=234},
+	{x=564,y=247},
+	{x=496,y=260},
+	{x=498,y=332},
+	{x=404,y=341},
+	{x=334,y=389}
+}
+
+function initVar()
+	Vars.Save1=0		--flag, turns 1 when darkland is green
+	Vars.Save2=0		--flag for stoneAreas
+end
+
+function victoryConditionCheck()
+	Game.DefaultPlayerLostCheck(1)
+	if Game.HasPlayerLost(1)==1 or Game.Time()>=timeLimit then
+		Game.EnemyPlayersLost(2)
+		Game.DefaultGameEndCheck()
+	else
+		if Goods.Amount(1,Goods.STONE)>=150 then
+			Game.ShowText("MD2_TROJAN_SCRIPT_THREE_03",224,562)
+			exchangeStoneHeads()
+			giveGoods()
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function darkLandCheck()
+	if Vars.Save1==1 then
+		Settlers.AddSettlers(121,387,3,Settlers.THIEF,1)
+		Settlers.AddSettlers(148,390,3,Settlers.THIEF,1)
+		Settlers.AddSettlers(124,346,3,Settlers.THIEF,1)
+		Settlers.AddSettlers(100,343,3,Settlers.THIEF,1)
+		Map.SetScreenPos(123,372)
+		request_event(stoneRain,Events.FIVE_TICKS)
+		unrequest_event(darkLandCheck,Events.FIVE_TICKS)
+	else
+		if Game.GetNumberOfSquaresWithDarkLand(5)==0 then
+			Vars.Save1=1
+		end
+	end
+end
+
+function sabotage()
+	if Vars.Save2==1 then
+		if Settlers.Amount(4,Settlers.SABOTEUR)==0 then
+			Game.ShowText("MD2_TROJAN_SCRIPT_THREE_02",stoneAreas[_count]["x"],stoneAreas[_count]["y"])
+			unrequest_event(sabotage,Events.FIVE_TICKS,stoneAreas[_count]["x"],stoneAreas[_count]["y"])
+		end
+	else
+		if (Buildings.Amount(1,Buildings.STONEMINE,Buildings.READY)>3 and Game.Time()>=45 and Goods.Amount(1,Goods.STONE)>=100) then
+			dbg.pi(1)
+			_count=1
+			while _count<=3 do
+				if Buildings.ExistsBuildingInArea(1,Buildings.STONEMINE,stoneAreas[_count]["x"],stoneAreas[_count]["y"],30,Buildings.ALL)==1 then
+					Settlers.AddSettlers(stoneAreas[_count]["x"],stoneAreas[_count]["y"],4,Settlers.SABOTEUR,(3+Game.Random(4)))
+					Game.ShowText("MD2_TROJAN_SCRIPT_THREE_01",stoneAreas[_count]["x"],stoneAreas[_count]["y"])
+				end
+				_count=_count+1
+			end
+		  Vars.Save2=1
+		end
+	end
+end
+
+function stoneRain()
+	if Vars.Save1==2 then
+		unrequest_event(stoneRain,Events.FIVE_TICKS)
+	else
+		if stones<100 then
+			if ticks==delay then
+				x=115+Game.Random(21)
+				y=360+Game.Random(21)
+				Effects.AddEffect(Effects.MMAGIC_STONECURSE,Sounds.MAGIC_STONECURSE,x,y,0)
+				amount=Game.Random(8)+1
+				Goods.AddPileEx(x,y,Goods.STONE,amount)
+				stones=stones+amount
+				ticks=0
+			else
+				ticks=ticks+1
+			end
+		else
+			Settlers.KillSelectableSettlers(3,Settlers.THIEF,121,387,15,0)
+			Settlers.KillSelectableSettlers(3,Settlers.THIEF,148,390,15,0)
+			Settlers.KillSelectableSettlers(3,Settlers.THIEF,124,346,15,0)
+			Settlers.KillSelectableSettlers(3,Settlers.THIEF,100,343,15,0)
+			Vars.Save1=2
+		end
+	end
+end
+
+function spawnSettlers()
+	if Game.Time()>=spawnTime then
+		if Game.FindAnyUnit(1,344,255,32)==0 then
+			Settlers.AddSettlers(344,255,2,Settlers.CARRIER,spawnAmount)
+			spawnTime=Game.Time()+spawnDelay
+		else
+			if Game.FindAnyUnit(1,226,133,32)==0 then
+				Settlers.AddSettlers(226,133,2,Settlers.CARRIER,spawnAmount)
+				spawnTime=Game.Time()+spawnDelay
+			end
+		end
+	end
+end
+
+function exchangeStoneHeads()
+	_y=50
+	while (_y<=639 and Goods.Amount(1,Goods.STONE)>0) do
+		_x=50
+		while (_x<=639 and Goods.Amount(1,Goods.STONE)>0) do
+			Goods.Delete(_x,_y,50,Goods.STONE)
+			_x=_x+50
+		end
+		_y=_y+50
+	end
+--	_head=1
+--	while _head<=23 do
+--		Map.DeleteDecoObject(easterIsleHeads[_head]["x"],easterIsleHeads[_head]["y"],5,227)
+--		Map.AddDecoObject(easterIsleHeads[_head]["x"],easterIsleHeads[_head]["y"],226)
+--		_head=_head+1
+--	end	
+end
+
+function giveGoods()
+	_amount=0
+	while _amount<3 do
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,223,564,0)
+		Goods.AddPileEx(223,564,Goods.MEAT,8)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,227,558,0)
+		Goods.AddPileEx(227,558,Goods.FISH,8)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,224,559,0)
+		Goods.AddPileEx(224,559,Goods.BREAD,8)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD,Sounds.NO_SOUND,227,564,0)
+		Goods.AddPileEx(227,564,Goods.WATER,8)
+		_amount=_amount+1
+	end
+end
+
+function counter()
+	Game.ShowClock(timeLimit*60)
+end
+
+function stats()
+	Game.DisableLastNPlayersInStatistic(2)
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(counter,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(stats,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(spawnSettlers,Events.FIVE_TICKS)
+	request_event(darkLandCheck,Events.FIVE_TICKS)
+	request_event(sabotage,Events.FIVE_TICKS)
+
+	_head=1
+	_type=227
+	while _head<=23 do
+		if _type==227 then
+			_type=226
+		else
+			_type=227
+		end
+		Map.AddDecoObject(easterIsleHeads[_head]["x"],easterIsleHeads[_head]["y"],_type)
+		_head=_head+1
+	end
+
+	AI.SetPlayerVar(2, "AttackMode", 0, 1, 2)
+	AI.SetPlayerVar(2, "AttackDelay", 55, 35, 30)
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(counter)
+	reg_func(stats)
+	reg_func(victoryConditionCheck)
+	reg_func(spawnSettlers)
+	reg_func(darkLandCheck)
+	reg_func(sabotage)
+	reg_func(stoneRain)
+end
+
+--for testing only
+
+function getGardeners()
+	Settlers.AddSettlers(158,493,1,Settlers.GARDENER,50)
+end
+
+function getSoldiers()
+	Settlers.AddSettlers(158,493,1,Settlers.SWORDSMAN_03,200)
+	Settlers.AddSettlers(158,493,1,Settlers.BOWMAN_03,200)
+end
+
+function getStones()
+	_xyz=0
+	while _xyz<40 do
+		Goods.AddPileEx(213,490,Goods.STONE,8)
+		_xyz=_xyz+1
+	end
+end
+
+function getRessources()
+	_xyz=0
+	while _xyz<20 do
+		Goods.AddPileEx(213,490,Goods.STONE,8)
+		Goods.AddPileEx(213,490,Goods.BOARD,8)
+		_xyz=_xyz+1
+	end
+end

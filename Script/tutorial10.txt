@@ -1,0 +1,900 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL X
+--
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1
+gWantedMenu = -1		
+gTutorialStep = 1
+gTemp = 0			
+gSpaceOk = 1
+gPrevTutStep = -1
+gTextStep = 1
+gWantedBuilding = -1
+gCommandOk = 1
+
+ActualText_I  = "TUT_10_001_R"
+ActualText_II = "TUT_NEXT"    
+
+DebugVar = 1
+
+gTutorialSubstep16 = 0
+gTutorialSubStep25 = 0
+
+tickcounter = 0 
+gReset = 0		-- set to ´1´ if tickcounter shall be reseted to ZERO 
+
+gCarrierMorphCount = 0 
+
+CurrentXpos = 0
+CurrentYpos = 0
+PositionFound = 0
+
+SomeTowerAmount = 0
+
+LastText = "NoText"
+
+ShipyardSupply = 0
+WeaponSupply = 0
+
+function GetSomeGood (buildingtype, goodtype, amount)
+--	dbg.tp("buildingtype = " ..buildingtype)
+--	dbg.tp("goodtype = " ..goodtype)
+--	dbg.tp("amount = " ..amount)
+--	dbg.tp("ShipyardSupply = "..ShipyardSupply)
+--	dbg.tp("WeaponSupply = " ..WeaponSupply)
+
+	if gTutorialStep == 56 then
+		if buildingtype == Buildings.SHIPYARD and goodtype == Goods.IRONBAR and amount > 1 then
+			ShipyardSupply = 1 
+	
+		end
+	end
+	
+	if buildingtype == Buildings.WEAPONSMITH and gTutorialStep > 244 and goodtype == Goods.IRONBAR and amount > 0 then
+		WeaponSupply = 1
+	end
+
+
+end
+
+----------------------------------------------------------------------------------
+
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype,x,y,KickbackToStep)
+	if Buildings.ExistsBuildingInArea(Game.LocalPlayer(),buildingtype,x,y,5, Buildings.ALL) == 0 then
+		id = Buildings.GetFirstBuilding(1,buildingtype)
+		Buildings.CrushBuilding(id)
+		Tutorial.DeleteWorldCursor()
+		LastText0 = 0
+		LastText1 = 0
+		gPrevTutStep = 0
+		gTutorialStep = KickbackToStep	
+	end	
+end
+
+----------------------------------------------------------------------------------
+function DummyVictoryCheck()
+end	
+----------------------------------------------------------------------------------
+function OnDragBuilding(type)
+
+    	if gWantedBuilding == -1 then
+        	return
+    	end
+
+	if (gWantedBuilding == type) then
+        	gTutorialStep = gTutorialStep+1
+        	gWantedBuilding = - 1
+    	end
+end
+-------------------------------------------------------------------------------
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+		OnSpace()		
+		dbg.tp("on Space")
+	end
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+		Map.SetScreenPos(327,367)
+		Tutorial.SetZoom(17)
+		
+		CommandOk = 0
+		
+		ShowText()		
+--------------------------------------------------------------------------------
+	if gTutorialStep == 5 then
+		gTutorialStep  = 3
+		Map.SetScreenPos(452,419)
+		return
+
+	elseif gTutorialStep == 6 then 
+		gTutorialStep = 5 -- DWM: 55 replaced by 5
+
+	elseif gTutorialStep == 7 then 
+		gTutorialStep = 6 
+
+	elseif gTutorialStep == 8 then 
+		gTutorialStep = 7
+	
+	elseif gTutorialStep == 9 then
+		gTutorialStep = 8
+		Map.SetScreenPos(154,275) 
+
+	elseif gTutorialStep == 11 then
+		gTutorialStep = 10
+		Map.SetScreenPos(333,313)
+	
+	elseif gTutorialStep == 14 then
+		gTutorialStep = 12
+		
+	elseif gTutorialStep == 17 then
+		gTutorialStep = 16
+		gTutorialSubstep16 = 0 
+		
+	elseif gTutorialStep == 24 then
+		gTutorialStep = 18
+
+	elseif gTutorialStep == 26 then 
+		gTutorialStep = 25
+	
+	elseif gTutorialStep == 28 then 
+		gTutorialStep = 27
+		tickcounter = 0
+		
+	elseif gTutorialStep == 31 then
+		gTutorialStep = 30
+
+	elseif gTutorialStep == 56 then 
+		gTutorialStep = 55 
+		
+	elseif gTutorialStep == 245 then
+		gTutorialStep = 244		
+		
+	
+	end  --	if gTutorialStep == 5 then
+	
+	end  -- if (command == Control.DLG_TUTORIAL_CMD_RESET ) then
+	
+	if (command == 0 )  then
+		if (gCommandOk == 1) then
+			Tutorial.ClearMarker()
+		end
+	end
+end
+-------------------------------------------------------------------------------
+
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+
+function CLOCK()
+tickcounter = tickcounter + 1
+
+	if gReset == 1 then
+		dbg.tp ("Tickcounter has been reset at")
+		dbg.pi (tickcounter)
+		dbg.tp("TICKS ... ")
+		
+		tickcounter = 0
+		gReset = 0 
+
+	end
+end	
+
+function GetUserPosition()
+
+	while PositionFound == 0 do 			        
+		while CurrentYpos < 1024 do		
+			while CurrentXpos < 1024 do				
+				if Map.PointIsOnScreen(CurrentXpos,CurrentYpos) == 1 then
+					PositionFound = 1
+				end			
+			CurrentXpos = CurrentXpos + 1
+			dbg.tp("User Position detected is") 
+			dbg.pi(CurrentXpos)
+			dbg.pi(CurrentYpos)
+
+			end
+
+			CurrentYpos = CurrentYpos + 1
+			CurrentXpos = 0 
+			dbg.tp("User Position detected is") 
+			dbg.pi(CurrentXpos)
+			dbg.pi(CurrentYpos)	
+				if CurrentYpos == 1024 then
+					error = 1 		
+					dbg.tp("error... scan complete without hit ... ") 
+				end								
+				dbg.pi(CurrentXpos)
+				dbg.pi(CurrentYpos)												
+		end
+	end	
+end
+
+function Init_GetUserPosition()
+	CurrentYpos = 0
+	CurrentXpos = 0
+	PositionFound = 0 
+end
+
+function scan()
+	init_GetUserPosition()
+
+	if PositionFound == 0 and Error == 0 then 
+		GetUserPosition()
+	return
+	elseif PositionFound == 1 then 
+		dbg.tp("User Position detected is") 
+		dbg.pi(CurrentXpos)
+		dbg.pi(CurrentYpos)
+	end
+end
+
+
+
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-- IF SETTLERTYPE IN PRODUCTION, the gTutorialStep will be increased          --
+-- WARNING: FUNCTION IS NOT OPTIMAL FOR GENERAL PURPOSE                       --
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+
+function OnSettlerProduction(settlertype)
+		if (settlertype == Settlers.AXEWARRIOR_01)  then        			
+       			Order_Control(10)		
+			dbg.tp ("AXEWARRIOR")		
+		end    
+end
+
+-- Subfunction, relative to above one ... 
+-- CarrierMorphLimit will control the maximum of Settlers changeing
+-- their job ...
+function Order_Control (CarrierMorphLimit)
+	gCarrierMorphCount = gCarrierMorphCount + 1 				
+                	
+        if (gCarrierMorphCount == CarrierMorphLimit) then 	-- gCarrierMorphCount : Amount of Carriers that have chanhed  			
+		dbg.tp ("WarriorCount")         		-- or "morphed" their job ...
+		dbg.tp ("Limit is:   ")
+		dbg.pi (CarrierMorphLimit)   			
+		Tutorial.DisableExcept() 		                     
+		dbg.tp("gTutorialStep == " ..gTutorialStep)  
+		gTutorialStep = 30
+		dbg.tp("gTutorialStep == " ..gTutorialStep)  
+		gWarriors_Counted = 1
+	      		gCarrierMorphCount = 0 
+		SpecialTrySomethingOutBool = 1
+   	end	       	
+end
+
+function ShowText ()
+		gCommandOk = 0
+		Tutorial.ShowText(ActualText_I ,0)
+		Tutorial.ShowText(ActualText_II,1)
+		dbg.tp("showtext")		
+		dbg.tp(ActualText_I)
+		dbg.tp(ActualText_II)
+end
+
+
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+--									   	
+--			main tutorial function
+--
+-------------------------------------------------------------------------------
+function tutorial_main()
+
+	gCommandOk = 1
+
+
+	if Goods.Amount(1,Goods.IRONBAR) <= 8
+		and Goods.GetAmountInArea(1,Goods.IRONBAR,357,420,10) <= 8 then
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 357,333, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 357,327, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 346,324, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 337,317, 0)
+			
+		Goods.AddPileEx(357,333, Goods.IRONBAR, 8)
+		Goods.AddPileEx(357,327, Goods.IRONBAR, 8)
+		Goods.AddPileEx(346,324, Goods.IRONBAR, 8)
+		Goods.AddPileEx(337,317, Goods.IRONBAR, 8)
+
+	end
+
+	if Goods.Amount(1,Goods.COAL) <= 8 
+		and Goods.GetAmountInArea(1,Goods.COAL,326,359,5) <= 8 then
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 337,317, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 352,344, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 345,327, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 352,332, 0)
+		
+		Goods.AddPileEx(350,339, Goods.COAL, 8)
+		Goods.AddPileEx(352,344, Goods.COAL, 8)
+		Goods.AddPileEx(345,327, Goods.COAL, 8)
+		Goods.AddPileEx(352,332, Goods.COAL, 8)
+	end
+	
+	if ActualText_I ~= LastText  then
+		ShowText()
+		LastText = ActualText_I
+	end
+
+
+	
+	if (gPrevTutStep == gTutorialStep) then	
+	return	
+	elseif gTutorialStep ~= gPrevTutStep then		
+	end
+
+
+	if Settlers.Amount(1,Settlers.PRIEST) < 1 then
+		Settlers.AddSettlers (343,313,1,Settlers.PRIEST,1) 		
+	end
+
+	
+	if LastTracedStep ~= gTutorialStep then
+		dbg.tp("gTutorialStep == " ..gTutorialStep ) 
+		LastTracedStep = gTutorialStep 
+	end
+
+
+
+	
+	if gTutorialStep == 1 then
+		ActualText_I  = "TUT_10_001_R"
+		ActualText_II = "TUT_NEXT"
+		Tutorial.SelectNextBuilding(Buildings.STORAGEAREA)
+		--//Tutorial.PressButton(Dialog.DLG_STORAGECONTEXT, Control.DLG_STORAGECONTEXT_CMD_SIDEBAR)
+		
+		--//gTutorialStep = gTutorialStep + 1
+		gTutorialStep = 50
+	return
+
+	elseif gTutorialStep == 50 then 
+			Tutorial.PressButton(Dialog.DLG_ADDSTORAGEBAR, Control.DLG_ADDSTORAGEBAR_CMD_15)
+			gTutorialStep = gTutorialStep + 1
+	return	
+
+	elseif gTutorialStep == 51 then 
+			Tutorial.PressButton(Dialog.DLG_ADDSTORAGEBAR, Control.DLG_ADDSTORAGEBAR_CMD_16)
+			gTutorialStep = 2
+	return	
+
+		
+	elseif gTutorialStep == 2 then 
+Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+Map.SetScreenPos(327,367)
+		Tutorial.DisableExcept()
+			gSpaceOk = 1
+	return	
+						
+	elseif gTutorialStep == 3 then
+		ActualText_I  = "TUT_10_002_R"
+		ActualText_II = "TUT_10_002_N"
+		Tutorial.DisableExcept		
+			(
+				Control.DLG_MINIMAP_CMD_BUILD,
+				Control.DLG_BUILDSUBMENU_CMD_TOWN,
+				Control.DLG_BUILDTOWN_CMD_SHIPYARD
+			)			
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)					
+		gCommandOk = 0
+		Tutorial.SetMarker(110,430)	
+		Tutorial.SetWorldCursor(355,422)	
+		gTutorialStep = gTutorialStep + 1	
+        return
+				
+	elseif gTutorialStep == 4 then					
+		gTutorialStep = gTutorialStep + 1		
+	return				
+
+
+
+
+-----------------------------------------------------------------------------------------------
+-- If shipyard has been build ... 
+----------------------------------------------------------------------------------------------
+											
+	elseif gTutorialStep == 5 then
+					
+		gSpaceOk = 0
+		
+		if Buildings.Amount (1,Buildings.SHIPYARD,Buildings.UNDERCONSTRUCTION) == 1 then
+			dbg.tp("Buildings Amount = TRUE")
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			Tutorial.DisableExcept()
+			gTutorialStep = 6
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.SHIPYARD,355,422,3)
+		end
+		
+				
+	return		
+
+	elseif gTutorialStep == 55 then 
+			ActualText_I  =   "TUT_10_013_R"
+			ActualText_II =   "TUT_10_013_N"
+			Tutorial.DisableExcept		
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_STOPBUILD
+			)
+			Tutorial.SelectNextBuilding(Buildings.WEAPONSMITH)
+
+			gTutorialStep = 56
+			dbg.tp("waiting for supply")
+		return
+		
+	elseif gTutorialStep == 56 then 
+		if ShipyardSupply == 1 then 
+			dbg.tp("supply has arrived")
+			gTutorialStep = 6 
+		end
+	return
+-----------------------------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 6 then 						
+		
+			if Buildings.Amount (1,Buildings.SHIPYARD,Buildings.READY) == 1 then
+				ActualText_I  = "TUT_10_004_R" 
+				ActualText_II = "TUT_10_004_N"     		
+				Tutorial.SelectNextBuilding(Buildings.SHIPYARD)
+				Tutorial.DisableExcept	
+					(
+						Control.DLG_SHIPVEHICLECONTEXT_CMD_SIDEBAR,			
+						Control.DLG_ADDVEHICLEBAR_CMD_1UP,	
+						Control.DLG_ADDVEHICLEBAR_CMD_VEHICLE1
+					)			
+				gTutorialStep = 7		
+				gCommandOk = 0
+				Tutorial.SetMarker(200,380)				
+			end
+		return
+
+	elseif gTutorialStep == 7 then 						
+		gSpaceok = 1 -- debug 
+		if Vehicles.Amount(1,Vehicles.WARSHIP) >  0 then
+			gTutorialStep = gTutorialStep + 1						
+			Tutorial.DisableExcept
+			(
+			Control.DLG_SHIPVEHICLECONTEXT_CMD_SIDEBAR 
+			)
+			Tutorial.ClearMarker()
+		end		
+	return
+
+
+	elseif gTutorialStep == 8 then
+		Magic.IncreaseMana (Game.LocalPlayer(),200)
+--		Tutorial.SetWorldCursor(127,287)
+		ActualText_I  = "TUT_10_005_R" 
+		ActualText_II = "TUT_10_005_N"     
+		gTutorialStep = gTutorialStep + 1
+		Tutorial.SetWorldCursor(154,275)
+--		Map.SetScreenPos(154,275)		
+	return
+		
+	elseif gTutorialStep == 9 then 
+			if Buildings.Amount (2,Buildings.GUARDTOWERBIG,Buildings.ALL) == 0 then
+				gTutorialStep = gTutorialStep + 1
+				Tutorial.DeleteWorldCursor()			
+			end
+	return
+			
+	elseif gTutorialStep == 10 then
+		dbg.tp("Step 8 ")
+		Tutorial.DisableExcept()
+		ActualText_I  =  "TUT_10_006_R"
+		ActualText_II =  "TUT_10_006_N"					
+		gTutorialStep = 11
+		gSpaceOk = 0
+
+--		Map.SetScreenPos(333,313)
+		gCommandOk = 0 
+		Tutorial.SetWorldCursor(331,303)
+	return
+
+	
+		
+------------------------------------------------------------------------------------------------------
+-- is that priest selected ?
+------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 11 then		
+		if Settlers.IsSelected (Settlers.PRIEST, 1 ) == 1 then
+			gTutorialStep = gTutorialStep + 1
+			Tutorial.DeleteWorldCursor()
+		end
+		gSpaceOk = 0			
+	return
+
+         	
+------------------------------------------------------------------------------------------------------
+--Enabel Priest Menues...
+------------------------------------------------------------------------------------------------------
+        
+        elseif gTutorialStep == 12 then			
+	      	Tutorial.DisableExcept
+		
+		(                                     
+			Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL7
+		)
+		
+		Tutorial.PressButton(Dialog.DLG_SOLDIERCONTEXT, Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR)	
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep + 1
+		gCommandOk = 0
+--		Tutorial.SetMarker(350,580)
+	return
+
+ 	
+------------------------------------------------------------------------------------------------------
+--Dummy Step ... 
+------------------------------------------------------------------------------------------------------
+        elseif gTutorialStep == 13 then
+		gSpaceOk = 0			
+		dbg.tp("mana++")			
+		Magic.IncreaseMana (Game.LocalPlayer(),200)
+
+		gTutorialStep = gTutorialStep+1
+
+	return
+
+------------------------------------------------------------------------------------------------------
+--Check if Spell is casted
+------------------------------------------------------------------------------------------------------
+		
+	elseif gTutorialStep == 14 then
+				
+		
+		if Statistic.SpellsCast( Game.LocalPlayer(),Magic.SPELL_SPECIAL) == 1 then
+	
+			Tutorial.ClearMarker()
+			gMakerReset = 0
+			ActualText_I  = "TUT_07_015_R"
+			ActualText_II = "TUT_NEXT"
+
+			gTutorialStep = gTutorialStep + 2
+
+			gSpaceOk = 0
+
+	dbg.tp ("spellcast") 
+		
+		end
+
+	return	
+		
+-----------------------------------------------------------------------------------------------
+-- 		Thief menue activation ... 
+-----------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 16 then
+		if gTutorialSubstep16 == 0 then 
+			gSpaceOk = 0            
+			Tutorial.DisableExcept()
+			ActualText_I  =   "TUT_10_007_R"
+			ActualText_II =   "TUT_10_007_N"        		
+            		Tutorial.DisableExcept				
+				(
+					Control.DLG_MINIMAP_CMD_FIGURES,
+					Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION,
+					Control.DLG_SETTLERPRODUCTIONMENU_CMD_THIEF,
+					Control.DLG_SETTLERPRODUCTIONMENU_CMD_1UP
+				)				                	                	                	
+			Tutorial.PressButton (Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_FIGURES) 		
+			Tutorial.PressButton (Dialog.DLG_FIGURESSUBMENU, Control.DLG_FIGURESSUBMENU_CMD_SETTLERPRODUCTION)
+		
+		elseif gTutorialSubstep16 == 2 then 
+		
+			Tutorial.PressButton (Dialog.DLG_SETTLERPRODUCTIONMENU, Control.DLG_SETTLERPRODUCTIONMENU_CMD_THIEF)		
+			gTutorialStep = 17	
+			gCommandOk = 0	
+			Tutorial.SetMarker(180,545)             
+		end		
+		gTutorialSubstep16 = gTutorialSubstep16 + 1 		
+		dbg.tp("step 17")
+
+	return
+        
+
+--------------------------------------------------------------------------------------------
+-- Thief´s recruitment ...
+--------------------------------------------------------------------------------------------
+		
+        elseif gTutorialStep == 17 then 
+		gSpace = 1 
+	  	        if Settlers.Amount(1,Settlers.THIEF) > 14 then
+					gTutorialStep = 18
+	    		end
+	        return
+	        
+        elseif gTutorialStep == 18 then
+	        	Tutorial.DisableExcept()
+			ActualText_I  =   "TUT_10_008_R"
+			ActualText_II =   "TUT_10_008_N"
+	        	gTutorialStep = 24
+			
+		return
+	
+------------------------------------------------------------------------------------------------	
+--		Thief interaction
+------------------------------------------------------------------------------------------------		        
+
+        elseif gTutorialStep == 24 then 
+
+	gSpaceOk = 0
+
+	Tutorial.ClearMarker()
+		
+		if Goods.Amount(2,Goods.IRONBAR) < 18  then
+			dbg.tp("Contraband moved !")
+--			gTutorialStep = 244
+			
+			gTutorialStep = 25
+			
+		end
+       	
+       		if Settlers.Amount(1,Settlers.THIEF) < 6 then
+       			Settlers.AddSettlers(338,347,1,Settlers.THIEF,15)       		
+			dbg.tp("thief reinforcements set")
+       		end
+       	return
+
+		elseif gTutorialStep == 244 then
+		
+			ActualText_I  =   "TUT_10_014_R"
+			ActualText_II =   "TUT_10_014_N"
+			Tutorial.DisableExcept		
+			(
+				Control.DLG_TOOLSMITHCONTEXT_CMD_STOPBUILD	
+			)
+			Tutorial.SelectNextBuilding(Buildings.WEAPONSMITH)
+			
+			gTutorialStep = 245
+		return		
+			
+		elseif gTutorialStep == 245 then 
+			if WeaponSupply == 1 then
+				gTutorialStep = 25
+			end
+		return 
+					
+----------------------------------------------------------------------------------------------
+-- 		Weapon Smith´s work ... 
+----------------------------------------------------------------------------------------------
+		
+	elseif gTutorialStep == 25 then
+
+
+		Tutorial.SelectNextBuilding(Buildings.WEAPONSMITH)				
+		
+			ActualText_I  =   "TUT_10_009_R"
+			ActualText_II =   "TUT_10_009_N"
+			
+		Tutorial.DisableExcept		
+			(
+				Control.DLG_RESOURCEUPGRADECONTEXT_CMD_SIDEBAR,
+				Control.DLG_WEAPONSMITHBAR_CMD_1UP,
+				Control.DLG_WEAPONSMITHBAR_CMD_BATTLEAXE		
+			)
+		
+			gCommandOk = 0 
+			gTutorialStep = 99 
+			Tutorial.SetMarker(190,380)      
+		return		
+	
+-----------------------------------------------------------------------------------------------
+--			Battleaxe Amount
+-----------------------------------------------------------------------------------------------		
+
+	elseif gTutorialStep == 99 then	
+		if gActiveMenu == Menu.WEAPON_SIDEBAR then
+			gTutorialStep = 26
+			Tutorial.ClearMarker()  	          	         	    
+			Tutorial.PressButton(Dialog.DLG_WEAPONSMITHBAR, Control.DLG_WEAPONSMITHBAR_CMD_BATTLEAXE)				
+		end			
+	return 
+
+	elseif gTutorialStep == 26 then
+
+		gSpaceOk = 1
+		dbg.tp("Battleaxe Amount")
+		dbg.pi(Goods.Amount( Game.LocalPlayer(), Goods.BATTLEAXE) )
+			if Goods.Amount( Game.LocalPlayer(), Goods.BATTLEAXE) >= 9 then
+				gTutorialStep = gTutorialStep + 1
+				dbg.tp("Number of Battleaxes > 5 ")  
+				gReset = 1	
+			end
+        	
+			if Goods.Amount( Game.LocalPlayer(), Goods.BATTLEAXE) < 5 and 
+				Goods.Amount( Game.LocalPlayer(), Goods.IRONBAR) < 1 then			
+				Goods.AddPileEx(348,331,Goods.IRONBAR,5)
+
+			end
+
+			if gActiveMenu == Menu.WEAPON_SIDEBAR then
+				Tutorial.PressButton(Dialog.DLG_WEAPONSMITHBAR, Control.DLG_WEAPONSMITHBAR_CMD_BATTLEAXE)				
+			end	
+		return
+-----------------------------------------------------------------------------------------------
+--			Recruit some warriors ... 
+-----------------------------------------------------------------------------------------------				       	
+       	elseif gTutorialStep == 27 then          
+        			
+	
+		if tickcounter == 1 then      
+			Tutorial.ClearMarker()
+			gSpaceOk = 0			              
+			gCommandOk = 0 
+		        Tutorial.DisableExcept		
+			
+				(
+				Control.DLG_BARRACKSCONTEXT_CMD_SIDEBAR,	 
+				Control.DLG_ADDSOLDIERBAR_CMD_SPE0,
+				Control.DLG_ADDSOLDIERBAR_CMD_1UP,
+				Control.DLG_ADDSOLDIERBAR_CMD_8UP
+				)	
+	
+			ActualText_I  = "TUT_10_010_R"
+			ActualText_II = "TUT_10_010_N"
+			Tutorial.SelectNextBuilding(Buildings.BARRACKS)
+			dbg.tp("tick 1")
+		       	 
+        	elseif tickcounter == 2 then  
+			dbg.tp("tick 2")
+			Tutorial.PressButton(Dialog.DLG_BARRACKSCONTEXT, Control.DLG_BARRACKSCONTEXT_CMD_SIDEBAR)
+		
+		elseif tickcounter == 3 then 			
+			dbg.tp("tick 3") 
+			Tutorial.PressButton(Dialog.DLG_ADDSOLDIERBAR, Control.DLG_ADDSOLDIERBAR_CMD_SPE0)			   
+			gTutorialStep = 28			        						        	
+			gCommand = 0			
+		end	                           
+	return
+
+-------------------------------------------------------------------------------------------
+-- checking if Axewarrior were orderd from barrack
+-------------------------------------------------------------------------------------------			                                                
+        elseif gTutorialStep == 28 then	                                        				
+		
+		if gActiveMenu == Menu.ADDSOLDIER_SIDEBAR then
+			Tutorial.PressButton(Dialog.DLG_ADDSOLDIERBAR, Control.DLG_ADDSOLDIERBAR_CMD_SPE0)				
+		end
+		
+		if not gActiveMenu == Menu.ADDSOLDIER_SIDEBAR then
+			Tutorial.ClearMarker()
+		end
+
+	return
+	       		        	
+	elseif gTutorialStep == 29 then	
+
+		if gActiveMenu == Menu.ADDSOLDIER_SIDEBAR then
+			Tutorial.PressButton(Dialog.DLG_ADDSOLDIERBAR, Control.DLG_ADDSOLDIERBAR_CMD_SPE0)				
+		end
+
+	return 								        	
+	       
+	elseif gTutorialStep == 30 then
+			ActualText_I  = "TUT_10_011_R"
+			ActualText_II = "TUT_10_011_N"		
+			gTutorialStep = 31			
+--			Tutorial.SetWorldCursor(121,220)
+	return
+	       
+	elseif gTutorialStep == 31 then
+
+
+       		if Settlers.Amount(1,Settlers.AXEWARRIOR_01) < 6 then
+       			Settlers.AddSettlers(338,347,1,Settlers.AXEWARRIOR_01,15)       		
+			dbg.tp("AxeWarrior ReSpawn !")
+       		end
+
+		if Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL) ~= SomeTowerAmount then
+			dbg.tp("GUARDTOWERSMALL = " ..Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL))
+			SomeTowerAmount = Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL)
+		end
+
+		if Buildings.Amount(2,Buildings.GUARDTOWERSMALL,Buildings.ALL) < 1 then 						
+			gTutorialStep = gTutorialStep + 1
+			dbg.tp("Step 31 / II ")
+		end
+	return
+	
+	elseif gTutorialStep == 32 then
+		
+		ActualText_I  = "TUT_10_012_R"
+		ActualText_II = "TUT_10_012_N"			
+--		Tutorial.DeleteWorldCursor()	
+		Tutorial.Won()
+		gSpaceOk = 1
+		
+			
+	elseif gTutorialStep == 33 then
+		Tutorial.Exit()
+	return		
+
+
+	end	-- if gTutorialStep
+
+	gPrevTutStep = gTutorialStep
+
+end -- end of function ... 
+
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+function new_game()
+Buildings.AddBuildingEx(356,322,1,Buildings.STORAGEAREA)
+
+		Goods.AddPileEx(350,339, Goods.COAL, 8)
+		Goods.AddPileEx(352,344, Goods.COAL, 8)
+		Goods.AddPileEx(345,327, Goods.COAL, 8)
+		Goods.AddPileEx(352,332, Goods.COAL, 8)
+	
+		Goods.AddPileEx(357,333, Goods.IRONBAR, 8)
+		Goods.AddPileEx(357,327, Goods.IRONBAR, 8)
+		Goods.AddPileEx(346,324, Goods.IRONBAR, 8)
+		Goods.AddPileEx(337,317, Goods.IRONBAR, 8)
+
+		
+
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( OnDragBuilding, Events.DRAG_BUILDING )
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )
+	request_event( OnSettlerProduction, Events.SETTLER_CHANGE_TYPE)
+	request_event( CLOCK, Events.FIVE_TICKS)
+	request_event( GetSomeGood , Events.GOODARRIVE)
+
+	Settlers.AddSettlers(158,289,1,Settlers.GEOLOGIST,1)
+	Tutorial.DisableExcept()
+
+	dbg.aioff(2)
+
+--	Buildings.AddBuildingEx(126,273,2,Buildings.SHIPYARDE)
+
+	if debugvar == 1 then 		
+		Goods.AddPileEx(352,312,Goods.BATTLEAXE,2)		
+		debugvar = 2
+	end
+
+
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( DummyVictoryCheck )
+	reg_func( tutorial_main )
+	reg_func( OnDragBuilding )
+	reg_func( OnSpace )
+	reg_func( OnCommand )
+	reg_func( OnSettlerProduction ) 
+	reg_func( CLOCK ) 
+	reg_func( GetSomeGood )
+end
+	
+

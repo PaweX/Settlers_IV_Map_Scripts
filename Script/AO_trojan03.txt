@@ -1,0 +1,175 @@
+--// =============================================================================
+--// AO_trojan03
+--// =============================================================================
+
+--//Manakopter greifen zu häufig an(normal)
+
+INFOTIME = 20 + Game.Random(3)
+
+function InitVar()
+
+	Vars.Save1 = 1 --//flag for text		
+	Vars.Save2 = 1 
+	Vars.Save3 = 1
+	Vars.Save4 = 1
+	Vars.Save5 = 0
+	Vars.Save6 = 1
+end
+
+--// -----------------------------------------------------------------------------
+
+function FiveTicks()
+
+	if Game.Time() ==  INFOTIME then
+		if Vars.Save1 == 1 then  
+			Vars.Save1 = 0
+			--//neuer Zauberspruch vielleicht kommt noch ein Priester und erklärt es.
+			Magic.CastSpell(2,-1,Magic.SPELL_TERRAIN, 575,158)
+		end
+		Vars.Save5 = Vars.Save5 + 1
+	end
+	
+	if Vars.Save5 == 10 then
+
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 575,158, 0)
+		Settlers.AddSettlers(575,158,2,Settlers.PRIEST,1)
+		Game.ShowText("AO_TROJAN_SCRIPT_THREE_01",575,158)
+		Goods.AddPileEx(577,155, Goods.SWORD, 8)
+		Goods.AddPileEx(579,161, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(575,161, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(571,156, Goods.BOW, 8)
+		Magic.IncreaseMana(1,120)
+	end
+
+
+	if Buildings.Amount(1,Buildings.BARRACKS,Buildings.READY) >= 1 and Vars.Save2 == 1 then
+		--//Fußtruppenangriff
+		dbg.pi(1)
+		AI.AttackNow(5,1,1)
+		Vars.Save2 = 0 
+	end
+
+	if Game.FindAnyUnit(1,352,359, 25) >= 1 and Vars.Save3 == 1 then
+		--//Fusstruppenangriff
+		AI.AttackNow(5,1,2)
+		Vars.Save3 = 0 
+	end
+
+	if Game.FindAnyUnit(1,476,328, 32) >= 1 and Vars.Save4 == 1 then
+		--//Fusstruppenangriff
+		AI.AttackNow(5,1,3)
+		Vars.Save4 = 0 
+	end
+	
+	if Game.IsAreaGreen( 352,359, 1) == 1 and Vars.Save6 == 1 then
+		--//Fusstruppenangriff
+		AI.AttackNow(5,1,3)
+		Vars.Save6 = 0 
+	end
+
+
+end
+
+--// -----------------------------------------------------------------------------
+
+function VictoryConditionCheck()
+
+	if Game.IsAreaGreen( 352,359, 25) == 1 
+	and Settlers.AmountInArea(1, Settlers.PRIEST,352,359, 32) >= 1
+	and Settlers.AmountInArea(1, Settlers.SWORDSMAN_03,352,359, 32) >= 5
+	and Settlers.AmountInArea(1, Settlers.BOWMAN_03,352,359, 32) >= 5
+	and Settlers.AmountInArea(1, Settlers.SQUADLEADER,352,359, 32) >= 1 
+	and Game.FindAnyUnit(5,352,359, 35) == 0 then
+	--// noch die anderen Priester kommen lassen: Zaubereffekt
+		
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 330,328, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 365,364, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 348,364, 0)
+	
+		Settlers.AddSettlers(330,328,2,Settlers.PRIEST,1)
+		Settlers.AddSettlers(365,364,3,Settlers.PRIEST,1)
+		Settlers.AddSettlers(348,364,4,Settlers.PRIEST,1)
+		
+		
+		Game.EnemyPlayersLost(1) 
+		Game.DefaultGameEndCheck()
+	 
+	else
+		Game.DefaultPlayerLostCheck(1)
+	end
+
+
+
+end
+
+--// -----------------------------------------------------------------------------
+
+function new_game()
+
+--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(598,112)
+	end
+
+
+--// SetPlayerVaribles //--
+	  --// AttackMode = 0 //--
+	AI.SetPlayerVar(5, "AttackMode", 0, 1, 2) 
+	AI.SetPlayerVar(5, "AttackDelay", 60, 30, 10) 
+	--//AI.SetPlayerVar(5, "DTManakopterDelay", 600, 100, 10) 
+	--//DarkTribe.AddManakopter(352,359,5)
+	--//DarkTribe.AddManakopter(352,371,5)
+	--//DarkTribe.AddManakopter(352,372,5)
+
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)		
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(FiveTicks, Events.FIVE_TICKS)
+	
+end
+
+--// -----------------------------------------------------------------------------
+
+function register_functions()
+
+
+reg_func(VictoryConditionCheck)
+reg_func(FiveTicks)
+reg_func(InitVar)
+
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

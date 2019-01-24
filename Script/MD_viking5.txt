@@ -1,0 +1,89 @@
+--// MD_VIKING5
+--//--------------
+
+
+if Game.GetDifficulty() == 0 then
+		--//EASY
+		ATTACKTIME  =  40 + Game.Random(10)
+else
+		--//NORMAL
+		ATTACKTIME  = 30 + Game.Random(10)
+end
+
+function InitVar()
+	--//Flag for one time call	
+	Vars.Save1 = 1
+
+end
+
+
+function AttackCheck()
+
+	if Game.Time() == ATTACKTIME and Vars.Save1 == 1  then
+		AI.AttackNow(2, 1, 2)
+		Vars.Save1 = 0
+	end
+end
+
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+ 	
+ 	if Buildings.ExistsBuildingInArea(1,Buildings.CASTLE,332,358,50,Buildings.READY) >= 1 then
+		--//Game.IsAreaOwned(1,332,358,50) == 1 
+	   		Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck("MD_CONQUER_SCRIPT_FIVE_01","MD_CONQUER_SCRIPT_FIVE_02")
+  	end
+
+	--//für die AI Radius, X un Y besser machen
+	if Game.IsAreaOwned(2,370,362,20)== 1 then
+     		Game.EnemyPlayersLost(2)
+			Game.DefaultGameEndCheck("MD_CONQUER_SCRIPT_FIVE_01","MD_CONQUER_SCRIPT_FIVE_02")
+  	end
+
+	--//für die AI Radius, X un Y besser machen
+	if Game.IsAreaOwned(3,293,327,20)== 1 then
+     		Game.EnemyPlayersLost(3)
+			Game.DefaultGameEndCheck("MD_CONQUER_SCRIPT_FIVE_01","MD_CONQUER_SCRIPT_FIVE_02")
+  	end
+
+	if Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck("MD_CONQUER_SCRIPT_FIVE_01","MD_CONQUER_SCRIPT_FIVE_02")
+	end
+	
+
+  	
+  
+end
+
+
+function new_game()
+	--// Attack Mode//--
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 0) 
+
+	AI.SetPlayerVar(2, "AttackDelay", 80, 50, 10) 
+	AI.SetPlayerVar(3, "AttackDelay", 80, 50, 10) 
+
+	--// SOLDIERLIMITRELATIVE//--
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 100,200,300)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 120,200,150)
+
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 100,200,300)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 130,200,150)
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(AttackCheck, Events.FIVE_TICKS)
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	
+end
+
+
+function register_functions()
+
+  reg_func(VictoryConditionCheck)
+  reg_func(AttackCheck)
+  reg_func(InitVar)
+ 
+end
+

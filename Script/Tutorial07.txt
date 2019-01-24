@@ -1,0 +1,649 @@
+--------------------------------------------------------------------------------
+--
+--	TUTORIAL 7
+--
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+--
+--	globals
+--
+--------------------------------------------------------------------------------
+
+gActiveMenu = -1		
+gTutorialStep = 1
+
+gSpaceOk= 1
+gPrevTutStep = -1
+gCommandOk = 1
+gTextStep = 1
+
+gWantedBuilding = -1
+
+gRequired = 0
+
+gMarkerSet = 0 
+
+gMakerReset = 0
+un_freeze_var = 0
+ActualText_I  = oben
+ActualText_II = unten
+
+-------------------------------------------------------------------------------
+function DummyVictoryCheck()
+end
+-------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------
+-- Kill a building if missplaced				             --
+-------------------------------------------------------------------------------
+function BuildingOnRightPlaceAndDestroyCheck(buildingtype,x,y,KickbackToStep)
+	if Buildings.ExistsBuildingInArea(1,buildingtype,x,y,5, Buildings.UNDERCONSTRUCTION) == 0 then
+		id = Buildings.GetFirstBuilding(1,buildingtype)
+		Buildings.CrushBuilding(id)
+		Tutorial.DeleteWorldCursor()
+		LastText0 = 0
+		LastText1 = 0
+		gPrevTutStep = 0
+		gTutorialStep = KickbackToStep	
+	end	
+end
+
+-------------------------------------------------------------------------------
+-- Function for handling various cases that may occour at any tine ...       --
+-------------------------------------------------------------------------------
+function OnCommand(command)
+
+   	if (command == Control.DLG_TUTORIAL_CMD_NEXT ) then
+	OnSpace()
+	end
+
+  	
+  	
+  	
+	  	if (command == 0) and (gCommandOk == 1) then 
+                Tutorial.ClearMarker()                      				
+		end                                 
+
+
+	
+	if (command == Control.DLG_TUTORIAL_CMD_RESET ) then -- ´end´ is a few screens down  
+	
+		Map.SetScreenPos(260,364)
+		Tutorial.SetZoom(17)
+		tutorial_main()                   
+		gCommandOk = 0	
+	
+		ShowText()
+	
+		dbg.tp("RESET")
+							
+			if gTutorialStep  < 4 then    
+			
+			elseif gTutorialStep ==	4 then 
+				Tutorial.SetMarker(100,490)				
+				Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+				Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)					
+			
+			
+			
+--------------------------------------------------------------------------------------------------------------------------------------				
+-- Vinyard handle
+--------------------------------------------------------------------------------------------------------------------------------------
+			elseif gTutorialStep == 8 then 
+				
+		        if Buildings.Amount( Game.LocalPlayer(), Buildings.VINYARD, Buildings.ALL) > 0 then	     
+			
+				Tutorial.DisableExcept()
+				Tutorial.ClearMarker()	
+				Tutorial.DeleteWorldCursor()
+				gTutorialStep = gTutorialStep + 1
+				BuildingOnRightPlaceAndDestroyCheck(Buildings.VINYARD, 256,348,7)      
+			
+			end																			
+	
+				Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+				Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_FOOD)	
+				gSpaceOk = 0
+				gCommandOk = 0
+				gMarkerSet = 1
+				Tutorial.SetMarker(95,538)	
+									
+	
+				
+							
+			elseif gTutorialStep == 9 then
+				
+				if Buildings.Amount( Game.LocalPlayer(), Buildings.VINYARD, Buildings.READY)  > 1 then
+		                           gTutorialStep = gTutorialStep + 1
+	    			end	
+				
+			elseif gTutorialStep == 12 then 
+				   		
+				--if
+				   Tutorial.SelectNextBuilding(Buildings.VINYARD) -- == 1 then
+				   Tutorial.SetMarker(55,380)
+				   gCommandOk = 0	
+				--   Tutorial.SetMarker(95,538)
+				--end	
+			
+			elseif gTutorialStep == 15 then Tutorial.SetMarker(164,405)
+				
+				Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+				Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)	
+
+---------------------------------------------------------------------------------------------------			
+-- Step 21 and 25 are handling various cases, of selected and unselect priests
+---------------------------------------------------------------------------------------------------			
+
+				
+			elseif gTutorialStep == 21 then 
+			if Settlers.IsSelected(Settlers.PRIEST,1) == 1 then			
+				Tutorial.DisableExcept
+					(                                     
+						Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR
+					)	              	        	
+		        	gCommandOk = 0
+				Tutorial.SetMarker(150,600)
+		        elseif Settlers.IsSelected(Settlers.PRIEST,1) == 0 then 
+		                Tutorial.ShowText("TUT_07_011_N",1)	
+			end
+			
+			
+			elseif gTutorialStep == 25 then
+			
+			if Settlers.IsSelected(Settlers.PRIEST,1) == 1 then
+				Tutorial.PressButton(Dialog.DLG_SOLDIERCONTEXT, Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR)	
+--				Tutorial.SetMarker(250,300)
+	
+			elseif Settlers.IsSelected(Settlers.PRIEST,1) == 0 then 
+		                Tutorial.ShowText("TUT_07_009_N",1)
+			end
+		
+			elseif gTutorialStep == 100 then 
+				gTutorialStep = 99
+					
+			end
+
+	end
+end
+function ShowText ()
+		gCommandOk = 0
+		Tutorial.ShowText(ActualText_I ,0)
+		Tutorial.ShowText(ActualText_II,1)
+		dbg.tp("showtext")
+		
+		dbg.tp(ActualText_I)
+		dbg.tp(ActualText_II)
+
+end
+
+-------------------------------------------------------------------------------
+function Automarker(PosX,PosY,Menu,Clear)
+	if (clear ~= 1) and (gActiveMenu == Menu) then
+		Tutorial.SetMarker(PosX,PosY)
+	        
+	end
+end
+
+-------------------------------------------------------------------------------
+-- 			Hit the space bar ... 				     --
+-------------------------------------------------------------------------------
+function OnSpace()
+	if (gSpaceOk == 1) then
+		gTutorialStep = gTutorialStep + 1
+	end
+end
+
+
+
+
+--------------------------------------------------------------------------------
+--                                                                            --
+--		main tutorial function, called every tick                     --
+--                                                                            --
+--------------------------------------------------------------------------------
+function tutorial_main()
+local Main_Handler 
+        
+        gCommandOk = 1
+	
+	if ActualText_I ~= Lastext  then
+		ShowText()
+		Lastext = ActualText_I
+	end
+
+	
+	if (gPrevTutStep == gTutorialStep) then
+	return
+	end
+	
+	if gTutorialStep == 1 then
+		Tutorial.DisableExcept()
+		ActualText_I  = "TUT_07_001_R"
+		ActualText_II = "TUT_NEXT"
+			
+		gTutorialStep = gTutorialStep + 1	
+		gSpaceOk = 0
+	return		
+		
+ 
+
+       
+       elseif gTutorialStep == 2 then
+		gSpaceOk = 1			
+			
+-------------------------------------------------------------------------------------------------------------			
+-- 		Enable the small tempel ...                                     			   --
+-------------------------------------------------------------------------------------------------------------		
+	elseif gTutorialStep == 3 then
+	        Main_Handler = 0
+		Tutorial.DisableExcept
+		
+			(
+				Control.DLG_MINIMAP_CMD_BUILD,
+				Control.DLG_BUILDSUBMENU_CMD_TOWN,
+				Control.DLG_BUILDTOWN_CMD_SMALLTEMPLE
+			)
+			
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)					
+
+			ActualText_I  = "TUT_07_002_R"
+			ActualText_II = "TUT_07_002_N"
+			gTutorialStep = gTutorialStep + 1
+			gRquired = Control.DLG_BUILDSUBMENU_CMD_TOWN 
+			gCommandOk = 0
+		      	gSpaceOk = 0
+			gMarkerSet = 1
+		
+			Tutorial.SetMarker(100,490)         
+
+			Tutorial.SetWorldCursor (265,384)			
+	return	
+	
+	
+	elseif gTutorialStep == 4 then
+	                
+	                
+	
+	if Buildings.Amount( Game.LocalPlayer(), Buildings.SMALLTEMPLE, Buildings.UNDERCONSTRUCTION) == 1 then 			
+			Tutorial.DisableExcept()
+			gActiveMenu = 0
+			Tutorial.ClearMarker()
+			Tutorial.DeleteWorldCursor()
+			gTutorialStep = gTutorialStep + 1
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.SMALLTEMPLE, 265,384,3)		
+	end
+	
+	elseif gTutorialStep == 5 then
+	
+	if Buildings.Amount( Game.LocalPlayer(), Buildings.SMALLTEMPLE, Buildings.READY) == 1 then 		
+		       	
+			ActualText_I  = "TUT_07_003_R"
+			ActualText_II = "TUT_NEXT"
+			gSpaceOk = 0
+			gTutorialStep = gTutorialStep + 1							
+	end
+	
+	
+---------------------------------------------------------------------------------------------------------
+-- dummystep 1 											       --
+---------------------------------------------------------------------------------------------------------
+
+
+	elseif gTutorialStep == 6 then		
+		gTutorialStep = gTutorialStep+1
+		gSpaceOk = 0			
+	return
+
+---------------------------------------------------------------------------------------------------------
+-- Enable											       --				
+--Vinyard!											       --
+---------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 7 then
+		Tutorial.DisableExcept
+		(
+			Control.DLG_MINIMAP_CMD_BUILD,
+			Control.DLG_BUILDSUBMENU_CMD_FOOD,
+			Control.DLG_BUILDFOOD_CMD_VINYARD
+		)
+		ActualText_I  = "TUT_07_004_R"
+		ActualText_II = "TUT_07_004_N"
+					
+		Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+		Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_FOOD)	
+
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep + 1
+		gCommandOk = 0
+		gMarkerSet = 1
+		Tutorial.SetMarker(95,538)
+		Tutorial.SetWorldCursor (256,348)
+	return
+		
+---------------------------------------------------------------------------------------------------------
+-- Check if Vinyard  
+-- Was used proper.
+---------------------------------------------------------------------------------------------------------
+			
+	elseif gTutorialStep == 8 then
+	        if Buildings.Amount( Game.LocalPlayer(), Buildings.VINYARD, Buildings.ALL) > 0 then	     
+			Tutorial.DisableExcept()
+			Tutorial.ClearMarker()	
+			Tutorial.DeleteWorldCursor()
+			gTutorialStep = gTutorialStep + 1
+			SpaceOk = 0 
+			BuildingOnRightPlaceAndDestroyCheck(Buildings.VINYARD, 256,348,7)      
+		end					
+	
+	elseif gTutorialStep == 9 then	                 
+		if Buildings.Amount( Game.LocalPlayer(), Buildings.VINYARD, Buildings.READY) > 0 then	     
+			        ActualText_I  = "TUT_07_005_R"
+			        ActualText_II = "TUT_07_005_N"
+				gTutorialStep = gTutorialStep+1			
+				Tutorial.ClearMarker()
+				gMakerReset = 0			
+		end
+	return
+
+----------------------------------------------------------------------------------------------------------
+-- Set the World Cursor 
+----------------------------------------------------------------------------------------------------------
+
+       
+       elseif gTutorialStep == 10 then
+		gTutorialStep = gTutorialStep+1
+		Tutorial.DisableExcept
+		(
+       		Control.DLG_BUILDCONTEXT_CMD_WORKAREA,
+		Control.DLG_RESOURCECOLLECTORCONTEXT_CMD_WORKAREA
+		)
+		gSpaceOk = 0			
+		
+	return		
+	
+---------------------------------------------------------------------------------------------------------
+-- Check if working 
+-- areas are set up proper  
+---------------------------------------------------------------------------------------------------------
+
+        elseif gTutorialStep == 11 then          
+	        
+	SpaceOk = 0 	
+		Tutorial.SelectNextBuilding(Buildings.VINYARD)
+		Tutorial.SetWorldCursor (260,341)
+		Tutorial.SetMarker(55,380)
+		gTutorialStep = gTutorialStep +1
+		gCommandOk = 0 
+		Tutorial.SetMarker(55,380)
+	return        
+        
+        elseif gTutorialStep == 12 then          
+	SpaceOk = 0 	
+		
+	if Buildings.IsWorkingArea( Game.LocalPlayer(), Buildings.VINYARD, 260 , 341) > 0 then  
+ 		 		
+		gTutorialStep = gTutorialStep + 1
+		Tutorial.DeleteWorldCursor()
+		Tutorial.SelectNextBuilding(Buildings.VINYARD)		                 
+
+	end	
+	
+	
+	return
+
+---------------------------------------------------------------------------------------------------------
+-- dummy Step        	
+---------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 13 then
+		gSpaceOk = 0
+		Tutorial.ClearMarker()
+		gTutorialStep = 14
+	return
+
+---------------------------------------------------------------------------------------------------------
+-- Enable BIGTEMPEL ... 
+---------------------------------------------------------------------------------------------------------
+	
+	elseif gTutorialStep == 14 then
+		gSpaceOk = 0		
+		Tutorial.DisableExcept
+		
+			(
+				Control.DLG_MINIMAP_CMD_BUILD,
+				Control.DLG_BUILDSUBMENU_CMD_TOWN,
+				Control.DLG_BUILDTOWN_CMD_BIGTEMPLE
+			)
+			
+			Tutorial.PressButton(Dialog.DLG_MINIMAP, Control.DLG_MINIMAP_CMD_BUILD)
+			Tutorial.PressButton(Dialog.DLG_BUILDSUBMENU, Control.DLG_BUILDSUBMENU_CMD_TOWN)	
+			
+		
+			ActualText_I  = "TUT_07_008_R"
+			ActualText_II = "TUT_07_008_N"
+			gTutorialStep = gTutorialStep+1
+
+	
+		gCommandOk = 0
+		Tutorial.SetMarker(164,405)		
+		Tutorial.SetWorldCursor (280,382)
+
+	return
+		
+---------------------------------------------------------------------------------------------------------
+-- Ask for BIGTEMPEL ... 
+---------------------------------------------------------------------------------------------------------
+	
+	elseif gTutorialStep == 15 then
+	        
+	   
+	        
+		if Buildings.Amount (Game.LocalPlayer(), Buildings.BIGTEMPLE, Buildings.UNDERCONSTRUCTION) > 0 then 		
+				Tutorial.DeleteWorldCursor()
+				Tutorial.DisableExcept()
+				Tutorial.ClearMarker()
+				gTutorialStep = gTutorialStep + 1
+				BuildingOnRightPlaceAndDestroyCheck(Buildings.BIGTEMPLE, 280,382,14)						
+		end
+	
+	elseif gTutorialStep == 16 then
+		
+		if Buildings.Amount (Game.LocalPlayer(), Buildings.BIGTEMPLE, Buildings.READY) == 1 then 				      	
+				gTutorialStep = gTutorialStep + 1					
+			        Tutorial.ClearMarker()
+			        gMakerReset = 0
+		end
+        return
+------------------------------------------------------------------------------------------------------
+--- dummystep 4 ---
+------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 17 then
+		gTutorialStep = gTutorialStep + 1
+		gSpaceOk = 1
+	return
+
+------------------------------------------------------------------------------------------------------
+-- TXT 08
+------------------------------------------------------------------------------------------------------
+		
+	elseif gTutorialStep == 18 then
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep + 1
+		ActualText_I  = "TUT_07_009_R"
+		ActualText_II = "TUT_07_009_N"
+	return
+	
+		
+		
+		
+------------------------------------------------------------------------------------------------------
+-- is that priest selected ?
+------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 19 then
+		
+		if Settlers.IsSelected (Settlers.PRIEST, 1 ) == 1 
+		then
+		gTutorialStep = gTutorialStep + 1
+		end
+		
+		gSpaceOk = 0			
+	return
+
+------------------------------------------------------------------------------------------------------
+--Enabel Priest Menues...
+------------------------------------------------------------------------------------------------------
+
+	elseif gTutorialStep == 20 then
+		
+	        ActualText_I  = "TUT_07_011_R"
+	        ActualText_II = "TUT_07_011_N"
+	        		
+	        Tutorial.DisableExcept
+		(                                     
+			Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL0,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL1,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL2,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL3,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL4,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL5,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL6,
+			Control.DLG_MAGICSPELLBAR_CMD_SPELL7
+		)
+	
+	        gCommandOk = 0
+--		Tutorial.SetMarker(140,590)
+		gTutorialStep =	gTutorialStep + 1
+		
+	elseif gTutorialStep == 21 then
+	        
+	        gSpaceOk = 0
+
+		if (gActiveMenu == Menu.MAGIC_SIDEBAR) then
+		gTutorialStep = gTutorialStep + 1
+		end
+
+	return
+	
+		
+
+        
+------------------------------------------------------------------------------------------------------
+-- TXT 09 
+------------------------------------------------------------------------------------------------------
+        elseif gTutorialStep == 22 then
+		gSpaceOk = 0 
+	        ActualText_I  = "TUT_07_014_R"
+	        ActualText_II = "TUT_07_014_N"
+	        gTutorialStep = gTutorialStep + 1
+	 	
+------------------------------------------------------------------------------------------------------
+--Enabel Priest Menues...
+------------------------------------------------------------------------------------------------------
+        
+        elseif gTutorialStep == 23 then			
+	      	Tutorial.DisableExcept
+		(                                     
+		Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR,
+		Control.DLG_MAGICSPELLBAR_CMD_SPELL0
+		)
+		Tutorial.PressButton(Dialog.DLG_SOLDIERCONTEXT, Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR)	
+		gSpaceOk = 0
+		gTutorialStep = gTutorialStep+1
+		gCommandOk = 0
+--		Tutorial.SetMarker(280,300)
+	return
+
+ 	
+------------------------------------------------------------------------------------------------------
+--Dummy Step ... 
+------------------------------------------------------------------------------------------------------
+        elseif gTutorialStep == 24 then
+		gSpaceOk = 0			
+		gTutorialStep = gTutorialStep+1
+	return
+
+------------------------------------------------------------------------------------------------------
+--Check if Spell is casted
+------------------------------------------------------------------------------------------------------
+		
+	elseif gTutorialStep == 25 then
+		
+		--//Check if the player has Mana ... if not help him  \\--
+		
+		if Magic.CurrentManaAmount(Game.LocalPlayer()) < 1 then
+		Magic.IncreaseMana (Game.LocalPlayer(),1)
+		end
+		
+		if Statistic.SpellsCast( Game.LocalPlayer(),Magic.SPELL_DIVINE_PRESENT) == 1 then
+	
+			Tutorial.ClearMarker()
+			gMakerReset = 0
+			ActualText_I  = "TUT_07_015_R"
+			ActualText_II = "TUT_NEXT"
+			gTutorialStep = gTutorialStep + 1
+			gSpaceOk = 0
+		end
+	return	
+		
+	elseif gTutorialStep == 26 then
+		
+		ActualText_I  = "TUT_07_016_R"
+		ActualText_II = "TUT_END"
+		Tutorial.SetZoom(00)	
+		Tutorial.Won()	
+		Tutorial.DisableExcept
+		(
+			Control.DLG_SOLDIERCONTEXT_CMD_MAGICSIDEBAR
+		)
+		gTutorialStep = gTutorialStep + 1
+		gSpaceOk = 0
+		
+	elseif gTutorialStep == 27 then
+		gSpaceOk = 1
+	return
+			
+	elseif gTutorialStep == 28 then
+		Tutorial.Exit()	
+                gPrevTutStep = gTutorialStep
+	end		
+		
+
+end
+
+
+--------------------------------------------------------------------------------
+--
+--	function which is called when a new map started
+--
+--------------------------------------------------------------------------------
+
+function new_game()
+	request_event( tutorial_main, Events.TICK )
+	request_event( OnCommand, Events.COMMAND )
+	request_event( Automarker, Events.COMMAND )
+	request_event( OnSpace, Events.SPACE )
+	request_event( DummyVictoryCheck, Events.VICTORY_CONDITION_CHECK )	
+end
+
+--------------------------------------------------------------------------------
+--
+--	register functions which could request Events
+--
+--------------------------------------------------------------------------------
+
+function register_functions()
+	reg_func( tutorial_main )	
+	reg_func( OnSpace )
+	reg_func( Automarker )
+	reg_func( OnCommand )
+      	reg_func( DummyVictoryCheck )
+end
+

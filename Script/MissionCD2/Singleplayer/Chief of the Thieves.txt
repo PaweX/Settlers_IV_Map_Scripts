@@ -1,0 +1,120 @@
+warShips={
+	{x=302,y=239,direction=0,wait=0},
+	{x=518,y=409,direction=1,wait=0},
+	{x=480,y=590,direction=3,wait=0},
+	{x=246,y=415,direction=4,wait=0}
+}
+
+_n=1
+_wait=0
+
+function initVar()
+	Vars.Save1=0				--turns 1 when thief reaches treasure
+end
+
+function victoryConditionCheck()
+	if Settlers.Amount(1,Settlers.THIEF)==0 or Vehicles.Amount(1,Vehicles.FERRY)==0 then
+		Game.PlayerLost(1)
+		Game.DefaultGameEndCheck()
+	else
+		if Settlers.AmountInArea(1,Settlers.THIEF,194,55,25)==1 and Vars.Save1==1 then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+		end
+	end
+end
+
+function checkTreasure()
+	if Vars.Save1==1 then
+		unrequest_event(checkTreasure,Events.FIVE_TICKS)
+	else
+		if Settlers.AmountInArea(1,Settlers.THIEF,386,406,3)==1 then
+			Buildings.Delete(Buildings.GetFirstBuilding(2,Buildings.EYECATCHER08),2)
+			dbg.stm("Wir haben die Statue, jetzt muessen wir nur noch heil zuhause ankommen!")
+			Vars.Save1=1
+		end
+	end
+end
+
+function ships()
+	_i=0
+	if Magic.CurrentManaAmount(2)<=500 then
+		Magic.IncreaseMana(2,500)
+	end
+	while _i<1 do
+		if _n<=4 then
+			if warShips[_n]["wait"]==0 then
+				if Vehicles.AmountInArea(2,Vehicles.WARSHIP,warShips[_n]["x"],warShips[_n]["y"],0)==1 then
+					Vehicles.KillVehicles(2,Vehicles.WARSHIP,warShips[_n]["x"],warShips[_n]["y"],1,0)
+					Vehicles.AddVehicle(warShips[_n]["x"],warShips[_n]["y"],2,Vehicles.WARSHIP,warShips[_n]["direction"],0,1)
+					if _n<4 then
+						AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,warShips[(_n+1)]["x"],warShips[(_n+1)]["y"])
+					else
+						AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,warShips[1]["x"],warShips[1]["y"])
+					end
+					warShips[_n]["wait"]=1
+				end
+			else
+				if warShips[_n]["wait"]==5 then
+					warShips[_n]["wait"]=0
+				else
+					warShips[_n]["wait"]=warShips[_n]["wait"]+1
+				end
+			end
+			_n=_n+1
+			_i=_i+1
+		else
+			_n=1
+		end
+	end
+end
+
+function showTreasure()
+	if _wait==4 then
+		Settlers.KillSelectableSettlers(3,-1,386,406,32,0)
+		unrequest_event(showTreasure,Events.FIVE_TICKS)
+	else
+		if _wait==0 then
+			Map.SetScreenPos(386,406)
+		end
+		_wait=_wait+1
+	end
+end
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(checkTreasure,Events.FIVE_TICKS)
+	request_event(ships,Events.TICK)
+	request_event(showTreasure,Events.FIVE_TICKS)
+
+	_xyz=1
+	while _xyz<=4 do
+		Vehicles.AddVehicle(warShips[_xyz]["x"],warShips[_xyz]["y"],2,Vehicles.WARSHIP,warShips[_xyz]["direction"],0,1)
+		if _xyz<4 then
+			AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,warShips[(_xyz+1)]["x"],warShips[(_xyz+1)]["y"])
+		else
+			AI.NewSquad(2,AI.CMD_MOVE_AND_STAY,warShips[1]["x"],warShips[1]["y"])
+		end
+		_xyz=_xyz+1
+	end
+	Magic.IncreaseMana(2,1000)
+
+	AI.SetPlayerVar(2, "AttackMode", 2, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 75, 45, 30) 
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 200,250,0)	
+	AI.SetPlayerVar(4, "AttackMode", 2, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 75, 45, 30) 
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 250,500,0)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 200,250,0)	
+	
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(checkTreasure)
+	reg_func(ships)
+	reg_func(showTreasure)
+end

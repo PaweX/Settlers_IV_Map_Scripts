@@ -1,0 +1,68 @@
+--//Camelot
+--//----------Map 3
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.HasPlayerLost(2) == 1
+  and Game.HasPlayerLost(3) == 1
+  and Game.HasPlayerLost(4) == 1
+  and Game.HasPlayerLost(5) == 1
+  and Game.HasPlayerLost(6) == 1
+  and Game.HasPlayerLost(7) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end
+
+function new_game()
+
+--//Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+           AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(2, "AttackDelay", 0, 62, 62) 
+       
+           AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(3, "AttackDelay", 100, 70, 70) 
+
+           AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(4, "AttackDelay", 100, 70, 70)         
+
+            AI.SetPlayerVar(5, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(5, "AttackDelay", 30, 5, 5) 
+       
+           AI.SetPlayerVar(6, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(6, "AttackDelay", 120, 85, 85) 
+
+           AI.SetPlayerVar(7, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(7, "AttackDelay", 140, 90, 90)         
+
+
+         AI.SetPlayerVar(2, "SoldierLimitRelative", 150, 300, 350)
+         AI.SetPlayerVar(2, "SoldierLimitAbsolute", 100, 250, 400)
+
+         AI.SetPlayerVar(3, "SoldierLimitRelative", 150, 200, 400)
+         AI.SetPlayerVar(3, "SoldierLimitAbsolute", 200, 300, 500)
+
+         AI.SetPlayerVar(4, "SoldierLimitRelative", 100, 300, 500)
+         AI.SetPlayerVar(4, "SoldierLimitAbsolute", 200, 300, 400)
+
+         AI.SetPlayerVar(5, "SoldierLimitRelative", 150, 300, 400)
+         AI.SetPlayerVar(5, "SoldierLimitAbsolute", 200, 300, 300)
+
+         AI.SetPlayerVar(6, "SoldierLimitRelative", 150, 400, 450)
+         AI.SetPlayerVar(6, "SoldierLimitAbsolute", 150, 400, 350)
+
+         AI.SetPlayerVar(7, "SoldierLimitRelative", 100, 300, 500)
+         AI.SetPlayerVar(7, "SoldierLimitAbsolute", 150, 300, 350)
+
+ 
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+

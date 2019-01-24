@@ -1,0 +1,158 @@
+--// Limes
+--// map8
+
+function InitVar()
+	Vars.Save1 = 1
+	i=0 		--// Initialiazing Counter for function EffectCircle
+	x_int=0		--// Initialiazing internal X for function EffectCircle
+	y_int=0		--// Initialiazing internal X for function EffectCircle
+
+
+end
+
+
+function PlayerAtVikingGraveyardCheck()
+	
+	if Game.FindAnyUnit(1,386,578,10) == 1 and Vars.Save1 == 1 then
+		Settlers.AddSettlers(530,614,3,Settlers.SWORDSMAN_03,30)
+		Settlers.AddSettlers(530,614,3,Settlers.BOWMAN_03,5)
+		Settlers.AddSettlers(442,553,3,Settlers.SWORDSMAN_03,20)
+		Settlers.AddSettlers(442,553,3,Settlers.BOWMAN_03,5)
+		AI.NewSquad(3, AI.CMD_SUICIDE_MISSION )
+		Vars.Save1 = 0
+		unrequest_event(PlayerAtVikingGraveyardCheck, Events.FIVE_TICKS)
+	end
+	
+	
+end
+
+function GetHealth()
+
+	if Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER02,434,276,30) >= 1 then
+	--//and Buildings.ExistsBuildingInArea(1,Buildings.EYECATCHER02,434,276,30) >= 1 then
+
+		Settlers.SetHealthInArea(1,Settlers.SWORDSMAN_01,433,276,27,80)
+		Settlers.SetHealthInArea(1,Settlers.SWORDSMAN_02,433,276,27,80)
+		Settlers.SetHealthInArea(1,Settlers.SWORDSMAN_03,433,276,27,80)
+		
+		Settlers.SetHealthInArea(1,Settlers.BOWMAN_01,433,276,27,80)
+		Settlers.SetHealthInArea(1,Settlers.BOWMAN_02,433,276,27,80)
+		Settlers.SetHealthInArea(1,Settlers.BOWMAN_03,433,276,27,80)
+	
+		EffectCircle(433,276,30,4)	
+		
+	end
+	
+end
+
+
+
+function EffectCircle(x,y,radius,speed)
+
+--//X,Y,Radius,Geschindigkeit des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//i=0 		--// Initialiazing Counter for function EffectCircle
+--//x_int=0		--// Initialiazing internal X for function EffectCircle
+--//y_int=0		--// Initialiazing internal X for function EffectCircle
+
+--//dbg.pi(i)
+		
+		if (i >= 0) and (i <= radius) then
+			x_int = x - radius + i
+			y_int = y - radius
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		
+		if (i >= radius) and (i <= (radius*2)) then
+			x_int = x - radius + i
+			y_int = y - (2*radius) + i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		if i >=(radius*2) and i <= (radius*3) then
+			x_int = x + radius
+			y_int = y + (i-(2*radius))
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end
+		
+		if i >=(radius*3) and i <= (radius*4) then
+			x_int = x +(4*radius) - i
+			y_int = y + radius
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+		end		
+		
+		if i >=(radius*4) and i <= (radius*5) then
+			x_int = x + (4*radius) - i
+			y_int = y + (5*radius) - i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+			
+		end
+		
+		if i >=(radius*5) and i <= (radius*6) then
+			x_int = x - radius
+			y_int = y + (5*radius) - i
+			i = i + speed
+			Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.NO_SOUND, x_int,y_int, 0)
+			
+		end
+				
+		if i>=(radius*6) then
+			i=0
+		end
+
+end
+
+
+
+
+
+
+
+function new_game()
+
+--//Anfang Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+     AI.SetPlayerVar(2,"AttackMode",1,1,1)
+     AI.SetPlayerVar(3,"AttackMode",1,2,2)
+     AI.SetPlayerVar(4,"AttackMode",1,2,2)
+
+
+     --//Angriffsfolge//--
+     AI.SetPlayerVar(2,"AttackDelay",60,45,30)
+     AI.SetPlayerVar(3,"AttackDelay",90,60,45)
+     AI.SetPlayerVar(4,"AttackDelay",60,45,20)
+   
+
+     --//Soldatenanzahl//--
+     AI.SetPlayerVar(2,"SoldierLimitAbsolute",150,300,400)
+     AI.SetPlayerVar(2,"SoldierLimitRelative",75,250,150)
+     AI.SetPlayerVar(3,"SoldierLimitAbsolute",300,700,900)
+     AI.SetPlayerVar(3,"SoldierLimitRelative",100,300,500)
+     AI.SetPlayerVar(4,"SoldierLimitAbsolute",300,700,900)
+     AI.SetPlayerVar(4,"SoldierLimitRelative",100,300,500)
+  
+
+--//Ende Spielereinstellungen//--
+
+	request_event(PlayerAtVikingGraveyardCheck, Events.FIVE_TICKS)
+	request_event(GetHealth, Events.TICK)
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)
+
+
+end
+
+function register_functions()
+
+  reg_func(PlayerAtVikingGraveyardCheck)
+  reg_func(GetHealth)
+  reg_func(InitVar)
+    
+end

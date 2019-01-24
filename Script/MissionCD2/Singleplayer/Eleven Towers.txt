@@ -1,0 +1,834 @@
+
+--###############################################################################################
+--# other variable definitions
+--###############################################################################################
+
+
+winningDelay = 120									
+timeLimit = 5										-- Time limit when "go over line"-session is finished
+stoneMessageDelay = 10
+ferryDelay = winningDelay + 5						-- delay of ferries
+multiplik = Game.GetDifficulty()+1 					-- easy =1, normal =2
+attackDelay1 = winningDelay -(multiplik*20) - 20	-- delay of first attack
+
+
+function initVar()
+	Vars.Save1 = 0		-- flag, checks if one large Guardtower is lost
+	Vars.Save2 = 0		-- flag, what winning condition type is valid
+	Vars.Save3 = 0		-- flag for positions/state of Squadleader
+	Vars.Save4 = stoneMessageDelay + 3		-- delay time for priest movement on mountains
+	Vars.Save5 = 2		-- index for position of priest
+	Vars.Save6 = 0		-- flag/status of roman ferries
+	Vars.Save7 = 0		-- flag/status for attackControl
+	Vars.Save8 = ferryDelay + 25			-- attackdelay2 (delay of first attack after ferries arrived)
+end
+
+
+
+--###############################################################################################
+--# priest movement + winning conditions 
+--###############################################################################################
+
+questionDelay1 = 1
+questionDelay2 = 2
+
+priestMovement = {
+	StandardPos = {
+	{x=531,y=544},	-- position 1 at lines
+	{x=545,y=546},	-- position 2 at lines
+	{x=560,y=550},	-- position 3 at lines
+	{x=572,y=550},	-- position 4 at lines
+	{x=587,y=553},	-- position 5 at lines
+	{x=249,y=63},	-- position at stones
+	{x=422,y=468},	-- position 1 on mountains
+	{x=312,y=201},	-- position 2 on mountains
+	{x=293,y=384},	-- position 3 on mountains
+	{x=453,y=360},	-- position 4 on mountains
+	{x=240,y=266},	-- position 5 on mountains
+	{x=422,y=468}	-- position 1 on mountains
+	}
+}
+
+function checkSettlerInCircles()
+	if Vars.Save3>=0 then	-- cycles finished ? => no
+	
+	if Settlers.AmountInArea(1,Settlers.SQUADLEADER,558,557,20)>0 and Vars.Save3==0 then	-- over line 1
+		--dbg.stm(" ")
+		--dbg.stm("Mutig, mutig mein König! Helft den Römern im Norden durch Waffenlieferungen, bis in 2 Std. Hilfe kommt. Euer Ruhm wird groß sein!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_02",544,557)
+		--dbg.stm("Traut Ihr Euch noch mehr zu? Dann überschreitet die nächste Linie. Dabei wird auf der ganzen Insel Mana freigesetzt und die Zauberkraft aller Priester erhöht!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_03",544,557)
+		--dbg.stm("Aber bedenkt: Der Zauber macht auch Eure Gegner stärker!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_04",544,557)
+		
+		priestMovement.newPos()
+		Vars.Save3 = 1		-- new position/state of Squadleader
+		Vars.Save2 = 1		-- set type of winning condition 
+
+	elseif Settlers.AmountInArea(1,Settlers.SQUADLEADER,572,559,20)>0 and Vars.Save3==1 then	-- over line 2
+		--dbg.stm(" ")
+		--dbg.stm("Ihr scheint sehr selbstbewußt, großer Herrscher! Vernichtet Olec den Grausamen, der ein Volk der Maya zu seinem Schutz versklavt hat.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_05",558,559)
+		--dbg.stm("Wagt Ihr es, durch die Flammen zu schreiten, bekommt Ihr 40 Waffen - wenn Ihr überlebt! Die Chance ist halbe/halbe also überlegt gut!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_06",558,559)
+		priestMovement.newPos()
+		Vars.Save3 = 2		-- new position/state of Squadleader
+		Vars.Save2 = 2		-- set type of winning condition 
+		request_event(drawCircles2,Events.TICK)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 558, 559, 0)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_JUPITERSLIGHTNING, 556, 556, 3)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 566, 562, 6)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 555, 551, 9)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_JUPITERSLIGHTNING, 559, 559, 12)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 563, 553, 15)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, 561, 548, 12)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_JUPITERSLIGHTNING, 564, 546, 15)
+		Effects.AddEffect(Effects.RMAGIC_JUPITERSLIGHTNING, Sounds.MAGIC_GIFTOFGOD, 558, 559, 0)
+		Effects.AddEffect(Effects.RMAGIC_JUPITERSLIGHTNING, Sounds.MAGIC_JUPITERSLIGHTNING, 564, 554, 4)
+		Effects.AddEffect(Effects.RMAGIC_JUPITERSLIGHTNING, Sounds.MAGIC_GIFTOFGOD, 566, 562, 7)
+		Effects.AddEffect(Effects.RMAGIC_JUPITERSLIGHTNING, Sounds.MAGIC_JUPITERSLIGHTNING, 558, 551, 13)
+		Magic.IncreaseMana(1,100)
+		Magic.IncreaseMana(2,100)
+		Magic.IncreaseMana(3,100)
+		Magic.IncreaseMana(4,100)
+		
+	elseif Settlers.AmountInArea(1,Settlers.SQUADLEADER,586,562,20)>0 and Vars.Save3==2 then	-- over line 3
+		--dbg.stm(" ")
+		--dbg.stm("Glück gehabt! Wenn Ihr glaubt, auch noch Hermes den Feigen besiegen zu können, dann schreitet auch über diese Linie. Außerdem erwartet Euch eine Überaschung.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_07",572,562)
+		priestMovement.newPos()
+		Vars.Save3 = 3		-- new position/state of Squadleader
+		Goods.AddPileEx(353,342,Goods.SWORD,2)
+		Goods.AddPileEx(361,348,Goods.BOW,2)
+		Goods.AddPileEx(358,349,Goods.BOW,6)
+		Goods.AddPileEx(369,343,Goods.BOW,4)
+		Goods.AddPileEx(370,349,Goods.BOW,2)
+		Goods.AddPileEx(373,347,Goods.BOW,2)
+		Goods.AddPileEx(364,333,Goods.SWORD,3)
+		Goods.AddPileEx(359,327,Goods.BOW,2)
+		Goods.AddPileEx(363,328,Goods.BOW,2)
+		Goods.AddPileEx(352,329,Goods.BOW,4)
+		Goods.AddPileEx(349,330,Goods.BOW,5)
+		Goods.AddPileEx(349,325,Goods.BOW,3)
+		Goods.AddPileEx(360,351,Goods.SWORD,3)
+		
+	elseif Settlers.AmountInArea(1,Settlers.SQUADLEADER,599,565,20)>0 and Vars.Save3==3 then	-- over line 4
+		--dbg.stm(" ")
+		--dbg.stm("Diesmal hast du leider Pech gehabt, mein Überaschungszauber hat nicht richtig funktioniert! Leider haben sowohl Hermes, als auch Olec jeweils 40 Krieger bekommen!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_08",586,565)
+		--dbg.stm("Aber vielleicht hast du bei der nächsten Linie mehr Glück! Geh weiter und sieh was passiert.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_09",586,565)
+		priestMovement.newPos()
+		Vars.Save3 = 4		-- new position/state of Squadleader
+		Vars.Save2 = 3		-- set type of winning condition
+		
+		Settlers.AddSettlers(142,575,4,Settlers.BOWMAN_02,12)	-- more soldiers Hermes
+		Settlers.AddSettlers(107,547,4,Settlers.BOWMAN_02,13)
+		Settlers.AddSettlers(132,505,4,Settlers.SWORDSMAN_02,15)
+		AI.NewSquad(4,AI.CMD_MOVE_HOME)
+		Settlers.AddSettlers(600,96,5,Settlers.SWORDSMAN_02,20)	-- more soldiers Olec
+		Settlers.AddSettlers(617,106,5,Settlers.BOWMAN_02,20)
+		AI.NewSquad(5,AI.CMD_MOVE_HOME)
+		
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 562, 546, 1)
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 579, 547, 3)
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 591, 552, 6)
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 590, 569, 5)
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 574, 557, 4)
+		Effects.AddEffect(Effects.MMAGIC_RAISERANK, Sounds.MAGIC_RAISERANK, 575, 569, 2)
+		
+		Goods.AddPileEx(130,168,Goods.SWORD,8)					-- more weapons Amicus
+		Goods.AddPileEx(133,169,Goods.BOW,8)
+
+	elseif Settlers.AmountInArea(1,Settlers.SQUADLEADER,612,565,20)>0 and Vars.Save3==4 then	-- over line 5
+		--dbg.stm(" ")
+		--dbg.stm("Na! Ist das Nichts? Mit dem Blick durch die Augen der Esel könnt Ihr die Mayas - die Sklaven Olecs - beobachten.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_10",599,565)
+		--dbg.stm("Nun kehrt zurück zu Eurem Volk. Helft den Römern durch Waffenlieferungen zu überleben und vernichtet Olec den Grausamen und Hermes den Feigen.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_11",599,565)
+		Vars.Save3 = 5		-- new position/state of Squadleader
+		unrequest_event(drawCircles2,Events.TICK)
+		Settlers.AddSettlers(560,179,1,Settlers.DONKEY,1)
+		Settlers.AddSettlers(609,132,1,Settlers.DONKEY,1)
+		Settlers.AddSettlers(546,258,1,Settlers.DONKEY,1)
+	end
+	if Settlers.AmountInArea(1,Settlers.SQUADLEADER,531,557,14)==0 and		-- going away in the very beginning
+	   Settlers.AmountInArea(1,Settlers.SQUADLEADER,531,557,30)>0 and
+	   Vars.Save3==0 then
+		--dbg.stm(" ")
+		--dbg.stm("Feigling, Ihr habt nicht verdient ein Volk zu führen! Weicht von mir und verflucht seit Ihr die nächsten 10 Jahre!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_12",544,557)
+		Vars.Save3 = -1		-- new position/state of Squadleader => lost
+		unrequest_event(checkSettlerInCircles,Events.TICK)
+	end
+	if ((Settlers.AmountInArea(1,Settlers.SQUADLEADER,531,557,30)==0 and		-- going away later
+	   Settlers.AmountInArea(1,Settlers.SQUADLEADER,587,565,30)==0) or			
+	   Game.Time() >= timeLimit) and											-- or waiting too long
+	   Vars.Save3>0 then
+		if Vars.Save3<5 then												-- but not after last line
+			--dbg.stm(" ")
+			--dbg.stm("Na gut! Ihr habt Euch entschieden nicht weiter zu gehen! Viel Erfolg bei Eurer Mission.")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_13",544,557)
+			if Vars.Save2 == 1 then				-- victory condition 1
+				--dbg.stm("Helft den Römern durch Waffenlieferungen, zwei Stunden zu überleben.")
+				Game.ShowText("MD2_TOWERS_SCRIPT_ONE_14",544,557)
+			elseif Vars.Save2 == 2 then			-- victory condition 2
+				--dbg.stm("Helft den Römern durch Waffenlieferungen zu überleben und vernichtet Olec den Grausamen im Nord-Westen.")
+				Game.ShowText("MD2_TOWERS_SCRIPT_ONE_15",544,557)
+			elseif Vars.Save2 == 3 then			-- victory condition 3
+				--dbg.stm("Helft den Römern durch Waffenlieferungen zu überleben und vernichtet Olec den Grausamen und Hermes den Feigen.")
+				Game.ShowText("MD2_TOWERS_SCRIPT_ONE_16",544,557)
+			end
+		end
+		if Vars.Save3>=2 and Vars.Save3<=4 then
+			unrequest_event(drawCircles2,Events.TICK)		-- switch off flames
+		end
+
+		Vars.Save3 = -2				-- new position/state of Squadleader => finished
+		priestMovement.newPos()
+		request_event(stoneMessage,Events.TICK)
+	end
+	
+	elseif (Game.Time() >= Vars.Save4 and Vars.Save3 == -2) then		-- move priest every 4 minutes
+		Vars.Save4 = Vars.Save4 + 4
+		priestMovement.newPos()
+	end
+end
+
+function stoneMessage()
+	if (Game.Time() >= stoneMessageDelay) then
+
+		--dbg.stm(" ")
+		--dbg.stm("Noch etwas, mein weiser Gebieter. Wenn Eure Steinvorkommen zur Neige gehen, so findet Ihr hier genügend Steine.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_17",249,63)
+		Map.SetScreenPos(249,63)
+		unrequest_event(stoneMessage,Events.TICK)
+		
+	end
+end
+
+
+function priestMovement.newPos()
+		x_ = priestMovement.StandardPos[Vars.Save5-1].x
+		y_ = priestMovement.StandardPos[Vars.Save5-1].y
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, x_-3, y_-5, 0)
+		Settlers.KillSelectableSettlers(6,Settlers.PRIEST,x_,y_,50,0)
+		
+		if Vars.Save3 == -2 and Vars.Save5 < 6 then Vars.Save5 = 6 end
+		x_ = priestMovement.StandardPos[Vars.Save5].x
+		y_ = priestMovement.StandardPos[Vars.Save5].y
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.MAGIC_GIFTOFGOD, x_-3, y_-5, 1)
+		Settlers.AddSettlers(x_,y_,6,Settlers.PRIEST,1)
+		
+		Vars.Save5 = Vars.Save5 + 1
+		if Vars.Save5 > 12 then Vars.Save5 = 8 end
+end
+
+function checkLeaderPos1()
+	if Game.Time()>=questionDelay1 then
+		if Vars.Save3 == 0 then
+			--dbg.stm("Ich warte auf Antwort, hoher Herr!")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_18",544,557)
+		end
+		unrequest_event(checkLeaderPos1,Events.TICK)
+	end
+end
+
+function checkLeaderPos2()
+	if Game.Time()>=questionDelay2 then
+		if Vars.Save3 == 0 then
+			--dbg.stm("Feigling, Ihr seid unentschlossen und seid nicht fähig ein Volk zu führen!")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_19",544,557)
+			Vars.Save3 = -1
+		end
+		unrequest_event(checkLeaderPos2,Events.TICK)
+	end
+end
+
+--###############################################################################################
+--# ferry control 
+--###############################################################################################
+
+ferryData={ 
+	{settlersId=2,fromX=20,fromY=590,toX=131,toY=55,settlersX=138,settlersY=74},
+	{settlersId=2,fromX=20,fromY=610,toX=110,toY=50,settlersX=116,settlersY=68},
+	{settlersId=2,fromX=20,fromY=630,toX=99,toY=46,settlersX=93,settlersY=51},
+	{settlersId=2,fromX=20,fromY=650,toX=75,toY=30,settlersX=84,settlersY=46},
+	{settlersId=2,fromX=20,fromY=670,toX=59,toY=34,settlersX=72,settlersY=53},
+	{settlersId=2,fromX=20,fromY=690,toX=45,toY=36,settlersX=47,settlersY=50}
+}
+
+function ferryData.sendFerry(_ferry)
+	Vehicles.AddVehicle(_ferry.fromX,_ferry.fromY,_ferry.settlersId,Vehicles.FERRY,5,0,1)
+	AI.NewSquad(_ferry.settlersId,AI.CMD_MOVE_AND_STAY,_ferry.toX,_ferry.toY)
+end
+
+function ferryData.checkIfFerryArrived(_ferry)
+	if Vehicles.AmountInArea(_ferry.settlersId,Vehicles.FERRY,_ferry.toX,_ferry.toY,5)==1 then
+		_sumOfArrivedFerries = _sumOfArrivedFerries + 1
+	end
+end
+
+function ferryData.unloadFerry(_ferry)
+	Settlers.AddSettlers(_ferry.settlersX,_ferry.settlersY,_ferry.settlersId,Settlers.SWORDSMAN_03,13)
+	AI.NewSquad(_ferry.settlersId,AI.CMD_MOVE_HOME)
+	Settlers.AddSettlers(_ferry.settlersX,_ferry.settlersY,_ferry.settlersId,Settlers.BOWMAN_03,10)
+	AI.NewSquad(_ferry.settlersId,AI.CMD_MOVE_HOME)
+	Settlers.AddSettlers(_ferry.settlersX,_ferry.settlersY,_ferry.settlersId,Settlers.MEDIC_03,2)
+	AI.NewSquad(_ferry.settlersId,AI.CMD_MOVE_HOME)
+	Settlers.AddSettlers(_ferry.settlersX,_ferry.settlersY,_ferry.settlersId,Settlers.CARRIER,10)
+end
+
+function sendFerries()
+	if Vars.Save6 == 3 then												-- ferries finished
+		_index = 1
+		while (ferryData[_index]~=nil) do 
+			ferryData.unloadFerry(ferryData[_index])
+			_index = _index + 1
+		end
+		unrequest_event(sendFerries,Events.TICK)
+	elseif Vars.Save6 == 2 then											-- ferries arrived
+		_index = 1
+		_sumOfArrivedFerries = 0
+		while (ferryData[_index]~=nil) do 
+			ferryData.checkIfFerryArrived(ferryData[_index])
+			_index = _index + 1
+		end
+		if _sumOfArrivedFerries == _index-1 then
+			Vars.Save6 = 3
+		end
+	elseif (Game.Time() >= ferryDelay+2 and Vars.Save6 == 1) then		-- ferries sighted
+		--dbg.stm("Die Flotte wurde gesichtet, die Rettung naht!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_20",25,374)
+		Map.SetScreenPos(25,374)
+		
+		Vars.Save6 = 2
+	elseif Game.Time() >= ferryDelay and Vars.Save6 == 0 then			-- ferries created
+		_index = 1
+		while (ferryData[_index]~=nil) do 
+			ferryData.sendFerry(ferryData[_index])
+			_index = _index + 1
+		end
+		Vars.Save6 = 1
+	end
+end
+
+--###############################################################################################
+--# attack control 
+--###############################################################################################
+
+function attackControl()
+
+	if (Game.Time() >= attackDelay1 and Vars.Save7 == 0) then				-- easy attack yellow
+		AI.AttackNow(4, 1, multiplik-1) 
+		Vars.Save7 = 1
+		
+	elseif (Game.Time() >= attackDelay1+10 and Vars.Save7 == 1) then		-- medium attack green
+		AI.AttackNow(3, 1, multiplik) 
+		Vars.Save7 = 2
+		
+	elseif (Game.Time() >= attackDelay1+20 and Vars.Save7 == 2) then		-- easy attack yellow +
+		AI.AttackNow(4, 1, 1) 												-- strong attack green
+		soldiers.getRomanSoldiers(2)										-- depending on amount of blue soldiers
+		AI.AttackNow(3, 2, soldiers.squadAmount-2) 
+		Vars.Save7 = 3
+		
+	elseif (Game.Time() >= winningDelay-4 and Vars.Save7 == 3) then			-- master attack green
+		soldiers.getMayanSoldiers(3)
+		_amount1 = soldiers.squadAmount - 4
+		_amount2 = multiplik*3 + 2
+		if _amount1 < _amount2 then _amount = _amount1
+		else _amount = _amount2 end
+		
+		AI.AttackNow(3, 2, _amount)
+		x_ = priestMovement.StandardPos[Vars.Save5 - 1].x
+		y_ = priestMovement.StandardPos[Vars.Save5 - 1].y
+		--dbg.stm("Der Feind rüstet zum Angriff! Sammelt Eure Truppen und helft unseren römischen Verbündeten!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_21",x_,y_)
+		Map.SetScreenPos(x_,y_)
+		Vars.Save7 = 4
+		
+	elseif (Game.Time() >= winningDelay-3 and Vars.Save7 == 4) then			-- master attack yellow
+		if (Vars.Save2 == 1) then
+			AI.AttackNow(4, 2, 5) 
+		else
+			AI.AttackNow(4, 2, 2) 
+		end
+		--if (Game.GetDifficulty() > 0) then	-- normal mode
+		--	Settlers.AddSettlers(536,212,5,Settlers.AXEWARRIOR_03,10)
+		--	Settlers.AddSettlers(536,212,5,Settlers.SQUADLEADER,1)
+		--	Settlers.AddSettlers(536,212,5,Settlers.SWORDSMAN_03,1)
+		--	Settlers.AddSettlers(536,212,5,Settlers.BOWMAN_03,1)
+		--	AI.NewSquad(5, AI.CMD_SUICIDE_MISSION)
+		--end
+		Vars.Save7 = 5
+		
+	elseif (Game.Time() >= winningDelay+1 and Vars.Save7 == 5) then			-- message
+		x_ = priestMovement.StandardPos[Vars.Save5 - 1].x
+		y_ = priestMovement.StandardPos[Vars.Save5 - 1].y
+		--dbg.stm("Es scheint, die Ankunft der römischen Flotte verzögert sich. Schützt weiterhin Eure Freunde, wie Ihr es Euch zur Aufgabe gemacht habt!")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_22",x_,y_)
+		Map.SetScreenPos(x_,y_)
+		Vars.Save7 = 6
+		
+	elseif (Game.Time() >= Vars.Save8 and Vars.Save7 >= 6) then		-- attacks in increasing time delays
+		-- attack green
+		if Buildings.ExistsBuildingInArea(3,Buildings.BARRACKS,539,208,5,Buildings.ALL) == 1 and
+		   Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,531,213,5,Buildings.ALL) == 1 and
+		   Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,547,226,5,Buildings.ALL) == 1 and
+		   Buildings.ExistsBuildingInArea(3,Buildings.GUARDTOWERBIG,529,226,5,Buildings.ALL) == 1 then
+
+			Settlers.AddSettlers(536,212,3,Settlers.SWORDSMAN_03,7*multiplik)
+			Settlers.AddSettlers(536,212,3,Settlers.BOWMAN_03,5*multiplik)
+			Settlers.AddSettlers(536,212,3,Settlers.BLOWGUNWARRIOR_03,5*multiplik)
+			Settlers.AddSettlers(536,212,3,Settlers.SQUADLEADER,1)
+			AI.NewSquad(3, AI.CMD_MOVE_HOME)
+			AI.AttackNow(3, 1, 2*multiplik)
+			
+			if (Vars.Save7 == 7 and Game.GetDifficulty()==1) then
+				Settlers.AddSettlers(536,212,5,Settlers.AXEWARRIOR_03,15)
+				Settlers.AddSettlers(536,212,5,Settlers.SQUADLEADER,1)
+				Settlers.AddSettlers(536,212,5,Settlers.SWORDSMAN_03,1)
+				Settlers.AddSettlers(536,212,5,Settlers.BOWMAN_03,1)
+				AI.NewSquad(5, AI.CMD_SUICIDE_MISSION)
+			end
+			
+			Settlers.AddSettlers(541,221,3,Settlers.CARRIER,25)
+		end
+		
+		-- attack yellow
+		if Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,117,514,5,Buildings.ALL) == 1 and 
+		   Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,136,531,5,Buildings.ALL) == 1 and
+		   Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERSMALL,114,532,5,Buildings.ALL) == 1 and
+		   Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERSMALL,134,548,5,Buildings.ALL) == 1 then
+			if Game.GetDifficulty()==1 then 	-- only in normal mode
+
+				Settlers.AddSettlers(126,530,4,Settlers.SWORDSMAN_03,15)
+				Settlers.AddSettlers(126,530,4,Settlers.BOWMAN_03,10)
+				Settlers.AddSettlers(126,530,4,Settlers.BACKPACKCATAPULTIST_03,6)
+				Settlers.AddSettlers(126,530,4,Settlers.SQUADLEADER,1)
+				AI.NewSquad(4, AI.CMD_MOVE_HOME)
+				AI.AttackNow(4, 1, 2)
+			end
+			Settlers.AddSettlers(125,539,4,Settlers.CARRIER,20)
+		end
+		
+		if (Game.GetDifficulty() > 0) then	-- normal mode
+			Vars.Save8 = Vars.Save8 + 21 + ((Vars.Save7-6) * 3)		-- set new increased time delay
+		else
+			Vars.Save8 = Vars.Save8 + 31 + ((Vars.Save7-6) * 3)		-- set new increased time delay
+		end
+		Vars.Save7 = Vars.Save7 + 1
+
+	end
+end
+
+soldiers = {amount = 0, squadAmount = 0}
+
+function soldiers.getRomanSoldiers(_id)
+	soldiers.amount = Settlers.Amount(_id,Settlers.SQUADLEADER) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_01) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_02) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_03) +
+						Settlers.Amount(_id,Settlers.BOWMAN_01) +
+						Settlers.Amount(_id,Settlers.BOWMAN_02) +
+						Settlers.Amount(_id,Settlers.BOWMAN_03) +
+						Settlers.Amount(_id,Settlers.MEDIC_01) +
+						Settlers.Amount(_id,Settlers.MEDIC_02) +
+						Settlers.Amount(_id,Settlers.MEDIC_03)
+	soldiers.getSquads(soldiers.amount)
+end
+
+function soldiers.getMayanSoldiers(_id)
+	soldiers.amount = Settlers.Amount(_id,Settlers.SQUADLEADER) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_01) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_02) +
+						Settlers.Amount(_id,Settlers.SWORDSMAN_03) +
+						Settlers.Amount(_id,Settlers.BOWMAN_01) +
+						Settlers.Amount(_id,Settlers.BOWMAN_02) +
+						Settlers.Amount(_id,Settlers.BOWMAN_03) +
+						Settlers.Amount(_id,Settlers.BLOWGUNWARRIOR_01) +
+						Settlers.Amount(_id,Settlers.BLOWGUNWARRIOR_02) +
+						Settlers.Amount(_id,Settlers.BLOWGUNWARRIOR_03)
+	soldiers.getSquads(soldiers.amount)
+end
+
+function soldiers.getSquads(_squadAmount)
+	_squadAmount = _squadAmount/18
+	if     _squadAmount > 20 then _squadAmount = 20
+	elseif _squadAmount > 19 then _squadAmount = 19
+	elseif _squadAmount > 18 then _squadAmount = 18
+	elseif _squadAmount > 17 then _squadAmount = 17
+	elseif _squadAmount > 16 then _squadAmount = 16
+	elseif _squadAmount > 15 then _squadAmount = 15
+	elseif _squadAmount > 14 then _squadAmount = 14
+	elseif _squadAmount > 13 then _squadAmount = 13
+	elseif _squadAmount > 12 then _squadAmount = 12
+	elseif _squadAmount > 11 then _squadAmount = 11
+	elseif _squadAmount > 10 then _squadAmount = 10
+	elseif _squadAmount > 9  then _squadAmount = 9
+	elseif _squadAmount > 8  then _squadAmount = 8
+	elseif _squadAmount > 7  then _squadAmount = 7
+	elseif _squadAmount > 6  then _squadAmount = 6
+	elseif _squadAmount > 5  then _squadAmount = 5
+	elseif _squadAmount > 4  then _squadAmount = 4
+	elseif _squadAmount > 3  then _squadAmount = 3
+	elseif _squadAmount > 2  then _squadAmount = 2
+	elseif _squadAmount > 1  then _squadAmount = 1
+	else						  _squadAmount = 0
+	end
+	soldiers.squadAmount = _squadAmount
+end
+
+--###############################################################################################
+--# victory conditions 
+--###############################################################################################
+
+towerPositions={
+	{x=344,y=381,type=Buildings.GUARDTOWERBIG},
+	{x=366,y=397,type=Buildings.GUARDTOWERBIG},
+	{x=404,y=398,type=Buildings.GUARDTOWERBIG},
+	{x=413,y=386,type=Buildings.GUARDTOWERBIG},
+	{x=410,y=357,type=Buildings.GUARDTOWERBIG},
+	{x=388,y=313,type=Buildings.GUARDTOWERBIG},
+	{x=368,y=290,type=Buildings.GUARDTOWERBIG},
+	{x=332,y=275,type=Buildings.GUARDTOWERBIG},
+	{x=307,y=281,type=Buildings.GUARDTOWERBIG},
+	{x=298,y=296,type=Buildings.GUARDTOWERBIG},
+	{x=314,y=335,type=Buildings.GUARDTOWERBIG}
+}
+
+function towerPositions.ifBuildingStands(_position)
+	if (Buildings.ExistsBuildingInArea(1,_position.type,_position.x,_position.y,6,Buildings.ALL)==0 and
+		Buildings.ExistsBuildingInArea(2,_position.type,_position.x,_position.y,6,Buildings.ALL)==0 and
+		Buildings.ExistsBuildingInArea(3,_position.type,_position.x,_position.y,6,Buildings.ALL)==0 and
+		Buildings.ExistsBuildingInArea(4,_position.type,_position.x,_position.y,6,Buildings.ALL)==0 and
+		Buildings.ExistsBuildingInArea(5,_position.type,_position.x,_position.y,6,Buildings.ALL)==0) then
+		
+		Vars.Save1=1
+	end
+end
+
+
+function victoryConditionCheck()
+	_index=1
+	while (_index <= 11) do 
+		towerPositions.ifBuildingStands(towerPositions[_index])
+		_index=_index+1
+	end
+		
+	-- check loosing
+	Game.DefaultPlayerLostCheck(1)
+	Game.DefaultPlayerLostCheck(2)	
+	if (Game.HasPlayerLost(1)==1 or Game.HasPlayerLost(2)==1 or Vars.Save3 == -1) then
+		Game.PlayerLost(2)
+		Game.PlayerLost(1)		-- Loosing game
+		Game.DefaultGameEndCheck()
+		Game.stop_game()
+	elseif (Vars.Save1==1) then
+		--dbg.stm("Einer der elf heiligen Türme unserer Siedlung wurde zerstört! Die Götter werden sich an uns Versagern rächen.")
+		Game.ShowText("MD2_TOWERS_SCRIPT_ONE_23")
+		Game.PlayerLost(2)
+		Game.PlayerLost(1)		-- Loosing game
+		Game.DefaultGameEndCheck()
+		Game.stop_game()
+	end
+	
+	
+	-- check winning
+	if (Game.HasPlayerLost(5)==0 and Buildings.ExistsBuildingInArea(5,Buildings.CASTLE,609,88,10,Buildings.READY) == 0) then
+		Game.PlayerLost(3)
+		Game.PlayerLost(5)
+	end
+	if (Game.HasPlayerLost(4)==0 and Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERSMALL,121,562,55,Buildings.READY) == 0 and
+			Buildings.ExistsBuildingInArea(4,Buildings.GUARDTOWERBIG,121,562,55,Buildings.READY) == 0 and
+			Buildings.ExistsBuildingInArea(4,Buildings.CASTLE,121,562,55,Buildings.READY) == 0) then
+		Game.PlayerLost(4)
+	end
+	
+	if Vars.Save2 == 1 then			-- victory condition 1: ferries arrived
+		if (Vars.Save6>=3 or (Game.HasPlayerLost(3)==1 and Game.HasPlayerLost(4)==1 and Game.HasPlayerLost(5)==1)) then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+			--dbg.stm("Vielen Dank großer Krieger, Ihr habt die Römer vor dem Untergang bewahrt!")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_24")
+			Game.stop_game()
+		end
+	elseif Vars.Save2 == 2 then		-- victory condition 2: kill residence of Olec
+		if (Game.HasPlayerLost(3)==1 and Game.HasPlayerLost(5)==1) then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+			--dbg.stm("Vielen Dank großer Krieger, Ihr habt diese Insel von Olec dem Grausamen befreit!")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_25")
+			Game.stop_game()
+		end
+	elseif Vars.Save2 == 3 then		-- victory condition 3: kill residences of Olec and Hermes
+		if (Game.HasPlayerLost(3)==1 and Game.HasPlayerLost(4)==1 and Game.HasPlayerLost(5)==1) then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()
+			--dbg.stm("Vielen Dank großer Krieger, Ihr habt diese Insel von Olec dem Grausamen und Hermes dem Feigling befreit!")
+			Game.ShowText("MD2_TOWERS_SCRIPT_ONE_26")
+			Game.stop_game()
+		end
+	end
+	
+end
+
+--###############################################################################################
+--# circles 
+--###############################################################################################
+
+circles={
+	circle1={
+		center={x=605,y=112}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=13, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle2={
+		center={x=608,y=112}, radius=6, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=8, delay=0, effectsPerTick=1, split=17, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle3={
+		center={x=587,y=79}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=14, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle4={
+		center={x=584,y=70}, radius=4, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=17, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle5={
+		center={x=589,y=64}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=16, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle6={
+		center={x=597,y=64}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=8, delay=0, effectsPerTick=1, split=12, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle7={
+		center={x=604,y=66}, radius=4, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=15, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle8={
+		center={x=615,y=74}, radius=6, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=8, delay=0, effectsPerTick=1, split=13, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle9={
+		center={x=632,y=93}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=15, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle10={
+		center={x=636,y=103}, radius=4, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=13, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle11={
+		center={x=630,y=107}, radius=5, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=15, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circle12={
+		center={x=632,y=121}, radius=4, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=9, delay=0, effectsPerTick=1, split=13, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circleB1={
+		center={x=564,y=558}, radius=3, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=2, delay=0, effectsPerTick=1, split=3, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	},
+	circleB2={
+		center={x=569,y=567}, radius=3, effect=Effects.DARKFLAME, sound=Sounds.NO_SOUND,
+		density=2, delay=0, effectsPerTick=1, split=4, coordinates={x={},y={}}, effectsAmount=1, _i=1, _j=1
+	}
+}
+
+function circles.calculate(_circle)
+	distance=0
+	while (distance<=(6*_circle.radius)) do
+		if distance<=_circle.radius then
+			--Calculation of coordinates on upper side of hexagon
+			_x = _circle.center.x - _circle.radius + distance
+			_y = _circle.center.y - _circle.radius
+		elseif distance<=_circle.radius*2 then
+			--Calculation of coordinates on upper right side of hexagon
+			_x = _circle.center.x - _circle.radius + distance
+			_y = _circle.center.y - (2*_circle.radius) + distance
+		elseif distance<=_circle.radius*3 then
+			--Calculation of coordinates on lower right side of hexagon
+			_x = _circle.center.x + _circle.radius
+			_y = _circle.center.y + (distance-(2*_circle.radius))
+		elseif distance<=_circle.radius*4 then
+			--Calculation of coordinates on lower side of hexagon
+			_x = _circle.center.x +(4*_circle.radius) - distance
+			_y = _circle.center.y + _circle.radius
+		elseif distance<=_circle.radius*5 then
+			--Calculation of coordinates on lower left side of hexagon
+			_x = _circle.center.x + (4*_circle.radius) - distance
+			_y = _circle.center.y + (5*_circle.radius) - distance
+		else
+			--Calculation of coordinates on upper left side of hexagon
+			_x = _circle.center.x - _circle.radius
+			_y = _circle.center.y + (5*_circle.radius) - distance
+		end
+		distance = distance + _circle.density
+		_circle.coordinates.x[_circle.effectsAmount]=_x
+		_circle.coordinates.y[_circle.effectsAmount]=_y
+		_circle.effectsAmount=_circle.effectsAmount+1
+	end
+end
+
+
+function circles.draw(_circle)
+	drawnEffects=0
+	while drawnEffects<_circle.effectsPerTick do
+		if _circle._j<_circle.split then
+			if _circle._i<_circle.effectsAmount then
+				_x=_circle.coordinates.x[_circle._i]
+				_y=_circle.coordinates.y[_circle._i]
+				Effects.AddEffect(_circle.effect, _circle.sound, _x, _y, _circle.delay)
+				_circle._i=_circle._i+_circle.split
+			else
+				_circle._j=_circle._j+1
+				_circle._i=_circle._j
+			end
+		else
+			_circle._j=0
+		end
+		drawnEffects=drawnEffects+1
+	end
+end
+
+function calculateCircles()
+	circles.calculate(circles.circle1)
+	circles.calculate(circles.circle2)
+	circles.calculate(circles.circle3)
+	circles.calculate(circles.circle4)
+	circles.calculate(circles.circle5)
+	circles.calculate(circles.circle6)
+	circles.calculate(circles.circle7)
+	circles.calculate(circles.circle8)
+	circles.calculate(circles.circle9)
+	circles.calculate(circles.circle10)
+	circles.calculate(circles.circle11)
+	circles.calculate(circles.circle12)
+	circles.calculate(circles.circleB1)
+	circles.calculate(circles.circleB2)
+end
+
+function drawCircles1()
+	circles.draw(circles.circle1)
+	circles.draw(circles.circle2)
+	circles.draw(circles.circle3)
+	circles.draw(circles.circle4)
+	circles.draw(circles.circle5)
+	circles.draw(circles.circle6)
+	circles.draw(circles.circle7)
+	circles.draw(circles.circle8)
+	circles.draw(circles.circle9)
+	circles.draw(circles.circle10)
+	circles.draw(circles.circle11)
+	circles.draw(circles.circle12)
+end
+
+function drawCircles2()
+	circles.draw(circles.circleB1)
+	circles.draw(circles.circleB2)
+end
+
+--###############################################################################################
+--# start functions 
+--###############################################################################################
+
+function setStartPos()
+	Map.SetScreenPos(544,557)
+	--dbg.stm("Herrscher! Hört, was ich zu melden habe! Böse Fürsten haben sich ausgebreitet. Zeigt Euren Mut und überschreitet die Linie, wenn Ihr bereit seid, die Herausforderungen anzunehmen!")
+	Game.ShowText("MD2_TOWERS_SCRIPT_ONE_01",544,557)
+	Settlers.AddSettlers(531,544,6,Settlers.PRIEST,1)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	_temp = Buildings.GetFirstBuilding(3,Buildings.GUARDTOWERSMALL)
+	Buildings.Delete(_temp,2)
+	unrequest_event(setStartPos,Events.TICK)
+end
+
+
+
+
+function new_game()
+	request_event(initVar,Events.FIRST_TICK_OF_NEW_GAME)
+	request_event(victoryConditionCheck,Events.VICTORY_CONDITION_CHECK)
+	request_event(calculateCircles,Events.FIRST_TICK_OF_NEW_OR_LOADED_GAME)
+	request_event(drawCircles1,Events.TICK)
+	request_event(checkSettlerInCircles,Events.TICK)
+	request_event(attackControl,Events.TICK)
+	request_event(setStartPos,Events.TICK)
+	request_event(checkLeaderPos1,Events.TICK)
+	request_event(checkLeaderPos2,Events.TICK)
+	request_event(sendFerries,Events.TICK)
+	
+	Map.AddDecoObject(202,495,117)	-- trojan horse
+	Map.AddDecoObject(294,588,232)	-- Ruhne
+	Map.AddDecoObject(420,620,232)	-- 
+	Map.AddDecoObject(359,555,232)	-- 
+	Map.AddDecoObject(518,550,232)	-- 
+	Map.AddDecoObject(458,281,232)	-- 
+	Map.AddDecoObject(543,190,232)	-- 
+	Map.AddDecoObject(268,95,230)	-- Farn
+	Map.AddDecoObject(595,549,230)	-- 
+	Map.AddDecoObject(521,421,230)	-- 
+	Map.AddDecoObject(69,273,230)	-- 
+	
+	if (Game.GetDifficulty() == 0) then		-- easy
+		Settlers.AddSettlers(365,461,1,Settlers.PIONEER,6)
+		Settlers.AddSettlers(381,381,1,Settlers.BOWMAN_03,10)
+		Settlers.AddSettlers(391,381,1,Settlers.SWORDSMAN_03,10)
+	end
+
+	
+	AI.SetPlayerVar(2, "AttackMode", 0, 0, 0)				-- easy, normal, [heavy = obsolete]
+	--AI.SetPlayerVar(2, "AttackDelay", 500, 500, 500) 
+	--AI.SetPlayerVar(2, "SoldierLimitAbsolute", 500, 500, 500)
+	--AI.SetPlayerVar(2, "SoldierLimitRelative", 500, 500, 500)	
+	AI.SetPlayerVar(3, "AttackMode", 0, 0, 0) 
+	--AI.SetPlayerVar(3, "AttackDelay", 190, 150, 135) 
+	--AI.SetPlayerVar(3, "SoldierLimitAbsolute", 150, 300, 450)
+	--AI.SetPlayerVar(3, "SoldierLimitRelative",  80, 100, 120)	
+	AI.SetPlayerVar(4, "AttackMode", 0, 0, 0) 
+	--AI.SetPlayerVar(4, "AttackDelay", 210, 185, 170) 
+	--AI.SetPlayerVar(4, "SoldierLimitAbsolute", 150, 300, 450)
+	--AI.SetPlayerVar(4, "SoldierLimitRelative", 150, 200, 250)	
+	AI.SetPlayerVar(5, "AttackMode", 0, 0, 0) 
+	--AI.SetPlayerVar(5, "AttackDelay", 500, 500, 500) 
+	--AI.SetPlayerVar(5, "SoldierLimitAbsolute", 500, 500, 500)
+	--AI.SetPlayerVar(5, "SoldierLimitRelative", 500, 500, 500)
+	
+	Game.SetFightingStrength(5,150)			-- set Olec to very strong
+	Game.DisableLastNPlayersInStatistic(1)	-- disable Merlin in statistics
+end
+
+function Game.stop_game()
+	unrequest_event(checkSettlerInCircles,Events.TICK)
+	unrequest_event(attackControl,Events.TICK)
+	unrequest_event(sendFerries,Events.TICK)
+end
+
+function register_functions()
+	reg_func(initVar)
+	reg_func(victoryConditionCheck)
+	reg_func(calculateCircles)
+	reg_func(drawCircles1)
+	reg_func(drawCircles2)
+	reg_func(checkSettlerInCircles)
+	reg_func(setStartPos)
+	reg_func(checkLeaderPos1)
+	reg_func(checkLeaderPos2)
+	reg_func(sendFerries)
+	reg_func(attackControl)
+	reg_func(stoneMessage)
+end
+

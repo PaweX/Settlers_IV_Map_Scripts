@@ -1,0 +1,112 @@
+
+-- Check installation script
+
+
+-- CheckFile(Filename, Flags)
+-- CheckFiles(FilenameEx, First, Last, Flags)
+--
+-- Flags:
+-- 
+--  MUST_NOT_EXIST
+--  NOT_INTERNAL
+--  OPTIONAL
+--  PROD_NOT_EXTERNAL
+
+
+-- Config files are checked internally by the program.
+
+
+-- GamaData files...
+
+CheckFile("GameData\\BuildingInfo.xml",    PROD_NOT_EXTERNAL)
+CheckFile("GameData\\BuildingTrigger.xml", PROD_NOT_EXTERNAL)
+CheckFile("GameData\\EffectsInfo.xml",     PROD_NOT_EXTERNAL)
+CheckFile("GameData\\JobInfo.xml",         PROD_NOT_EXTERNAL)
+CheckFile("GameData\\JobSoundList.xml",    PROD_NOT_EXTERNAL)
+CheckFile("GameData\\ObjectInfo.xml",      PROD_NOT_EXTERNAL)
+CheckFile("GameData\\SettlerValues.xml",   PROD_NOT_EXTERNAL)
+CheckFile("GameData\\VehicleInfo.xml",     PROD_NOT_EXTERNAL)
+
+CheckFile("GameData\\map.dat",             PROD_NOT_EXTERNAL)
+
+
+-- Gfx files are checked internally by the program.
+
+
+-- Menu files...
+
+CheckFile("Menu\\GUISetAOStartscreens.dat", PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetMayas.dat",          PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetMDStartscreens.dat", PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetRomans.dat",         PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetStartscreens.dat",   PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetTrojans.dat",        PROD_NOT_EXTERNAL)
+CheckFile("Menu\\GUISetVikings.dat",        PROD_NOT_EXTERNAL)
+
+
+-- Script files...
+
+-- General script files...
+
+CheckFile("Script\\Internal\\StartResources.txt")
+
+-- Original script files...
+
+CheckFiles("Script\\dark%02i.txt",     1, 12, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\maya%02i.txt",     1,  3, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\roman%02i.txt",    1,  3, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\tutorial%02i.txt", 1, 12, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\viking%02i.txt",   1,  3, PROD_NOT_EXTERNAL)
+
+-- MissionCD script files...
+
+CheckFile("Script\\MD_bonus.txt", PROD_NOT_EXTERNAL)
+
+CheckFiles("Script\\MD_conflict%i.txt",  1,  3, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\MD_maya%i.txt",      1,  5, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\MD_roman%i.txt",     1,  5, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\MD_settle%i.txt",    1,  3, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\MD_viking%i.txt",    1,  5, PROD_NOT_EXTERNAL)
+
+CheckFile("Script\\MissionCD\\Singleplayer\\BadSurprise.txt",      PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Bahlum-Kuk.txt",       PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Camelot.txt",          PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Conspiracy.txt",       PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\DarkThunder.txt",      PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Harbour.txt",          PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\LanoEstacado.txt",     PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Limes.txt",            PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\MagicBarbarian.txt",   PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Meteors.txt",          PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Papilion.txt",         PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\SearchOfMjoelnir.txt", PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\SettleDown.txt",       PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Sherwoodforest.txt",   PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\Surrounded.txt",       PROD_NOT_EXTERNAL)
+CheckFile("Script\\MissionCD\\Singleplayer\\TheCross.txt",         PROD_NOT_EXTERNAL)
+
+-- Add On script files...
+
+CheckFiles("Script\\AO_maya%i.txt",      1,  4, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\AO_roman%i.txt",     1,  4, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\AO_settle%i.txt",    1,  4, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\AO_trojan%02i.txt",  1, 12, PROD_NOT_EXTERNAL)
+CheckFiles("Script\\AO_viking%i.txt",    1,  4, PROD_NOT_EXTERNAL)
+
+
+-- Sound files...
+
+CheckFile("Snd\\0.sil")
+CheckFile("Snd\\0.snd")
+
+
+-- Text files...
+
+CheckFile("Txt\\S4_Texts.dat0", PROD_NOT_EXTERNAL)   -- English
+CheckFile("Txt\\S4_Texts.dat1", PROD_NOT_EXTERNAL)   -- German
+
+
+-- Files which should not exists...
+
+CheckFile("Script\\Tutorial.txt",       MUST_NOT_EXIST)
+CheckFile("Script\\StartResources.txt", MUST_NOT_EXIST)

@@ -1,0 +1,63 @@
+--//Meteors
+--//---------------map10
+
+
+function new_game()
+
+--//Anfang Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+     AI.SetPlayerVar(2,"AttackMode",1,1,1)
+     AI.SetPlayerVar(3,"AttackMode",1,1,2)
+     AI.SetPlayerVar(4,"AttackMode",1,1,1)
+     AI.SetPlayerVar(5,"AttackMode",1,2,2)
+     AI.SetPlayerVar(6,"AttackMode",1,2,1)
+     AI.SetPlayerVar(7,"AttackMode",1,2,2)
+
+
+     --//Angriffsfolge//--
+     AI.SetPlayerVar(2,"AttackDelay",90,45,30)
+     AI.SetPlayerVar(3,"AttackDelay",90,45,30)
+     AI.SetPlayerVar(4,"AttackDelay",120,60,45)
+     AI.SetPlayerVar(5,"AttackDelay",180,60,45)
+     AI.SetPlayerVar(6,"AttackDelay",200,90,60)
+     AI.SetPlayerVar(7,"AttackDelay",220,90,60)
+   
+
+     --//Soldatenanzahl//--
+     AI.SetPlayerVar(2,"SoldierLimitAbsolute",20,100,150)
+     AI.SetPlayerVar(2,"SoldierLimitRelative",50,100,150)
+     AI.SetPlayerVar(3,"SoldierLimitAbsolute",20,100,150)
+     AI.SetPlayerVar(3,"SoldierLimitRelative",50,100,150)
+     AI.SetPlayerVar(4,"SoldierLimitAbsolute",100,500,750)
+     AI.SetPlayerVar(4,"SoldierLimitRelative",80,200,250)
+     AI.SetPlayerVar(5,"SoldierLimitAbsolute",100,500,750)
+     AI.SetPlayerVar(5,"SoldierLimitRelative",80,200,250)
+     AI.SetPlayerVar(6,"SoldierLimitAbsolute",120,500,750)
+     AI.SetPlayerVar(6,"SoldierLimitRelative",100,250,300)
+     AI.SetPlayerVar(7,"SoldierLimitAbsolute",120,850,1000)
+     AI.SetPlayerVar(7,"SoldierLimitRelative",100,500,800)
+  
+
+--//Ende Spielereinstellungen//--
+
+
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.HasPlayerLost(2) == 1
+  and Game.HasPlayerLost(3) == 1
+  and Game.HasPlayerLost(4) == 1
+  and Game.HasPlayerLost(7) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end

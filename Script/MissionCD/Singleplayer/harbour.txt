@@ -1,0 +1,32 @@
+--//Habour
+--//map 6
+
+
+function VictoryConditionCheck()
+
+  Game.DefaultPlayersLostCheck()
+
+  if Game.HasPlayerLost(1) == 0
+  	and Buildings.ExistsBuildingInArea(2,Buildings.SHIPYARD,234,111,10,Buildings.READY) == 0 then
+    Game.EnemyPlayersLost(1)
+  end
+
+  Game.DefaultGameEndCheck()
+
+end
+
+function new_game()
+
+	Vehicles.AddVehicle(223,134, 2, Vehicles.WARSHIP, -1,96, 0)
+	Vehicles.AddVehicle(250,151, 2, Vehicles.WARSHIP, -1,96, 0)
+	Vehicles.AddVehicle(256,172, 2, Vehicles.WARSHIP, -1,96, 0)
+	Vehicles.AddVehicle(241,178, 2, Vehicles.WARSHIP, -1,96, 0)
+	Vehicles.AddVehicle(223,128, 2, Vehicles.WARSHIP, -1,96, 0)
+
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+

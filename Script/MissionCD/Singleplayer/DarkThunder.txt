@@ -1,0 +1,33 @@
+--//Dunkler Sturm
+--//--------------map 5
+
+function new_game()
+
+--//Anfang Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+
+     AI.SetPlayerVar(3,"AttackMode",1,2,2)
+     AI.SetPlayerVar(4,"AttackMode",1,2,2)
+
+
+
+     --//Angriffsfolge//--
+
+     AI.SetPlayerVar(3,"AttackDelay",60,30,15)
+     AI.SetPlayerVar(4,"AttackDelay",90,45,30)
+
+   
+
+     --//Soldatenanzahl//--
+
+     AI.SetPlayerVar(3,"SoldierLimitAbsolute",250,500,800)
+     AI.SetPlayerVar(3,"SoldierLimitRelative",100,300,500)
+     AI.SetPlayerVar(4,"SoldierLimitAbsolute",250,600,800)
+     AI.SetPlayerVar(4,"SoldierLimitRelative",100,450,600)
+
+  
+
+--//Ende Spielereinstellungen//--
+
+end

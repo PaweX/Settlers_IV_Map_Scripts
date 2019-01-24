@@ -1,0 +1,20 @@
+--//Sherwoodforest
+--// MAP 15
+
+function new_game()
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.IsAreaOwned(1,405,75,2) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end

@@ -1,0 +1,42 @@
+--//Bad_Surprise
+--//-------------------
+
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.IsAreaOwned(1,758,285,2) == 1
+  and Game.HasPlayerLost(3) == 1
+  and Game.HasPlayerLost(4) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end
+
+function new_game()
+
+--//Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+       AI.SetPlayerVar(2,"AttackMode", 1, 2, 2)
+       AI.SetPlayerVar(3,"AttackMode", 1, 2, 2)
+       AI.SetPlayerVar(4,"AttackMode", 1, 2, 2)
+
+     --//Angriffsfolge//--
+        
+        AI.SetPlayerVar(3,"AttackDelay", 60, 40, 30)
+        AI.SetPlayerVar(4,"AttackDelay", 65, 45, 35)
+
+     AI.SetPlayerVar(3,"SoldierLimitAbsolute", 350,550,700)
+     AI.SetPlayerVar(3,"SoldierLimitRelative", 150, 200,250)
+    AI.SetPlayerVar(4,"SoldierLimitAbsolute", 200, 500, 500)
+     AI.SetPlayerVar(4,"SoldierLimitRelative", 100, 300, 400)
+
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+

@@ -1,0 +1,51 @@
+--//Papilion
+--//-----------Map 11
+
+
+
+function new_game()
+
+--//Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+           AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(2, "AttackDelay", 100, 75, 75) 
+       
+           AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(3, "AttackDelay", 45, 0, 0) 
+
+           AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+           AI.SetPlayerVar(4, "AttackDelay", 90, 70, 70)         
+
+           AI.SetPlayerVar(5, "AttackMode", 1, 1, 1) 
+           AI.SetPlayerVar(5, "AttackDelay", 400, 400, 400) 
+
+         AI.SetPlayerVar(2, "SoldierLimitRelative", 250,400,550)
+         AI.SetPlayerVar(2, "SoldierLimitAbsolute",400,500,500)
+
+         AI.SetPlayerVar(3, "SoldierLimitRelative", 150,500,550)
+         AI.SetPlayerVar(3, "SoldierLimitAbsolute",400,500,500)
+
+         AI.SetPlayerVar(4, "SoldierLimitRelative", 100, 300, 500)
+         AI.SetPlayerVar(4, "SoldierLimitAbsolute", 200, 300, 400)
+
+	  
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.IsAreaOwned(1,491,114,2) == 1
+  and Game.IsAreaOwned(1,296,286,2) == 1
+  and Game.HasPlayerLost(3) == 1
+  and Game.HasPlayerLost(4) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end

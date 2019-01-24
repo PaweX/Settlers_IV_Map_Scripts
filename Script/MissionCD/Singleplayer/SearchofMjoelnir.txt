@@ -1,0 +1,28 @@
+--//SearchOfMjoelnir
+--//------------------map 12
+
+
+function new_game()
+
+--//Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+       AI.SetPlayerVar(2,"AttackMode",2,2,2)
+       AI.SetPlayerVar(3,"AttackMode",1,2,2)
+       AI.SetPlayerVar(4,"AttackMode",0,1,2)
+
+     --//Angriffsfolge//--
+        AI.SetPlayerVar(2,"AttackDelay",90,70,50)
+        AI.SetPlayerVar(3,"AttackDelay",180,90,90)
+
+        AI.SetPlayerVar(2, "SoldierLimitRelative", 250, 300, 400)
+         AI.SetPlayerVar(2, "SoldierLimitAbsolute", 400, 500, 550)
+
+         AI.SetPlayerVar(3, "SoldierLimitRelative", 150, 400, 450)
+         AI.SetPlayerVar(3, "SoldierLimitAbsolute", 400, 500, 500)
+
+         AI.SetPlayerVar(4, "SoldierLimitRelative", 150, 400, 500)
+         AI.SetPlayerVar(4, "SoldierLimitAbsolute", 300, 400, 500)
+
+
+end

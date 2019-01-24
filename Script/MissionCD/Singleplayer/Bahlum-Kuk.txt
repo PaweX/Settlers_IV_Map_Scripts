@@ -1,0 +1,86 @@
+--//Bahlum-Kuk
+--//-------------------
+
+--//NICHT FERTIG
+
+
+--//Erobern Sie ihren Goldschatz zurück! Zerstören Sie dazu die Pyramide der Maya und nehmen Sie den Steinkreis auf der Insel der Toten ein!
+
+
+--//Scripting: Beide Tempel müssen zerstört werden und unter beiden liegt dann Gold (Texte entsprechend geändert).
+
+function InitVar()
+	Vars.Save1 = 1 --//flag for one time attack
+	Vars.Save2 = 1 
+end
+
+
+function TempleCrushCheck()
+	if Buildings.ExistsBuildingInArea(2,Buildings.SMALLTEMPLE,218,319,10,Buildings.READY) == 0
+		and Vars.Save1 == 1 then
+		
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 213,313, 10)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 216,322, 15)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 225,327, 18)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 218,327, 22)
+				
+		Goods.AddPileEx(213,313, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(216,322, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(225,327, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(218,327, Goods.GOLDBAR, 8)
+		Vars.Save1 = 0
+	end
+
+	if Buildings.ExistsBuildingInArea(2,Buildings.BIGTEMPLE,95,277,10,Buildings.READY) == 0
+		and Vars.Save2 == 1 then
+		
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 91,277, 10)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 90,283, 15)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 101,276, 18)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 95,277, 20)
+				
+		Goods.AddPileEx(91,277, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(90,283, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(101,276, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(95,277, Goods.GOLDBAR, 8)
+		Vars.Save2 = 0
+	end
+
+end
+
+
+function VictoryConditionCheck()
+
+	Game.DefaultPlayersLostCheck()
+ 	
+ 	if Game.IsAreaOwned( 1,300,92,10) == 1
+	and Buildings.ExistsBuildingInArea(2,Buildings.BIGTEMPLE,95,277,10,Buildings.READY) == 0
+	and Buildings.ExistsBuildingInArea(2,Buildings.SMALLTEMPLE,218,319,10,Buildings.READY) == 0 then
+			Game.EnemyPlayersLost(1)
+			Game.DefaultGameEndCheck()		
+  	end
+
+	if Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+	
+  
+end
+
+
+
+function new_game()
+
+	--// SetPlayerVaribles //--
+	
+  request_event(TempleCrushCheck, Events.FIVE_TICKS)
+  request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)  
+end
+
+
+function register_functions()
+
+  reg_func(TempleCrushCheck)
+  reg_func(InitVar)
+  
+end

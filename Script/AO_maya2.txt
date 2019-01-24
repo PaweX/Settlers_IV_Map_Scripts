@@ -1,0 +1,167 @@
+--// AO_Maya2
+--//-----------
+x_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+y_int_Circle=0		--// Initialiazing internal X for function EffectCircle
+
+
+function InitVar()
+	
+	Vars.Save2=0 		--// Initialiazing Counter for function EffectCircle
+	Vars.Save1=1		--// flag for Text 
+	Vars.Save3= 1 		--// flag for Text 
+
+end
+
+
+function EffectCross(x,y,speed)
+
+--//X,Y,Geschindigkeit des Effektes
+
+--// Muß in InitVar eingetragen werden
+--//Vars.Save2=0 		--// Initialiazing Counter for function EffectArrow
+--//und das nicht
+--//x_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+--//y_int_Arrow=0		--// Initialiazing internal X for function EffectArrow
+
+--//dbg.pi(i)
+		
+		if (Vars.Save2 >= 0) and (Vars.Save2 <= 20) then
+			x_int_Arrow = x 
+			y_int_Arrow = y +Vars.Save2-18
+			Vars.Save2 = Vars.Save2 + speed
+			Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, x_int_Arrow,y_int_Arrow, 0)
+		end
+		
+		if (Vars.Save2 >= 0) and (Vars.Save2 <= 20) then
+			x_int_Arrow = x -Vars.Save2+10
+			y_int_Arrow = y -Vars.Save2
+			Vars.Save2 = Vars.Save2 + speed
+			Effects.AddEffect(Effects.MAGIC_PILE02, Sounds.NO_SOUND, x_int_Arrow,y_int_Arrow, 0)
+		end
+		
+				
+		if Vars.Save2>=20 then
+			Vars.Save2=0
+		end
+
+end
+
+
+
+function DarkTribeLostCheck()
+
+	if Game.FindAnyUnit(1,177,278,20) == 1 and Vars.Save3 == 1 then
+		--// hier ist eine schatzkarte versteckt
+		Game.ShowText("AO_MAYAN_SCRIPT_TWO_01",177,278)
+		Vars.Save3 = 0
+	end
+
+
+	if Game.IsAreaGreen( 187,270, 25) == 1 
+		--//Game.HasPlayerLost(2) == 1 
+	and Game.IsAreaGreen( 170,288, 8) == 1 then
+		EffectCross(177,287,1)
+
+		
+		if Vars.Save1 == 1 then
+			--//da ist sie
+			Game.ShowText("AO_MAYAN_SCRIPT_TWO_02",177,278)
+			Goods.AddPileEx(177,278, Goods.GOLDBAR, 8)
+			Vars.Save1 = 0
+		end
+
+	end
+
+	
+end
+
+
+function VictoryConditionCheck()
+
+	if Game.IsAreaGreen( 187,270, 25) == 1 
+		--//Game.HasPlayerLost(2) == 1 
+	and Game.IsAreaGreen( 170,288, 8) == 1 then
+
+		Game.EnemyPlayersLost(1) 
+		Game.DefaultGameEndCheck()
+	
+	else
+		Game.DefaultPlayersLostCheck()
+	end
+
+	if 	Game.HasPlayerLost(1) == 1 then
+		Game.DefaultGameEndCheck()
+	end
+
+end
+
+-- -----------------------------------------------------------------------------
+
+function new_game()
+	--// Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(376,132)
+	end
+
+	--//for testing
+	--//Settlers.AddSettlers(181,267,1,Settlers.GARDENER,50)
+	--//Settlers.AddSettlers(181,267,1,Settlers.BOWMAN_03,50)
+
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 30, 30, 10) 
+
+	AI.SetPlayerVar(2, "DTAttackCheckDelay", 10, 5, 1) 
+
+	
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)		
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+	request_event(DarkTribeLostCheck, Events.TICK)
+	
+end
+
+-- -----------------------------------------------------------------------------
+
+function register_functions()
+
+
+reg_func(VictoryConditionCheck)
+reg_func(DarkTribeLostCheck)
+reg_func(InitVar)
+
+end
+
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

@@ -1,0 +1,62 @@
+--//LanoEstacado
+--//---------------------
+
+function InitVar()
+	Vars.Save1 = 1
+
+end
+
+
+function CrossInOwnHand()
+	if Game.IsAreaOwned(1,549,109,10) == 1
+		and Vars.Save1 == 1 then
+		
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 532,116, 10)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 537,120, 15)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 539,126, 18)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 453,125, 22)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 545,121, 10)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 545,132, 15)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 533,124, 18)
+		Effects.AddEffect(Effects.RMAGIC_GIFTOFGOD, Sounds.GIFT, 544,121, 22)
+				
+		Goods.AddPileEx(532,116, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(537,120, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(539,126, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(453,125, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(545,121, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(545,132, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(533,124, Goods.GOLDBAR, 8)
+		Goods.AddPileEx(544,121, Goods.GOLDBAR, 8)
+		Vars.Save1 = 0
+	end
+end
+
+
+function new_game()
+	request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+    request_event(CrossInOwnHand, Events.FIVE_TICKS)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+  reg_func(CrossInOwnHand)
+end
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Buildings.ExistsBuildingInArea(2,Buildings.GUARDTOWERSMALL,176,398,15,Buildings.READY) == 0
+  and Game.IsAreaOwned(1,549,109,10) == 1
+  and Game.HasPlayerLost(2) == 1
+  and Game.HasPlayerLost(3) == 1
+  then
+    Game.EnemyPlayersLost(1)
+	Game.DefaultGameEndCheck()
+  end
+  if Game.HasPlayerLost(1) == 1 then
+	Game.DefaultGameEndCheck()
+  end
+  
+
+end

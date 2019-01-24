@@ -1,0 +1,97 @@
+--// AO_Maya1
+--//-------------------
+
+function InitVar()
+
+	Vars.Save1 = 1
+
+end
+
+function CastleCheck()
+
+--//Show Text if Castel is destroyed
+	if Buildings.ExistsBuildingInArea(3,Buildings.CASTLE,455,82,10,Buildings.READY) == 0 
+	and Vars.Save1 == 1 then
+		Vars.Save1 = 0
+		--// Oh was haben wir hier gefunden, ein Hinweis auf einen Schatz
+		
+		Game.ShowText("AO_MAYAN_SCRIPT_ONE_01",455,82)
+	end
+
+end
+
+
+function new_game()
+
+	--//Create more StartResources for EASY
+	if Game.GetDifficulty() == 0 then
+		CreateMoreStartResourcesEASY(285,336)
+	end
+
+		--// SetPlayerVaribles
+	  --// AttackMode
+	AI.SetPlayerVar(2, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(2, "AttackDelay", 100, 60, 10) 
+	AI.SetPlayerVar(2, "SoldierLimitAbsolute", 100,150,100)
+	AI.SetPlayerVar(2, "SoldierLimitRelative", 90,200,100)
+
+	AI.SetPlayerVar(3, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(3, "AttackDelay", 100, 60, 10) 
+	AI.SetPlayerVar(3, "SoldierLimitAbsolute", 100,150,100)
+	AI.SetPlayerVar(3, "SoldierLimitRelative", 120,200,100)
+
+	AI.SetPlayerVar(4, "AttackMode", 1, 2, 2) 
+	AI.SetPlayerVar(4, "AttackDelay", 100, 60, 10) 
+	AI.SetPlayerVar(4, "SoldierLimitAbsolute", 100,150,100)
+	AI.SetPlayerVar(4, "SoldierLimitRelative", 120,200,100)
+
+
+
+
+	request_event(InitVar,Events.FIRST_TICK_OF_NEW_GAME)	
+	request_event(CastleCheck, Events.FIVE_TICKS)
+
+end
+
+
+function register_functions()
+
+	reg_func(CastleCheck)
+	reg_func(InitVar)
+
+end
+
+function CreateMoreStartResourcesEASY(_X, _Y)
+	
+	--// for function new_game:
+	--// Create more StartResources for EASY
+	--//if Game.GetDifficulty() == 0 then
+	--//	CreateMoreStartResourcesEASY(_X, _Y)
+	--//end
+
+    -- Create piles
+
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   8)
+    Goods.AddPileEx(_X, _Y, Goods.BOARD,   5)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.STONE,   8)
+    Goods.AddPileEx(_X, _Y, Goods.SHOVEL,  8)
+    Goods.AddPileEx(_X, _Y, Goods.HAMMER,  8)
+    Goods.AddPileEx(_X, _Y, Goods.AXE,     3)
+    Goods.AddPileEx(_X, _Y, Goods.PICKAXE, 2)
+    Goods.AddPileEx(_X, _Y, Goods.SAW,     1)
+
+    -- Create settlers
+
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BUILDER,        3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.DIGGER,         3)
+
+    
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SMITH,         2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.MINEWORKER,    2)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.CARRIER,      10)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.SWORDSMAN_01,  4)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.BOWMAN_01,     3)
+    Settlers.AddSettlers(_X, _Y, 1, Settlers.GEOLOGIST,     2)
+            
+end

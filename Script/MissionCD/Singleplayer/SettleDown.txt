@@ -1,0 +1,48 @@
+--//SettleDown
+--//----------------------map 13
+
+
+function new_game()
+
+--//Anfang Spielereinstellungen//--
+
+     --//Angriffsmodi//--
+     AI.SetPlayerVar(2,"AttackMode",1,1,1)
+     AI.SetPlayerVar(3,"AttackMode",1,2,2)
+     AI.SetPlayerVar(4,"AttackMode",1,2,2)
+
+
+     --//Angriffsfolge//--
+     AI.SetPlayerVar(2,"AttackDelay",60,45,30)
+     AI.SetPlayerVar(3,"AttackDelay",110,45,45)
+     AI.SetPlayerVar(4,"AttackDelay",120,60,45)
+   
+
+     --//Soldatenanzahl//--
+     AI.SetPlayerVar(2,"SoldierLimitAbsolute",80,100,400)
+     AI.SetPlayerVar(2,"SoldierLimitRelative",75,110,150)
+     AI.SetPlayerVar(3,"SoldierLimitAbsolute",150,700,900)
+     AI.SetPlayerVar(3,"SoldierLimitRelative",100,400,500)
+     AI.SetPlayerVar(4,"SoldierLimitAbsolute",150,700,900)
+     AI.SetPlayerVar(4,"SoldierLimitRelative",100,400,500)
+  
+
+--//Ende Spielereinstellungen//--
+
+  request_event(VictoryConditionCheck, Events.VICTORY_CONDITION_CHECK)
+end
+
+function register_functions()
+  reg_func(VictoryConditionCheck)
+end
+
+function VictoryConditionCheck()
+  Game.DefaultPlayersLostCheck()
+  if Game.HasPlayerLost(1) == 0
+  and Game.HasPlayerLost(2) == 1
+  and Game.HasPlayerLost(4) == 1
+  then
+    Game.EnemyPlayersLost(1)
+  end
+  Game.DefaultGameEndCheck()
+end
